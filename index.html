@@ -58,18 +58,21 @@ header{position:sticky;top:0;z-index:20;height:62px;background:#fff;border-botto
 .create-duel button{width:100%;border:0;background:0;color:#2563eb;font-weight:bold;padding:8px;font-size:15px}
 
 .duel{margin:10px 12px 18px;border:1px solid #dbe4f0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 5px 18px #0f172a12}
-.duel-head{padding:13px 14px;display:flex;justify-content:space-between;gap:10px}
+.duel-head{padding:13px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .duel-category{background:#eff6ff;color:#2563eb;padding:6px 9px;border-radius:10px;font-size:11px;font-weight:bold}
 .duel-time{color:#94a3b8;font-size:11px}
+.delete-btn{background:#fee2e2;color:#dc2626;border:0;padding:4px 8px;border-radius:8px;font-size:11px;font-weight:bold}
 .duel-title{padding:0 14px 13px;font-size:18px;font-weight:bold}
 
 .duel-options{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 8px 8px}
-.option{border:2px solid #e2e8f0;border-radius:15px;overflow:hidden;background:#f8fafc}
+.option{border:2px solid #e2e8f0;border-radius:15px;overflow:hidden;background:#f8fafc;display:flex;flex-direction:column}
 .option-media{height:205px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .option-media img,.option-media video{width:100%;height:100%;object-fit:cover}
 .option-placeholder{font-size:38px;color:#64748b}
 .option-label{padding:10px 7px;text-align:center;font-weight:bold;font-size:14px;word-break:break-word}
 .vote-button{width:calc(100% - 16px);margin:0 8px 8px;border:0;border-radius:12px;padding:12px;background:#2563eb;color:#fff;font-weight:bold}
+.vote-button.voted{background:#10b981}
+.vote-stats{padding:0 8px 10px;text-align:center;font-size:12px;color:#64748b;font-weight:bold}
 .vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#172033;color:#fff;font-size:13px;font-weight:900;box-shadow:0 4px 15px #0003}
 
 .section-title{padding:20px 15px 8px;font-size:23px;font-weight:900}
@@ -90,7 +93,17 @@ header{position:sticky;top:0;z-index:20;height:62px;background:#fff;border-botto
 .profile-buttons button{flex:1;min-width:120px;border:0;border-radius:10px;padding:11px;background:#eff6ff;color:#1d4ed8}
 .admin-button{width:100%!important;flex-basis:100%;background:#172033!important;color:#fff!important}
 
-.admin-panel{margin-top:15px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff}
+.admin-panel{margin-top:15px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff;text-align:left}
+.user-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #dbe4f0}
+
+/* Чаты */
+.chat-container{display:flex;flex-direction:column;height:calc(100vh - 130px);padding:10px}
+.chat-messages{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0}
+.message-bubble{max-width:75%;padding:10px 14px;border-radius:14px;font-size:14px;word-break:break-word}
+.message-bubble.my{background:#2563eb;color:#fff;align-self:flex-end;border-bottom-right-radius:2px}
+.message-bubble.other{background:#fff;color:#172033;align-self:flex-start;border-bottom-left-radius:2px;border:1px solid #cbd5e1}
+.chat-input-area{display:flex;gap:8px;margin-top:10px}
+.chat-input-area input{flex:1;padding:11px;border:1px solid #cbd5e1;border-radius:11px;outline:0}
 
 nav{position:fixed;bottom:env(safe-area-inset-bottom, 15px);left:50%;transform:translateX(-50%);width:min(630px,95%);height:56px;background:#fff;border:1px solid #dbe4f0;border-radius:16px;display:flex;align-items:center;justify-content:space-around;z-index:50;box-shadow:0 4px 15px #0f172a15}
 nav button{position:relative;flex:1;height:100%;border:0;background:transparent;color:#64748b;font-size:14px}
@@ -109,7 +122,6 @@ nav button.add{flex:0 0 46px;width:46px;height:46px;margin-top:-18px;border-radi
 .image-preview img,.image-preview video{width:100%;height:100%;object-fit:cover}
 .secondary{width:100%;padding:12px;margin-top:8px;border:0;border-radius:12px;background:#f1f5f9;color:#334155}
 .empty{text-align:center;padding:35px 15px;color:#64748b}
-.media-help{font-size:11px;color:#64748b;margin:4px 2px 8px}
 </style>
 </head>
 
@@ -174,14 +186,14 @@ nav button.add{flex:0 0 46px;width:46px;height:46px;margin-top:-18px;border-radi
 </div>
 
 <div class="categories">
-<button class="category-btn active" data-category="all" onclick="selectCategory('all',this)" data-i18n="catAll">Все</button>
-<button class="category-btn" data-category="Фильмы" onclick="selectCategory('Фильмы',this)" data-i18n="catMovies">Фильмы</button>
-<button class="category-btn" data-category="Музыка" onclick="selectCategory('Музыка',this)" data-i18n="catMusic">Музыка</button>
-<button class="category-btn" data-category="Игры" onclick="selectCategory('Игры',this)" data-i18n="catGames">Игры</button>
-<button class="category-btn" data-category="Спорт" onclick="selectCategory('Спорт',this)" data-i18n="catSport">Спорт</button>
-<button class="category-btn" data-category="Мемы" onclick="selectCategory('Мемы',this)" data-i18n="catMemes">Мемы</button>
-<button class="category-btn" data-category="Авто" onclick="selectCategory('Авто',this)" data-i18n="catAuto">Авто</button>
-<button class="category-btn" data-category="Другое" onclick="selectCategory('Другое',this)" data-i18n="catOther">Другое</button>
+<button class="category-btn active" data-category="all" onclick="selectCategory('all',this)">Все</button>
+<button class="category-btn" data-category="Фильмы" onclick="selectCategory('Фильмы',this)">Фильмы</button>
+<button class="category-btn" data-category="Музыка" onclick="selectCategory('Музыка',this)">Музыка</button>
+<button class="category-btn" data-category="Игры" onclick="selectCategory('Игры',this)">Игры</button>
+<button class="category-btn" data-category="Спорт" onclick="selectCategory('Спорт',this)">Спорт</button>
+<button class="category-btn" data-category="Мемы" onclick="selectCategory('Мемы',this)">Мемы</button>
+<button class="category-btn" data-category="Авто" onclick="selectCategory('Авто',this)">Авто</button>
+<button class="category-btn" data-category="Другое" onclick="selectCategory('Другое',this)">Другое</button>
 </div>
 
 <div class="create-duel">
@@ -189,35 +201,18 @@ nav button.add{flex:0 0 46px;width:46px;height:46px;margin-top:-18px;border-radi
 </div>
 
 <div id="duelsFeed">
-<div class="status" id="duelsStatus"></div>
+<div class="status">Загрузка батлов...</div>
 </div>
-</div>
-
-<div id="topScreen" class="screen">
-<div id="topTitle" class="section-title"></div>
-<div class="top-tabs">
-<button class="top-tab active" onclick="loadTop('all',this)" data-i18n="catAll">Все</button>
-</div>
-<div id="topList"></div>
-</div>
-
-<div id="searchScreen" class="screen">
-<div class="search-box" style="padding:15px">
-<input id="searchInput" placeholder="Поиск...">
-</div>
-<div id="searchResults"></div>
-</div>
-
-<div id="notificationsScreen" class="screen">
-<div id="notificationsTitle" class="section-title"></div>
-<div id="notificationsText" class="empty"></div>
 </div>
 
 <div id="chatScreen" class="screen">
-<div class="section-title">✉️ <span data-i18n="privateMessages"></span></div>
-<div id="privateChatList">
-<button id="newMessageButton" class="new-message-button" type="button" onclick="openNewMessageModal()"></button>
-<div id="conversationList"></div>
+<div class="section-title">💬 Общий чат</div>
+<div class="chat-container">
+<div id="globalChatMessages" class="chat-messages"></div>
+<div class="chat-input-area">
+<input id="globalChatInput" placeholder="Написать в чат...">
+<button class="primary" style="width:90px;margin-top:0" onclick="sendGlobalMessage()">Отправить</button>
+</div>
 </div>
 </div>
 
@@ -230,104 +225,97 @@ nav button.add{flex:0 0 46px;width:46px;height:46px;margin-top:-18px;border-radi
 <div id="profileBio" class="profile-bio"></div>
 
 <div class="profile-stats">
-<div class="stat"><span id="myDuelsCount" class="stat-number">0</span><span id="myDuelsLabel" class="stat-label"></span></div>
-<div class="stat"><span id="myFollowersCount" class="stat-number">0</span><span id="myFollowersLabel" class="stat-label"></span></div>
-<div class="stat"><span id="myFollowingCount" class="stat-number">0</span><span id="myFollowingLabel" class="stat-label"></span></div>
+<div class="stat"><span id="myDuelsCount" class="stat-number">0</span><span class="stat-label">Батлы</span></div>
+<div class="stat"><span id="myFollowersCount" class="stat-number">0</span><span class="stat-label">Подписчики</span></div>
 </div>
 
 <div class="profile-buttons">
-<button id="editProfileButton" type="button" onclick="openEditProfile()"></button>
-<button id="logoutButton" type="button" onclick="logout()"></button>
-<button id="adminButton" class="admin-button hidden" type="button" onclick="openAdminPanel()"></button>
+<button id="editProfileButton" type="button" onclick="openEditProfile()">Редактировать</button>
+<button id="logoutButton" type="button" onclick="logout()">Выйти</button>
+<button id="adminButton" class="admin-button hidden" type="button" onclick="openAdminPanel()">Панель Администратора</button>
 </div>
 
 <div id="adminPanel" class="admin-panel hidden">
-<h3 id="adminTitle">Админ-панель</h3>
-<div id="adminContent"></div>
+<h3>🛠️ Панель Администратора</h3>
+<p style="font-size:12px;color:#64748b;margin:6px 0 12px">Вы можете удалять любые батлы и пользователей.</p>
+<div id="adminUsersList"></div>
 </div>
 </div>
-
-<h3 id="myDuelsTitle" style="margin:18px 0 10px"></h3>
-<div id="myDuels"></div>
 </div>
 </div>
 
 <nav>
-<button type="button" onclick="showScreen('homeScreen')">⚔️<br><span data-nav="arena"></span></button>
-<button type="button" onclick="showScreen('searchScreen')">🔍<br><span data-nav="search"></span></button>
+<button type="button" onclick="showScreen('homeScreen')">⚔️<br><span>Арена</span></button>
 <button class="add" type="button" onclick="openDuelModal()">＋</button>
-<button type="button" onclick="openChat()">💬<span id="chatUnreadBadge" class="nav-unread">0</span><br><span data-nav="chat"></span></button>
-<button type="button" onclick="showProfile()">👤<br><span data-nav="profile"></span></button>
+<button type="button" onclick="showScreen('chatScreen')">💬<br><span>Чат</span></button>
+<button type="button" onclick="showProfile()">👤<br><span>Профиль</span></button>
 </nav>
 
 </div>
 
 <div id="duelModal" class="modal">
 <div class="modal-box">
-<h2 id="duelModalTitle"></h2>
-<input id="duelTitle" data-placeholder="duelTitlePlaceholder" placeholder="Тема батла...">
+<h2 id="duelModalTitle">Создать батл</h2>
+<input id="duelTitle" placeholder="Тема батла...">
 
 <select id="duelCategory">
-<option value="Фильмы" data-i18n="catMovies">🎬 Фильмы</option>
-<option value="Музыка" data-i18n="catMusic">🎵 Музыка</option>
-<option value="Игры" data-i18n="catGames">🎮 Игры</option>
-<option value="Спорт" data-i18n="catSport">⚽ Спорт</option>
-<option value="Мемы" data-i18n="catMemes">😂 Мемы</option>
-<option value="Авто" data-i18n="catAuto">🚗 Авто</option>
-<option value="Другое" data-i18n="catOther">✨ Другое</option>
+<option value="Фильмы">🎬 Фильмы</option>
+<option value="Музыка">🎵 Музыка</option>
+<option value="Игры">🎮 Игры</option>
+<option value="Спорт">⚽ Спорт</option>
+<option value="Мемы">😂 Мемы</option>
+<option value="Авто">🚗 Авто</option>
+<option value="Другое">✨ Другое</option>
 </select>
 
 <select id="duelType" onchange="toggleDuelType()">
-<option value="photo" data-i18n="typePhoto">🖼️ Фото-батл</option>
-<option value="video" data-i18n="typeVideo">🎥 Видео-батл</option>
+<option value="photo">🖼️ Фото-батл</option>
+<option value="video">🎥 Видео-батл</option>
+</select>
+
+<select id="duelDuration">
+<option value="24">⏳ Голосование: 24 часа</option>
+<option value="48">⏳ Голосование: 48 часов</option>
+<option value="72">⏳ Голосование: 72 часа</option>
 </select>
 
 <div id="photoFields">
-<input id="duelOptionA" data-placeholder="participantAPlaceholder" placeholder="Участник А">
-<label class="photo-button"><span id="photoAText"></span><input id="duelImageA" type="file" accept="image/png, image/jpeg, image/jpg" onchange="previewDuelMedia('A',event)"></label>
+<input id="duelOptionA" placeholder="Участник А">
+<label class="photo-button"><span id="photoAText">🖼️ Выбрать фото А из галереи</span><input id="duelImageA" type="file" accept="image/png, image/jpeg, image/jpg" onchange="previewDuelMedia('A',event)"></label>
 <div id="previewA" class="image-preview hidden"></div>
 
-<input id="duelOptionB" data-placeholder="participantBPlaceholder" placeholder="Участник Б">
-<label class="photo-button"><span id="photoBText"></span><input id="duelImageB" type="file" accept="image/png, image/jpeg, image/jpg" onchange="previewDuelMedia('B',event)"></label>
+<input id="duelOptionB" placeholder="Участник Б">
+<label class="photo-button"><span id="photoBText">🖼️ Выбрать фото Б из галереи</span><input id="duelImageB" type="file" accept="image/png, image/jpeg, image/jpg" onchange="previewDuelMedia('B',event)"></label>
 <div id="previewB" class="image-preview hidden"></div>
 </div>
 
 <div id="videoFields" class="hidden">
-<input id="duelVideoOptionA" data-placeholder="participantAPlaceholder" placeholder="Участник А">
-<label class="photo-button"><span id="videoAText"></span><input id="duelVideoA" type="file" accept="video/mp4, video/quicktime, video/*" onchange="previewDuelMedia('videoA',event)"></label>
+<input id="duelVideoOptionA" placeholder="Участник А">
+<label class="photo-button"><span id="videoAText">🎥 Выбрать видео А из галереи</span><input id="duelVideoA" type="file" accept="video/mp4, video/quicktime, video/*" onchange="previewDuelMedia('videoA',event)"></label>
 <div id="previewVideoA" class="image-preview hidden"></div>
 
-<input id="duelVideoOptionB" data-placeholder="participantBPlaceholder" placeholder="Участник Б">
-<label class="photo-button"><span id="videoBText"></span><input id="duelVideoB" type="file" accept="video/mp4, video/quicktime, video/*" onchange="previewDuelMedia('videoB',event)"></label>
+<input id="duelVideoOptionB" placeholder="Участник Б">
+<label class="photo-button"><span id="videoBText">🎥 Выбрать видео Б из галереи</span><input id="duelVideoB" type="file" accept="video/mp4, video/quicktime, video/*" onchange="previewDuelMedia('videoB',event)"></label>
 <div id="previewVideoB" class="image-preview hidden"></div>
 </div>
 
-<button id="duelSubmitButton" class="primary" type="button" onclick="createDuel()"></button>
-<button id="duelCancelButton" class="secondary" type="button" onclick="closeModal('duelModal')"></button>
+<button id="duelSubmitButton" class="primary" type="button" onclick="createDuel()">Опубликовать батл</button>
+<button class="secondary" type="button" onclick="closeModal('duelModal')">Отмена</button>
 <div id="duelStatus" class="status"></div>
 </div>
 </div>
 
 <div id="editModal" class="modal">
 <div class="modal-box">
-<h2 id="editProfileTitle"></h2>
-<label class="photo-button"><span id="avatarText"></span><input id="avatarInput" type="file" accept="image/png, image/jpeg, image/jpg" onchange="previewAvatar(event)"></label>
+<h2>Редактировать профиль</h2>
+<label class="photo-button"><span>📷 Изменить аватар</span><input id="avatarInput" type="file" accept="image/png, image/jpeg, image/jpg" onchange="previewAvatar(event)"></label>
 <div id="previewAvatarContainer" class="image-preview hidden" style="height:90px;width:90px;border-radius:50%;margin:auto"></div>
 <input id="editName" placeholder="Имя">
 <input id="editUsername" placeholder="Юзернейм">
 <textarea id="editBio" placeholder="О себе"></textarea>
-<button id="saveProfileButton" class="primary" type="button" onclick="saveProfile()"></button>
-<button id="editCancelButton" class="secondary" type="button" onclick="closeModal('editModal')"></button>
+<button class="primary" type="button" onclick="saveProfile()">Сохранить</button>
+<button class="secondary" type="button" onclick="closeModal('editModal')">Отмена</button>
 <div id="profileStatus" class="status"></div>
-</div>
-</div>
-
-<div id="newMessageModal" class="modal">
-<div class="modal-box">
-<h2 id="newMessageTitle"></h2>
-<input id="messageUserSearch" placeholder="Поиск пользователя...">
-<div id="messageUserResults"></div>
-<button id="messageCancelButton" class="secondary" type="button" onclick="closeModal('newMessageModal')"></button>
 </div>
 </div>
 
@@ -345,90 +333,18 @@ let currentProfile = null;
 let currentCategory = "all";
 let language = localStorage.getItem("arena_language") || "ru";
 
-let mediaFiles = {
-  imageA: null,
-  imageB: null,
-  videoA: null,
-  videoB: null,
-  avatar: null
-};
+let mediaFiles = { imageA: null, imageB: null, videoA: null, videoB: null, avatar: null };
 
 const translations = {
-  ru: {
-    arena: "Арена", search: "Поиск", chat: "Чаты", profile: "Профиль",
-    arenaTitle: "⚔️ Батлы на Арене", arenaSubtitle: "Голосуй за лучших, создавай свои батлы",
-    createDuel: "➕ Создать новый батл", authSubtitle: "Войдите или зарегистрируйтесь",
-    loginBtn: "Войти", registerBtn: "Создать аккаунт", toRegister: "Нет аккаунта? Зарегистрироваться",
-    toLogin: "Уже есть аккаунт? Войти", myDuels: "Мои батлы", followers: "Подписчики",
-    following: "Подписки", editProfile: "Редактировать профиль", logout: "Выйти",
-    adminPanel: "Админ-панель", privateMessages: "Личные сообщения", newMessage: "Новое сообщение",
-    cancel: "Отмена", save: "Сохранить", submitDuel: "Опубликовать батл",
-    selectPhotoA: "🖼️ Выбрать фото А из галереи", selectPhotoB: "🖼️ Выбрать фото Б из галереи",
-    selectVideoA: "🎥 Выбрать видео А из галереи", selectVideoB: "🎥 Выбрать видео Б из галереи",
-    changeAvatar: "📷 Изменить аватар", searchPlaceholder: "Поиск...", noDuels: "Батлов пока нет",
-    notifications: "Уведомления", topTitle: "🏆 Лидеры",
-    catAll: "Все", catMovies: "Фильмы", catMusic: "Музыка", catGames: "Игры",
-    catSport: "Спорт", catMemes: "Мемы", catAuto: "Авто", catOther: "Другое",
-    typePhoto: "🖼️ Фото-батл", typeVideo: "🎥 Видео-батл",
-    duelTitlePlaceholder: "Тема батла...",
-    participantAPlaceholder: "Участник А",
-    participantBPlaceholder: "Участник Б"
-  },
-  ro: {
-    arena: "Arenă", search: "Căutare", chat: "Chat", profile: "Profil",
-    arenaTitle: "⚔️ Bătălii în Arenă", arenaSubtitle: "Votează cei mai buni",
-    createDuel: "➕ Creează o bătălie", authSubtitle: "Autentifică-te sau înregistrează-te",
-    loginBtn: "Autentificare", registerBtn: "Înregistrare", toRegister: "Nu ai cont? Înregistrează-te",
-    toLogin: "Ai deja cont? Autentifică-te", myDuels: "Bătăliile mele", followers: "Urmăritori",
-    following: "Urmăriți", editProfile: "Editează profilul", logout: "Ieșire",
-    adminPanel: "Panou admin", privateMessages: "Mesaje private", newMessage: "Mesaj nou",
-    cancel: "Anulare", save: "Salvează", submitDuel: "Publică bătălia",
-    selectPhotoA: "🖼️ Alege foto A din galerie", selectPhotoB: "🖼️ Alege foto B din galerie",
-    selectVideoA: "🎥 Alege video A din galerie", selectVideoB: "🎥 Alege video B din galerie",
-    changeAvatar: "📷 Schimbă avatarul", searchPlaceholder: "Caută...", noDuels: "Nu există bătălii",
-    notifications: "Notificări", topTitle: "🏆 Clasament",
-    catAll: "Toate", catMovies: "Filme", catMusic: "Muzică", catGames: "Jocuri",
-    catSport: "Sport", catMemes: "Meme", catAuto: "Auto", catOther: "Altele",
-    typePhoto: "🖼️ Bătălie foto", typeVideo: "🎥 Bătălie video",
-    duelTitlePlaceholder: "Tema bătăliei...",
-    participantAPlaceholder: "Participant A",
-    participantBPlaceholder: "Participant B"
-  },
-  en: {
-    arena: "Arena", search: "Search", chat: "Chats", profile: "Profile",
-    arenaTitle: "⚔️ Arena Battles", arenaSubtitle: "Vote for the best",
-    createDuel: "Create New Battle", authSubtitle: "Sign in or register",
-    loginBtn: "Sign In", registerBtn: "Register", toRegister: "No account? Register",
-    toLogin: "Already have an account? Sign In", myDuels: "My Battles", followers: "Followers",
-    following: "Following", editProfile: "Edit Profile", logout: "Log Out",
-    adminPanel: "Admin Panel", privateMessages: "Direct Messages", newMessage: "New Message",
-    cancel: "Cancel", save: "Save", submitDuel: "Publish Battle",
-    selectPhotoA: "🖼️ Select Photo A from Gallery", selectPhotoB: "🖼️ Select Photo B from Gallery",
-    selectVideoA: "🎥 Select Video A from Gallery", selectVideoB: "🎥 Select Video B from Gallery",
-    changeAvatar: "Change Avatar", searchPlaceholder: "Search...", noDuels: "No battles yet",
-    notifications: "Notifications", topTitle: "🏆 Leaderboard",
-    catAll: "All", catMovies: "Movies", catMusic: "Music", catGames: "Games",
-    catSport: "Sport", catMemes: "Memes", catAuto: "Auto", catOther: "Other",
-    typePhoto: "🖼️ Photo Battle", typeVideo: "🎥 Video Battle",
-    duelTitlePlaceholder: "Battle topic...",
-    participantAPlaceholder: "Participant A",
-    participantBPlaceholder: "Participant B"
-  }
+  ru: { arenaTitle: "⚔️ Батлы на Арене", arenaSubtitle: "Голосуй за лучших, создавай свои батлы", createDuel: "➕ Создать новый батл", authSubtitle: "Войдите или зарегистрируйтесь", loginBtn: "Войти", registerBtn: "Создать аккаунт", toRegister: "Нет аккаунта? Зарегистрироваться", toLogin: "Уже есть аккаунт? Войти" },
+  ro: { arenaTitle: "⚔️ Bătălii în Arenă", arenaSubtitle: "Votează cei mai buni", createDuel: "➕ Creează o bătălie", authSubtitle: "Autentifică-te sau înregistrează-te", loginBtn: "Autentificare", registerBtn: "Înregistrare", toRegister: "Nu ai cont? Înregistrează-te", toLogin: "Ai deja cont? Autentifică-te" },
+  en: { arenaTitle: "⚔️ Arena Battles", arenaSubtitle: "Vote for the best", createDuel: "Create New Battle", authSubtitle: "Sign in or register", loginBtn: "Sign In", registerBtn: "Register", toRegister: "No account? Register", toLogin: "Already have an account? Sign In" }
 };
 
 const $ = id => document.getElementById(id);
 
 function applyLanguage() {
   const t = translations[language] || translations.ru;
-  document.querySelectorAll("[data-nav]").forEach(el => {
-    const key = el.getAttribute("data-nav");
-    if (t[key]) el.textContent = t[key];
-  });
-  document.querySelectorAll("[data-i18n]").forEach(el => {
-    const key = el.getAttribute("data-i18n");
-    if (t[key]) el.textContent = t[key];
-  });
-
   if ($("arenaTitle")) $("arenaTitle").textContent = t.arenaTitle;
   if ($("arenaSubtitle")) $("arenaSubtitle").textContent = t.arenaSubtitle;
   if ($("createDuelButton")) $("createDuelButton").textContent = t.createDuel;
@@ -437,34 +353,6 @@ function applyLanguage() {
   if ($("registerButton")) $("registerButton").textContent = t.registerBtn;
   if ($("registerSwitch")) $("registerSwitch").textContent = t.toRegister;
   if ($("loginSwitch")) $("loginSwitch").textContent = t.toLogin;
-  if ($("myDuelsLabel")) $("myDuelsLabel").textContent = t.myDuels;
-  if ($("myFollowersLabel")) $("myFollowersLabel").textContent = t.followers;
-  if ($("myFollowingLabel")) $("myFollowingLabel").textContent = t.following;
-  if ($("editProfileButton")) $("editProfileButton").textContent = t.editProfile;
-  if ($("logoutButton")) $("logoutButton").textContent = t.logout;
-  if ($("adminButton")) $("adminButton").textContent = t.adminPanel;
-  if ($("newMessageButton")) $("newMessageButton").textContent = t.newMessage;
-  if ($("duelModalTitle")) $("duelModalTitle").textContent = t.createDuel;
-  if ($("duelSubmitButton")) $("duelSubmitButton").textContent = t.submitDuel;
-  if ($("duelCancelButton")) $("duelCancelButton").textContent = t.cancel;
-  if ($("editProfileTitle")) $("editProfileTitle").textContent = t.editProfile;
-  if ($("saveProfileButton")) $("saveProfileButton").textContent = t.save;
-  if ($("editCancelButton")) $("editCancelButton").textContent = t.cancel;
-  if ($("newMessageTitle")) $("newMessageTitle").textContent = t.newMessage;
-  if ($("messageCancelButton")) $("messageCancelButton").textContent = t.cancel;
-  if ($("photoAText")) $("photoAText").textContent = t.selectPhotoA;
-  if ($("photoBText")) $("photoBText").textContent = t.selectPhotoB;
-  if ($("videoAText")) $("videoAText").textContent = t.selectVideoA;
-  if ($("videoBText")) $("videoBText").textContent = t.selectVideoB;
-  if ($("avatarText")) $("avatarText").textContent = t.changeAvatar;
-  if ($("searchInput")) $("searchInput").placeholder = t.searchPlaceholder;
-  if ($("topTitle")) $("topTitle").textContent = t.topTitle;
-
-  if ($("duelTitle")) $("duelTitle").placeholder = t.duelTitlePlaceholder;
-  if ($("duelOptionA")) $("duelOptionA").placeholder = t.participantAPlaceholder;
-  if ($("duelOptionB")) $("duelOptionB").placeholder = t.participantBPlaceholder;
-  if ($("duelVideoOptionA")) $("duelVideoOptionA").placeholder = t.participantAPlaceholder;
-  if ($("duelVideoOptionB")) $("duelVideoOptionB").placeholder = t.participantBPlaceholder;
 }
 
 function changeLanguage(lang) {
@@ -479,23 +367,15 @@ function togglePassword(id, btn) {
   else { input.type = "password"; btn.textContent = "👁️"; }
 }
 
-function showRegister() {
-  $("loginBox").classList.add("hidden");
-  $("registerBox").classList.remove("hidden");
-  $("authStatus").textContent = "";
-}
-
-function showLogin() {
-  $("registerBox").classList.add("hidden");
-  $("loginBox").classList.remove("hidden");
-  $("authStatus").textContent = "";
-}
+function showRegister() { $("loginBox").classList.add("hidden"); $("registerBox").classList.remove("hidden"); $("authStatus").textContent = ""; }
+function showLogin() { $("registerBox").classList.add("hidden"); $("loginBox").classList.remove("hidden"); $("authStatus").textContent = ""; }
 
 function showScreen(screenId) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const target = $(screenId);
   if (target) target.classList.add("active");
   window.scrollTo(0, 0);
+  if (screenId === "chatScreen") loadGlobalChat();
 }
 
 function closeModal(modalId) { $(modalId).classList.remove("show"); }
@@ -577,7 +457,10 @@ async function loadProfile() {
     if ($("profileName")) $("profileName").textContent = data.name || "User";
     if ($("profileUsername")) $("profileUsername").textContent = "@" + (data.username || "arena");
     if ($("profileBio")) $("profileBio").textContent = data.bio || "";
-    if (data.is_admin && $("adminButton")) $("adminButton").classList.remove("hidden");
+    if (data.is_admin && $("adminButton")) {
+      $("adminButton").classList.remove("hidden");
+      loadAdminPanelUsers();
+    }
   }
 }
 
@@ -607,34 +490,45 @@ async function loadDuels() {
     let mediaB = `<div class="option-placeholder">🖼️</div>`;
     
     if (duel.media_type === "video") {
-      if (duel.image_a) mediaA = `<video src="${duel.image_a}" controls muted></video>`;
-      if (duel.image_b) mediaB = `<video src="${duel.image_b}" controls muted></video>`;
+      if (duel.image_a) mediaA = `<video src="${duel.image_a}" controls playsinline></video>`;
+      if (duel.image_b) mediaB = `<video src="${duel.image_b}" controls playsinline></video>`;
     } else {
       if (duel.image_a) mediaA = `<img src="${duel.image_a}" alt="A">`;
       if (duel.image_b) mediaB = `<img src="${duel.image_b}" alt="B">`;
     }
 
+    const votesA = duel.votes_a || 0;
+    const votesB = duel.votes_b || 0;
+    const totalVotes = votesA + votesB;
+    const percentA = totalVotes > 0 ? Math.round((votesA / totalVotes) * 100) : 0;
+    const percentB = totalVotes > 0 ? Math.round((votesB / totalVotes) * 100) : 0;
+
+    const canDelete = currentProfile?.is_admin || duel.user_id === currentUser.id;
+
     return `
       <div class="duel" id="duel-${duel.id}">
         <div class="duel-head">
           <span class="duel-category">${duel.category}</span>
-          <span class="duel-time">${new Date(duel.created_at).toLocaleDateString()}</span>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="duel-time">⏳ до ${new Date(new Date(duel.created_at).getTime() + (duel.duration_hours || 24)*3600000).toLocaleString([], {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span>
+            ${canDelete ? `<button class="delete-btn" onclick="deleteDuel('${duel.id}')">Удалить</button>` : ''}
+          </div>
         </div>
         <div class="duel-title">${duel.title}</div>
         <div class="duel-options">
           <div class="option">
             <div class="option-media">${mediaA}</div>
             <div class="option-label">${duel.option_a}</div>
+            <div class="vote-stats">${votesA} голос. (${percentA}%)</div>
+            <button class="vote-button" onclick="voteDuel('${duel.id}', 'A')">Голос за A</button>
           </div>
           <div class="vs">VS</div>
           <div class="option">
             <div class="option-media">${mediaB}</div>
             <div class="option-label">${duel.option_b}</div>
+            <div class="vote-stats">${votesB} голос. (${percentB}%)</div>
+            <button class="vote-button" onclick="voteDuel('${duel.id}', 'B')">Голос за B</button>
           </div>
-        </div>
-        <div style="padding: 10px 14px; display:flex; gap:10px;">
-          <button class="vote-button" onclick="voteDuel('${duel.id}', 'A')">Голос за A (${duel.votes_a || 0})</button>
-          <button class="vote-button" onclick="voteDuel('${duel.id}', 'B')">Голос за B (${duel.votes_b || 0})</button>
         </div>
       </div>
     `;
@@ -642,7 +536,21 @@ async function loadDuels() {
 }
 
 async function voteDuel(duelId, option) {
-  alert(`Голос за вариант ${option} принят!`);
+  const { data: duel, error } = await db.from("duels").select("*").eq("id", duelId).single();
+  if (error || !duel) return;
+
+  const updateData = option === 'A' ? { votes_a: (duel.votes_a || 0) + 1 } : { votes_b: (duel.votes_b || 0) + 1 };
+  
+  const { error: updateError } = await db.from("duels").update(updateData).eq("id", duelId);
+  if (!updateError) {
+    loadDuels();
+  }
+}
+
+async function deleteDuel(duelId) {
+  if (!confirm("Удалить этот батл?")) return;
+  const { error } = await db.from("duels").delete().eq("id", duelId);
+  if (!error) loadDuels();
 }
 
 function openDuelModal() { openModal("duelModal"); }
@@ -699,7 +607,7 @@ function previewAvatar(event) {
 async function uploadFileToSupabase(file, folder) {
   if (!file) return null;
   const fileName = `${currentUser.id}_${Date.now()}_${file.name}`;
-  const { data, error } = await db.storage.from("arena-media").upload(`${folder}/${fileName}`, file);
+  const { error } = await db.storage.from("arena-media").upload(`${folder}/${fileName}`, file);
   if (error) {
     console.error("Upload error:", error);
     return null;
@@ -712,6 +620,7 @@ async function createDuel() {
   const title = $("duelTitle").value.trim();
   const category = $("duelCategory").value;
   const type = $("duelType").value;
+  const duration = parseInt($("duelDuration").value);
   
   let optionA = "";
   let optionB = "";
@@ -731,14 +640,26 @@ async function createDuel() {
   }
 
   if (!title || !optionA || !optionB) {
-    $("duelStatus").textContent = "Заполните все поля!";
+    $("duelStatus").textContent = "Заполните все текстовые поля!";
     return;
   }
 
-  $("duelStatus").textContent = "Загрузка медиа и создание батла...";
+  if (!fileA || !fileB) {
+    $("duelStatus").textContent = "Выберите оба файла!";
+    return;
+  }
+
+  $("duelStatus").textContent = "Загрузка медиа...";
 
   let urlA = await uploadFileToSupabase(fileA, "duels");
   let urlB = await uploadFileToSupabase(fileB, "duels");
+
+  if (!urlA || !urlB) {
+    $("duelStatus").textContent = "Ошибка загрузки файлов.";
+    return;
+  }
+
+  $("duelStatus").textContent = "Публикация...";
 
   const { error } = await db.from("duels").insert({
     title, 
@@ -748,6 +669,7 @@ async function createDuel() {
     image_a: urlA,
     image_b: urlB,
     media_type: type,
+    duration_hours: duration,
     user_id: currentUser.id, 
     votes_a: 0, 
     votes_b: 0
@@ -763,10 +685,7 @@ async function createDuel() {
     $("duelOptionB").value = "";
     $("duelVideoOptionA").value = "";
     $("duelVideoOptionB").value = "";
-    mediaFiles.imageA = null;
-    mediaFiles.imageB = null;
-    mediaFiles.videoA = null;
-    mediaFiles.videoB = null;
+    mediaFiles = { imageA: null, imageB: null, videoA: null, videoB: null, avatar: null };
     $("previewA").classList.add("hidden");
     $("previewB").classList.add("hidden");
     $("previewVideoA").classList.add("hidden");
@@ -775,7 +694,76 @@ async function createDuel() {
   }
 }
 
-function openChat() { showScreen("chatScreen"); }
+/* Общий чат */
+async function loadGlobalChat() {
+  const container = $("globalChatMessages");
+  if (!container) return;
+  
+  const { data, error } = await db.from("messages").select("*, profiles(name)").order("created_at", { ascending: true }).limit(50);
+  if (error || !data) {
+    container.innerHTML = `<div class="empty">Нет сообщений</div>`;
+    return;
+  }
+
+  container.innerHTML = data.map(msg => {
+    const isMy = msg.user_id === currentUser.id;
+    const name = msg.profiles?.name || "Участник";
+    return `
+      <div class="message-bubble ${isMy ? 'my' : 'other'}">
+        <div style="font-size:10px;font-weight:bold;margin-bottom:2px;opacity:0.8">${isMy ? 'Вы' : name}</div>
+        <div>${msg.text}</div>
+      </div>
+    `;
+  }).join("");
+  container.scrollTop = container.scrollHeight;
+}
+
+async function sendGlobalMessage() {
+  const input = $("globalChatInput");
+  const text = input.value.trim();
+  if (!text) return;
+
+  const { error } = await db.from("messages").insert({
+    text,
+    user_id: currentUser.id
+  });
+
+  if (!error) {
+    input.value = "";
+    loadGlobalChat();
+  }
+}
+
+/* Админ-панель */
+async function loadAdminPanelUsers() {
+  const container = $("adminUsersList");
+  if (!container) return;
+
+  const { data, error } = await db.from("profiles").select("*").order("name");
+  if (error || !data) return;
+
+  container.innerHTML = data.map(u => `
+    <div class="user-row">
+      <div>
+        <strong>${u.name || "Без имени"}</strong> <span style="color:#64748b">(@${u.username || 'arena'})</span>
+      </div>
+      ${u.id !== currentUser.id ? `<button class="delete-btn" onclick="deleteUser('${u.id}')">Удалить участника</button>` : '<span style="font-size:11px;color:#2563eb">Вы</span>'}
+    </div>
+  `).join("");
+}
+
+async function deleteUser(userId) {
+  if (!confirm("Удалить этого участника и все его данные?")) return;
+  // Сначала удаляем его батлы
+  await db.from("duels").delete().eq("user_id", userId);
+  // Затем профиль
+  const { error } = await db.from("profiles").delete().eq("id", userId);
+  if (!error) {
+    loadAdminPanelUsers();
+    loadDuels();
+  }
+}
+
 function showProfile() { showScreen("profileScreen"); }
 function openEditProfile() {
   openModal("editModal");
@@ -811,11 +799,6 @@ async function saveProfile() {
   }
 }
 
-function openNewMessageModal() { openModal("newMessageModal"); }
-function loadTop(category, btn) {
-  document.querySelectorAll(".top-tab").forEach(t => t.classList.remove("active"));
-  btn.classList.add("active");
-}
 function openAdminPanel() { $("adminPanel").classList.toggle("hidden"); }
 
 window.addEventListener("DOMContentLoaded", initApp);
