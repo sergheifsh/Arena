@@ -13,11 +13,6 @@ button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
 
-/* Скрытие верхней черной/белой шапки и блока Arena с зеленой звездой */
-header, .arena-top {
-  display: none !important;
-}
-
 #startupScreen{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#eef5ff}
 .startup-box{width:min(650px,100%);height:100vh;display:flex;align-items:center;justify-content:center;background:#fff}
 .startup-logo,.logo{color:#2563eb;font-weight:900;text-align:center}
@@ -27,12 +22,7 @@ header, .arena-top {
 @keyframes spin{to{transform:rotate(360deg)}}
 #startupScreen.hide{opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
 
-.app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:80px;box-shadow:0 0 25px #1e40af1a}
-
-header{position:sticky;top:0;z-index:20;height:62px;background:#fff;border-bottom:1px solid #dbe4f0;padding:8px 12px}
-.top-row{height:100%;display:flex;align-items:center;justify-content:center;position:relative}
-.logo{font-size:21px}
-.language{position:absolute;right:2px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:8px;padding:5px 6px;font-size:10px}
+.app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:110px;box-shadow:0 0 25px #1e40af1a}
 
 .auth{min-height:100vh;display:none;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#dbeafe,#eff6ff,#fff)}
 .auth-box{width:min(430px,100%);background:#fff;padding:25px;border-radius:22px;box-shadow:0 10px 35px #2563eb26;border:1px solid #dbeafe}
@@ -49,10 +39,6 @@ header{position:sticky;top:0;z-index:20;height:62px;background:#fff;border-botto
 
 .screen{display:none}
 .screen.active{display:block}
-
-.arena-top{text-align:center;padding:20px 15px 10px}
-.arena-title{font-size:30px;font-weight:900}
-.arena-subtitle{margin-top:6px;color:#64748b;font-size:14px}
 
 .categories{display:flex;gap:7px;overflow-x:auto;padding:12px 14px;scrollbar-width:none}
 .categories::-webkit-scrollbar{display:none}
@@ -172,7 +158,7 @@ header{position:sticky;top:0;z-index:20;height:62px;background:#fff;border-botto
 .new-message-button{width:calc(100% - 28px);padding:12px}
 .chat-person-title{display:flex;align-items:center;gap:10px;margin:0 14px 10px}
 
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(650px,100%);height:68px;background:#fff;border-top:1px solid #dbe4f0;display:flex;align-items:center;justify-style:space-around;z-index:50;box-shadow:0 -5px 20px #0f172a10}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(650px,100%);height:calc(68px + env(safe-area-inset-bottom, 12px));padding-bottom:env(safe-area-inset-bottom, 12px);background:#fff;border-top:1px solid #dbe4f0;display:flex;align-items:center;justify-content:space-around;z-index:50;box-shadow:0 -5px 20px #0f172a10}
 nav button{position:relative;flex:1;height:100%;border:0;background:transparent;color:#64748b;font-size:16px}
 nav button span{font-size:10px}
 nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radius:50%;background:#2563eb;color:#fff;font-size:30px;box-shadow:0 6px 18px #2563eb55}
@@ -192,7 +178,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .media-help{font-size:11px;color:#64748b;margin:4px 2px 8px}
 
 @media(max-width:430px){
-.arena-title{font-size:27px}
 .option-media{height:170px}
 .option-label{font-size:13px}
 .vs{width:39px;height:39px}
@@ -246,23 +231,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <div id="app" class="app hidden">
 
-<header>
-<div class="top-row">
-<div class="logo">⚔️ ARENA<small>WHO BEATS WHO?</small></div>
-<select id="languageSelect" class="language" onchange="changeLanguage(this.value)">
-<option value="ru">🇷🇺 RU</option>
-<option value="ro">🇷🇴 RO</option>
-<option value="en">🇬🇧 EN</option>
-</select>
-</div>
-</header>
-
 <div id="homeScreen" class="screen active">
-
-<div class="arena-top">
-<div id="arenaTitle" class="arena-title"></div>
-<div id="arenaSubtitle" class="arena-subtitle"></div>
-</div>
 
 <div class="categories">
 <button class="category-btn active" data-category="all" onclick="selectCategory('all',this)"></button>
@@ -970,8 +939,6 @@ if($("languageSelect"))$("languageSelect").value=language;
 
 const texts={
 authSubtitle:"subtitle",
-arenaTitle:"who",
-arenaSubtitle:"arenaSubtitle",
 loginButton:"login",
 registerButton:"register",
 registerSwitch:"noAccount",
@@ -1525,7 +1492,11 @@ const title="⚔️ ARENA — Who Beats Who?";
 
 try{
 if(navigator.share){
-await navigator.share({title,text:title,url});
+await navigator.share({
+title: title,
+text: title,
+url: url
+});
 return;
 }
 
@@ -3092,22 +3063,13 @@ box.innerHTML=r.data?.length
 onclick="openUserProfile('${escJS(p.id)}')">
 
 <div class="profile-big-avatar"
-style="width:48px;height:48px;font-size:22px">
-
-${p.avatar_url
-?`<img src="${esc(p.avatar_url)}" alt="avatar">`
-:"⚔️"}
-
+style="width:40px;height:40px;font-size:20px">
+${p.avatar_url?`<img src="${esc(p.avatar_url)}">`:"⚔️"}
 </div>
 
 <div class="search-result-main">
-
-<b>${esc(p.full_name||t("participant"))}</b>
-
-<div style="font-size:12px;color:#64748b">
-@${esc(p.username||"arena")}
-</div>
-
+<div class="rank-title">${esc(p.full_name||t("participant"))}</div>
+<div class="rank-category">@${esc(p.username||"arena")}</div>
 </div>
 
 </div>
@@ -3117,855 +3079,22 @@ ${p.avatar_url
 :`<div class="empty">${esc(t("noResults"))}</div>`;
 }
 
-/* =========================================================
-OTHER PROFILE
-========================================================= */
-
-async function openUserProfile(id){
-
-if(String(id)===String(currentUser.id)){
-
-await showProfile();
-return;
-
-}
-
-openedOtherUserId=String(id);
-
-showScreen("otherProfileScreen");
-
-const r=await db.from("profiles")
-.select("*")
-.eq("id",String(id))
-.maybeSingle();
-
-if(!r.data){
-
-alert("Профиль не найден.");
-return;
-
-}
-
-const p=r.data;
-
-$("otherName").innerText=p.full_name||t("participant");
-$("otherUsername").innerText="@"+(p.username||"arena");
-$("otherBio").innerText=p.bio||"";
-
-setAvatar("otherAvatar",p.avatar_url);
-
-$("otherDuelsCount").innerText=
-await count("duels","user_id",String(id));
-
-$("otherFollowersCount").innerText=
-await count("follows","following_id",String(id));
-
-$("otherFollowingCount").innerText=
-await count("follows","follower_id",String(id));
-
-$("otherFollowersLabel").innerText=t("followers");
-$("otherFollowingLabel").innerText=t("following");
-
-await updateFollowButton(String(id));
-await loadOtherDuels(String(id));
-}
-
-async function loadOtherDuels(id){
-
-const box=$("otherDuels");
-
-const r=await db.from("duels")
-.select("*")
-.eq("user_id",String(id))
-.order("created_at",{ascending:false});
-
-box.innerHTML="";
-
-if(r.error){
-
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-
-}
-
-if(!r.data?.length){
-
-box.innerHTML=`<div class="empty">${esc(t("noDuels"))}</div>`;
-return;
-
-}
-
-for(const duel of r.data)
-box.appendChild(await duelCard(duel));
-}
-
-function messageCurrentOtherUser(){
-if(openedOtherUserId){
-openPrivateChat(openedOtherUserId);
-}
-}
-
-/* =========================================================
-FOLLOW
-========================================================= */
-
-async function updateFollowButton(id){
-
-const button=$("otherFollowButton");
-
-const r=await db.from("follows")
-.select("id")
-.eq("follower_id",currentUser.id)
-.eq("following_id",String(id))
-.maybeSingle();
-
-button.innerText=r.data?t("followed"):t("follow");
-
-button.onclick=()=>toggleFollow(String(id));
-}
-
-async function toggleFollow(id){
-
-const r=await db.from("follows")
-.select("id")
-.eq("follower_id",currentUser.id)
-.eq("following_id",String(id))
-.maybeSingle();
-
-let op;
-
-if(r.data){
-
-op=await db.from("follows")
-.delete()
-.eq("id",r.data.id);
-
-}else{
-
-op=await db.from("follows")
-.insert({
-follower_id:currentUser.id,
-following_id:String(id)
-});
-
-}
-
-if(op.error){
-
-alert(op.error.message);
-return;
-
-}
-
-await updateFollowButton(String(id));
-
-$("otherFollowersCount").innerText=
-await count("follows","following_id",String(id));
-}
-
-/* =========================================================
-SAVE PROFILE
-========================================================= */
-
-async function saveProfile(){
-
-const name=$("editName").value.trim();
-const username=$("editUsername").value.trim();
-const bio=$("editBio").value.trim();
-
-const status=$("profileStatus");
-
-if(!name){
-
-status.innerText=t("nameRequired");
-return;
-
-}
-
-status.innerText=t("saving");
-
-try{
-
-let avatar=currentProfile?.avatar_url||"";
-
-if(selectedAvatar)
-avatar=await upload(selectedAvatar,"avatars");
-
-const r=await db.from("profiles")
-.update({
-full_name:name,
-username:username||null,
-bio,
-avatar_url:avatar
-})
-.eq("id",currentUser.id)
-.select()
-.single();
-
-if(r.error)throw r.error;
-
-currentProfile=r.data;
-
-await db.auth.updateUser({
-data:{
-full_name:name,
-username:username||null
-}
-});
-
-await loadProfile();
-
-closeModal("editModal");
-
-}catch(e){
-
-console.error(e);
-
-status.innerText=e.message||t("connection");
-
-}
-}
-
-/* =========================================================
-MY DUELS
-========================================================= */
-
-async function loadMyDuels(){
-
-const box=$("myDuels");
-
-const r=await db.from("duels")
-.select("*")
-.eq("user_id",currentUser.id)
-.order("created_at",{ascending:false});
-
-box.innerHTML="";
-
-if(r.error){
-
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-
-}
-
-if(!r.data?.length){
-
-box.innerHTML=`<div class="empty">${esc(t("noMyDuels"))}</div>`;
-return;
-
-}
-
-for(const duel of r.data)
-box.appendChild(await duelCard(duel));
-}
-
-/* =========================================================
-ADMIN
-========================================================= */
-
-async function openAdminPanel(){
-
-if(currentProfile?.is_admin!==true){
-
-alert("Нет прав администратора");
-return;
-
-}
-
-$("adminPanel").classList.toggle("hidden");
-
-if(!$("adminPanel").classList.contains("hidden"))
-await loadAdminUsers();
-}
-
-async function loadAdminUsers(){
-
-const box=$("adminContent");
-
-const r=await db.from("profiles")
-.select("id,full_name,username,is_admin,is_blocked")
-.order("full_name")
-.limit(100);
-
-if(r.error){
-
-box.innerText=r.error.message;
-return;
-
-}
-
-box.innerHTML=(r.data||[]).map(u=>`
-
-<div class="admin-user-row">
-
-<div class="admin-user-main">
-
-<div class="admin-user-name">
-${esc(u.full_name||t("participant"))}
-</div>
-
-<div style="font-size:11px;color:#64748b">
-@${esc(u.username||"arena")}
-</div>
-
-<div class="${u.is_blocked?"admin-blocked":"admin-active"}">
-${u.is_blocked?t("blocked"):t("active")}
-</div>
-
-</div>
-
-${u.is_admin?"👑":""}
-
-${u.id!==currentUser.id
-?`
-
-<button
-class="admin-action ${u.is_blocked?"admin-unblock-button":"admin-block-button"}"
-type="button"
-onclick="adminBlock('${escJS(u.id)}',${!!u.is_blocked})"
->
-${u.is_blocked?t("unblock"):t("block")}
-</button>
-
-`
-:""}
-
-</div>
-
-`).join("");
-}
-
-async function adminBlock(id,blocked){
-
-const question=blocked
-?(language==="ru"?"Разблокировать пользователя?":language==="ro"?"Deblochezi utilizatorul?":"Unblock user?")
-:(language==="ru"?"Заблокировать пользователя?":language==="ro"?"Blochezi utilizatorul?":"Block user?");
-
-if(!confirm(question))return;
-
-const r=await db.rpc(
-"admin_set_blocked",
-{
-target_user_id:id,
-blocked_value:!blocked
-}
-);
-
-if(r.error){
-
-alert(r.error.message);
-return;
-
-}
-
-await loadAdminUsers();
-}
-
-/* =========================================================
-PRIVATE CHAT
-========================================================= */
-
-async function openChat(){
-
-if(!currentUser){
-
-showAuth();
-return;
-
-}
-
-showScreen("chatScreen");
-
-privateChatUser=null;
-
-$("privateChat").classList.add("hidden");
-$("privateChatList").classList.remove("hidden");
-
-await loadConversations();
-await updateUnreadBadge();
-}
-
-function appendMessage(box,message,profile){
-
-const mine=String(message.sender_id)===String(currentUser.id);
-
-const name=
-profile?.full_name||
-profile?.username||
-t("participant");
-
-const text=
-message.is_deleted
-?t("messageDeleted")
-:(message.text||"");
-
-const tools=message.is_deleted
-?""
-:(mine
-?`<button type="button" onclick="deleteMessage('${escJS(message.id)}')">🗑️</button>`
-:`<button type="button" onclick="reportMessage('${escJS(message.id)}')">⚠️</button>`);
-
-const element=document.createElement("div");
-
-element.className="message"+(mine?" mine":"");
-
-element.innerHTML=`
-
-<div class="message-content">
-
-${!mine
-?`<div class="message-author">${esc(name)}</div>`
-:""}
-
-<div class="message-text">
-${esc(text)}
-</div>
-
-<div class="message-time">
-${date(message.created_at)}
-</div>
-
-<div class="message-tools">
-${tools}
-</div>
-
-</div>
-`;
-
-box.appendChild(element);
-}
-
-async function loadConversations(){
-
-const box=$("conversationList");
-
-const r=await db.from("messages")
-.select("*")
-.or(
-`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
-)
-.not("receiver_id","is",null)
-.order("created_at",{ascending:false})
-.limit(500);
-
-if(r.error){
-
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-
-}
-
-const conversations={};
-
-(r.data||[]).forEach(m=>{
-
-const id=
-String(m.sender_id)===String(currentUser.id)
-?m.receiver_id
-:m.sender_id;
-
-if(!id)return;
-
-if(!conversations[id])
-conversations[id]={last:m,unread:0};
-
-if(
-String(m.receiver_id)===String(currentUser.id)&&
-!m.is_read
-)
-conversations[id].unread++;
-
-});
-
-const ids=Object.keys(conversations);
-
-if(!ids.length){
-
-box.innerHTML=`<div class="empty">${esc(t("noConversations"))}</div>`;
-return;
-
-}
-
-const map=await profilesMap(ids);
-
-box.innerHTML="";
-
-ids.forEach(id=>{
-
-const p=map[id]||{};
-const c=conversations[id];
-
-const element=document.createElement("div");
-
-element.className="chat-user";
-
-element.onclick=()=>openPrivateChat(id);
-
-element.innerHTML=`
-
-<div class="profile-big-avatar"
-style="width:48px;height:48px;font-size:22px">
-
-${p.avatar_url
-?`<img src="${esc(p.avatar_url)}" alt="avatar">`
-:"⚔️"}
-
-</div>
-
-<div class="chat-user-main">
-
-<div>
-${esc(p.full_name||t("participant"))}
-</div>
-
-<div class="chat-user-last">
-${c.last.is_deleted?t("messageDeleted"):(c.last.text||"")}
-</div>
-
-</div>
-
-${c.unread
-?`<div class="unread-badge">${c.unread>99?"99+":c.unread}</div>`
-:""}
-
-`;
-
-box.appendChild(element);
-
-});
-}
-
-/* =========================================================
-NEW MESSAGE
-========================================================= */
-
-function openNewMessageModal(){
-
-$("messageUserSearch").value="";
-
-$("messageUserResults").innerHTML=
-`<div class="empty">${esc(t("searchStart"))}</div>`;
-
-$("newMessageModal").classList.add("show");
-}
-
-async function searchMessageUsers(){
-
-const value=$("messageUserSearch").value.trim();
-const box=$("messageUserResults");
-
-if(!value){
-
-box.innerHTML=
-`<div class="empty">${esc(t("searchStart"))}</div>`;
-
-return;
-
-}
-
-const safe=safeSearch(value);
-
-const r=await db.from("profiles")
-.select("id,full_name,username,avatar_url")
-.or(
-`full_name.ilike.%${safe}%,username.ilike.%${safe}%`
-)
-.neq("id",currentUser.id)
-.limit(20);
-
-if(r.error){
-
-box.innerHTML=
-`<div class="empty">${esc(r.error.message)}</div>`;
-
-return;
-
-}
-
-box.innerHTML="";
-
-(r.data||[]).forEach(p=>{
-
-const element=document.createElement("div");
-
-element.className="chat-user";
-
-element.onclick=()=>{
-
-closeModal("newMessageModal");
-openPrivateChat(String(p.id));
-
-};
-
-element.innerHTML=`
-
-<div class="profile-big-avatar"
-style="width:48px;height:48px;font-size:22px">
-
-${p.avatar_url
-?`<img src="${esc(p.avatar_url)}" alt="avatar">`
-:"⚔️"}
-
-</div>
-
-<div class="chat-user-main">
-
-<div>${esc(p.full_name||t("participant"))}</div>
-
-<div class="chat-user-last">
-@${esc(p.username||"arena")}
-</div>
-
-</div>
-
-`;
-
-box.appendChild(element);
-
-});
-}
-
-/* =========================================================
-PRIVATE CHAT MESSAGES
-========================================================= */
-
-async function openPrivateChat(id){
-
-if(!id||String(id)===String(currentUser.id))
-return;
-
-const userId=String(id);
-
-const r=await db.from("profiles")
-.select("*")
-.eq("id",userId)
-.maybeSingle();
-
-if(r.error){
-
-console.error("OPEN PRIVATE CHAT:",r.error);
-return;
-
-}
-
-if(!r.data){
-
-alert("Профиль не найден.");
-return;
-
-}
-
-privateChatUser=r.data;
-
-showScreen("chatScreen");
-
-$("privateChatList").classList.add("hidden");
-$("privateChat").classList.remove("hidden");
-
-$("privatePersonName").innerText=
-r.data.full_name||t("participant");
-
-$("privatePersonUsername").innerText=
-"@"+(r.data.username||"arena");
-
-setAvatar(
-"privatePersonAvatar",
-r.data.avatar_url
-);
-
-await markRead(userId);
-await loadPrivateMessages(userId);
-await updateUnreadBadge();
-
-setTimeout(()=>{
-$("privateMessageInput")?.focus();
-},50);
-}
-
-function showConversationList(){
-
-privateChatUser=null;
-
-$("privateChat").classList.add("hidden");
-$("privateChatList").classList.remove("hidden");
-loadConversations();
-}
-
-async function markRead(senderId){
-if(!currentUser)return;
-await db.from("messages")
-.update({is_read:true})
-.eq("sender_id",senderId)
-.eq("receiver_id",currentUser.id)
-.eq("is_read",false);
-}
-
-async function loadPrivateMessages(userId){
-const box=$("privateMessages");
-if(!box)return;
-
-const r=await db.from("messages")
-.select("*")
-.or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`)
-.order("created_at",{ascending:true})
-.limit(300);
-
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
-
-if(!r.data?.length){
-box.innerHTML=`<div class="empty">${esc(t("noMessages"))}</div>`;
-return;
-}
-
-const map=await profilesMap([currentUser.id,userId]);
-
-box.innerHTML="";
-r.data.forEach(m=>{
-appendMessage(box,m,map[m.sender_id]);
-});
-
-box.scrollTop=box.scrollHeight;
-}
-
-async function sendPrivateMessage(){
-if(!privateChatUser||!currentUser)return;
-
-const input=$("privateMessageInput");
-const text=input.value.trim();
-
-if(!text)return;
-
-input.disabled=true;
-
-try{
-const r=await db.from("messages").insert({
-sender_id:currentUser.id,
-receiver_id:privateChatUser.id,
-text:text
-});
-
-if(r.error)throw r.error;
-
-input.value="";
-await loadPrivateMessages(privateChatUser.id);
-}catch(e){
-console.error("SEND PRIVATE MESSAGE:",e);
-alert(t("sendError"));
-}finally{
-input.disabled=false;
-input.focus();
-}
-}
-
-async function deleteMessage(id){
-if(!confirm(t("deleteMessage")))return;
-
-const r=await db.from("messages")
-.update({is_deleted:true})
-.eq("id",id)
-.eq("sender_id",currentUser.id);
-
-if(r.error){
-alert(r.error.message);
-return;
-}
-
-if(privateChatUser)
-await loadPrivateMessages(privateChatUser.id);
-}
-
-async function reportMessage(id){
-const reason=prompt(t("reportReason"));
-if(!reason)return;
-
-const r=await db.from("reports").insert({
-message_id:id,
-reporter_id:currentUser.id,
-reason
-});
-
-if(r.error){
-alert(r.error.message);
-return;
-}
-
-alert(t("reported"));
-}
-
-async function updateUnreadBadge(){
-if(!currentUser)return;
-
-const r=await db.from("messages")
-.select("id",{count:"exact",head:true})
-.eq("receiver_id",currentUser.id)
-.eq("is_read",false);
-
-const count=r.count||0;
-const badge=$("chatUnreadBadge");
-
-if(badge){
-badge.innerText=count>99?"99+":count;
-badge.style.display=count>0?"flex":"none";
-}
-}
-
-async function setupPrivateRealtime(){
-try{
-if(privateChannel)await db.removeChannel(privateChannel);
-
-privateChannel=db.channel("arena-private-"+currentUser.id)
-.on(
-"postgres_changes",
-{
-event:"*",
-schema:"public",
-table:"messages"
-},
-async payload=>{
-const row=payload.new||payload.old;
-if(!row)return;
-
-await updateUnreadBadge();
-
-if($("chatScreen").classList.contains("active")){
-if(privateChatUser&&(row.sender_id===privateChatUser.id||row.receiver_id===privateChatUser.id)){
-await loadPrivateMessages(privateChatUser.id);
-await markRead(privateChatUser.id);
-}else{
-await loadConversations();
-}
-}
-}
-)
-.subscribe();
-}catch(e){
-console.error("Private realtime:",e);
-}
-}
-
-/* =========================================================
-   BOOTSTRAP
-========================================================= */
-
 window.addEventListener("DOMContentLoaded",async()=>{
 applyLanguage();
-
 if(initDB()){
 const s=await db.auth.getSession();
 if(s.data?.session){
 currentUser=s.data.session.user;
 await startApp();
 }else{
+hideStartup();
 showAuth();
 showLogin();
-hideStartup();
 }
 }else{
 hideStartup();
-alert(t("connection"));
+showAuth();
+showLogin();
 }
 });
 </script>
