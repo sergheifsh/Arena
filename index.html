@@ -284,21 +284,21 @@ nav button.add{flex:0 0 46px;width:46px;height:46px;margin-top:-18px;border-radi
 
 <div id="photoFields">
 <input id="duelOptionA" data-placeholder="participantAPlaceholder" placeholder="Участник А">
-<label class="photo-button"><span id="photoAText"></span><input id="duelImageA" type="file" accept="image/*" onchange="previewDuelMedia('A',event)"></label>
+<label class="photo-button"><span id="photoAText"></span><input id="duelImageA" type="file" accept="image/png, image/jpeg, image/jpg" onchange="previewDuelMedia('A',event)"></label>
 <div id="previewA" class="image-preview hidden"></div>
 
 <input id="duelOptionB" data-placeholder="participantBPlaceholder" placeholder="Участник Б">
-<label class="photo-button"><span id="photoBText"></span><input id="duelImageB" type="file" accept="image/*" onchange="previewDuelMedia('B',event)"></label>
+<label class="photo-button"><span id="photoBText"></span><input id="duelImageB" type="file" accept="image/png, image/jpeg, image/jpg" onchange="previewDuelMedia('B',event)"></label>
 <div id="previewB" class="image-preview hidden"></div>
 </div>
 
 <div id="videoFields" class="hidden">
 <input id="duelVideoOptionA" data-placeholder="participantAPlaceholder" placeholder="Участник А">
-<label class="photo-button"><span id="videoAText"></span><input id="duelVideoA" type="file" accept="video/*" onchange="previewDuelMedia('videoA',event)"></label>
+<label class="photo-button"><span id="videoAText"></span><input id="duelVideoA" type="file" accept="video/mp4, video/quicktime, video/*" onchange="previewDuelMedia('videoA',event)"></label>
 <div id="previewVideoA" class="image-preview hidden"></div>
 
 <input id="duelVideoOptionB" data-placeholder="participantBPlaceholder" placeholder="Участник Б">
-<label class="photo-button"><span id="videoBText"></span><input id="duelVideoB" type="file" accept="video/*" onchange="previewDuelMedia('videoB',event)"></label>
+<label class="photo-button"><span id="videoBText"></span><input id="duelVideoB" type="file" accept="video/mp4, video/quicktime, video/*" onchange="previewDuelMedia('videoB',event)"></label>
 <div id="previewVideoB" class="image-preview hidden"></div>
 </div>
 
@@ -311,7 +311,7 @@ nav button.add{flex:0 0 46px;width:46px;height:46px;margin-top:-18px;border-radi
 <div id="editModal" class="modal">
 <div class="modal-box">
 <h2 id="editProfileTitle"></h2>
-<label class="photo-button"><span id="avatarText"></span><input id="avatarInput" type="file" accept="image/*" onchange="previewAvatar(event)"></label>
+<label class="photo-button"><span id="avatarText"></span><input id="avatarInput" type="file" accept="image/png, image/jpeg, image/jpg" onchange="previewAvatar(event)"></label>
 <div id="previewAvatarContainer" class="image-preview hidden" style="height:90px;width:90px;border-radius:50%;margin:auto"></div>
 <input id="editName" placeholder="Имя">
 <input id="editUsername" placeholder="Юзернейм">
@@ -363,8 +363,8 @@ const translations = {
     following: "Подписки", editProfile: "Редактировать профиль", logout: "Выйти",
     adminPanel: "Админ-панель", privateMessages: "Личные сообщения", newMessage: "Новое сообщение",
     cancel: "Отмена", save: "Сохранить", submitDuel: "Опубликовать батл",
-    selectPhotoA: "🖼️ Фото участника А", selectPhotoB: "🖼️ Фото участника Б",
-    selectVideoA: "🎥 Видео участника А", selectVideoB: "🎥 Видео участника Б",
+    selectPhotoA: "🖼️ Выбрать фото А из галереи", selectPhotoB: "🖼️ Выбрать фото Б из галереи",
+    selectVideoA: "🎥 Выбрать видео А из галереи", selectVideoB: "🎥 Выбрать видео Б из галереи",
     changeAvatar: "📷 Изменить аватар", searchPlaceholder: "Поиск...", noDuels: "Батлов пока нет",
     notifications: "Уведомления", topTitle: "🏆 Лидеры",
     catAll: "Все", catMovies: "Фильмы", catMusic: "Музыка", catGames: "Игры",
@@ -383,8 +383,8 @@ const translations = {
     following: "Urmăriți", editProfile: "Editează profilul", logout: "Ieșire",
     adminPanel: "Panou admin", privateMessages: "Mesaje private", newMessage: "Mesaj nou",
     cancel: "Anulare", save: "Salvează", submitDuel: "Publică bătălia",
-    selectPhotoA: "🖼️ Fotografie participant A", selectPhotoB: "🖼️ Fotografie participant B",
-    selectVideoA: "🎥 Video participant A", selectVideoB: "🎥 Video participant B",
+    selectPhotoA: "🖼️ Alege foto A din galerie", selectPhotoB: "🖼️ Alege foto B din galerie",
+    selectVideoA: "🎥 Alege video A din galerie", selectVideoB: "🎥 Alege video B din galerie",
     changeAvatar: "📷 Schimbă avatarul", searchPlaceholder: "Caută...", noDuels: "Nu există bătălii",
     notifications: "Notificări", topTitle: "🏆 Clasament",
     catAll: "Toate", catMovies: "Filme", catMusic: "Muzică", catGames: "Jocuri",
@@ -403,8 +403,8 @@ const translations = {
     following: "Following", editProfile: "Edit Profile", logout: "Log Out",
     adminPanel: "Admin Panel", privateMessages: "Direct Messages", newMessage: "New Message",
     cancel: "Cancel", save: "Save", submitDuel: "Publish Battle",
-    selectPhotoA: "Participant A Photo", selectPhotoB: "Participant B Photo",
-    selectVideoA: "Participant A Video", selectVideoB: "Participant B Video",
+    selectPhotoA: "🖼️ Select Photo A from Gallery", selectPhotoB: "🖼️ Select Photo B from Gallery",
+    selectVideoA: "🎥 Select Video A from Gallery", selectVideoB: "🎥 Select Video B from Gallery",
     changeAvatar: "Change Avatar", searchPlaceholder: "Search...", noDuels: "No battles yet",
     notifications: "Notifications", topTitle: "🏆 Leaderboard",
     catAll: "All", catMovies: "Movies", catMusic: "Music", catGames: "Games",
@@ -460,7 +460,6 @@ function applyLanguage() {
   if ($("searchInput")) $("searchInput").placeholder = t.searchPlaceholder;
   if ($("topTitle")) $("topTitle").textContent = t.topTitle;
 
-  // Динамические плейсхолдеры для темы и участников
   if ($("duelTitle")) $("duelTitle").placeholder = t.duelTitlePlaceholder;
   if ($("duelOptionA")) $("duelOptionA").placeholder = t.participantAPlaceholder;
   if ($("duelOptionB")) $("duelOptionB").placeholder = t.participantBPlaceholder;
