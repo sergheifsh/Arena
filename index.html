@@ -7,8 +7,8 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%}
-body{background:#eef5ff;font-family:Arial,sans-serif;color:#172033}
+html,body{min-height:100%;background:#eef5ff}
+body{font-family:Arial,sans-serif;color:#172033}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
@@ -22,7 +22,7 @@ button{cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 #startupScreen.hide{opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
 
-.app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:80px;box-shadow:0 0 25px #1e40af1a}
+.app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:50px;box-shadow:0 0 25px #1e40af1a}
 
 header{position:sticky;top:0;z-index:20;height:62px;background:#fff;border-bottom:1px solid #dbe4f0;padding:8px 12px}
 .top-row{height:100%;display:flex;align-items:center;justify-content:center;position:relative}
@@ -92,11 +92,12 @@ header{position:sticky;top:0;z-index:20;height:62px;background:#fff;border-botto
 
 .admin-panel{margin-top:15px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff}
 
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(650px,100%);height:68px;background:#fff;border-top:1px solid #dbe4f0;display:flex;align-items:center;justify-content:space-around;z-index:50;box-shadow:0 -5px 20px #0f172a10}
-nav button{position:relative;flex:1;height:100%;border:0;background:transparent;color:#64748b;font-size:16px}
-nav button span{font-size:10px}
-nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radius:50%;background:#2563eb;color:#fff;font-size:30px;box-shadow:0 6px 18px #2563eb55}
-.nav-unread{position:absolute;top:5px;right:25%;min-width:18px;height:18px;padding:0 5px;border-radius:20px;background:#dc2626;color:#fff;font-size:9px!important;display:none;align-items:center;justify-content:center}
+/* Приподняли нижние кнопки и уменьшили высоту панели */
+nav{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);width:min(630px,95%);height:56px;background:#fff;border:1px solid #dbe4f0;border-radius:16px;display:flex;align-items:center;justify-content:space-around;z-index:50;box-shadow:0 4px 15px #0f172a15}
+nav button{position:relative;flex:1;height:100%;border:0;background:transparent;color:#64748b;font-size:14px}
+nav button span{font-size:9px}
+nav button.add{flex:0 0 46px;width:46px;height:46px;margin-top:-18px;border-radius:50%;background:#2563eb;color:#fff;font-size:24px;box-shadow:0 4px 12px #2563eb55}
+.nav-unread{position:absolute;top:3px;right:25%;min-width:16px;height:16px;padding:0 4px;border-radius:20px;background:#dc2626;color:#fff;font-size:8px!important;display:none;align-items:center;justify-content:center}
 
 .modal{display:none;position:fixed;inset:0;background:#0f172a99;z-index:100;align-items:flex-end;justify-content:center}
 .modal.show{display:flex}
