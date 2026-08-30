@@ -265,7 +265,7 @@ nav button.add{flex:0 0 46px;width:46px;height:46px;margin-top:-18px;border-radi
 <div id="duelModal" class="modal">
 <div class="modal-box">
 <h2 id="duelModalTitle"></h2>
-<input id="duelTitle" placeholder="Тема батла...">
+<input id="duelTitle" data-placeholder="duelTitlePlaceholder" placeholder="Тема батла...">
 
 <select id="duelCategory">
 <option value="Фильмы" data-i18n="catMovies">🎬 Фильмы</option>
@@ -283,21 +283,21 @@ nav button.add{flex:0 0 46px;width:46px;height:46px;margin-top:-18px;border-radi
 </select>
 
 <div id="photoFields">
-<input id="duelOptionA" placeholder="Участник A">
+<input id="duelOptionA" data-placeholder="participantAPlaceholder" placeholder="Участник А">
 <label class="photo-button"><span id="photoAText"></span><input id="duelImageA" type="file" accept="image/*" onchange="previewDuelMedia('A',event)"></label>
 <div id="previewA" class="image-preview hidden"></div>
 
-<input id="duelOptionB" placeholder="Участник B">
+<input id="duelOptionB" data-placeholder="participantBPlaceholder" placeholder="Участник Б">
 <label class="photo-button"><span id="photoBText"></span><input id="duelImageB" type="file" accept="image/*" onchange="previewDuelMedia('B',event)"></label>
 <div id="previewB" class="image-preview hidden"></div>
 </div>
 
 <div id="videoFields" class="hidden">
-<input id="duelVideoOptionA" placeholder="Участник A">
+<input id="duelVideoOptionA" data-placeholder="participantAPlaceholder" placeholder="Участник А">
 <label class="photo-button"><span id="videoAText"></span><input id="duelVideoA" type="file" accept="video/*" onchange="previewDuelMedia('videoA',event)"></label>
 <div id="previewVideoA" class="image-preview hidden"></div>
 
-<input id="duelVideoOptionB" placeholder="Участник B">
+<input id="duelVideoOptionB" data-placeholder="participantBPlaceholder" placeholder="Участник Б">
 <label class="photo-button"><span id="videoBText"></span><input id="duelVideoB" type="file" accept="video/*" onchange="previewDuelMedia('videoB',event)"></label>
 <div id="previewVideoB" class="image-preview hidden"></div>
 </div>
@@ -345,7 +345,6 @@ let currentProfile = null;
 let currentCategory = "all";
 let language = localStorage.getItem("arena_language") || "ru";
 
-// Хранилище для выбранных файлов из галереи
 let mediaFiles = {
   imageA: null,
   imageB: null,
@@ -364,13 +363,16 @@ const translations = {
     following: "Подписки", editProfile: "Редактировать профиль", logout: "Выйти",
     adminPanel: "Админ-панель", privateMessages: "Личные сообщения", newMessage: "Новое сообщение",
     cancel: "Отмена", save: "Сохранить", submitDuel: "Опубликовать батл",
-    selectPhotoA: "🖼️ Фото участника A", selectPhotoB: "🖼️ Фото участника B",
-    selectVideoA: "🎥 Видео участника A", selectVideoB: "🎥 Видео участника B",
+    selectPhotoA: "🖼️ Фото участника А", selectPhotoB: "🖼️ Фото участника Б",
+    selectVideoA: "🎥 Видео участника А", selectVideoB: "🎥 Видео участника Б",
     changeAvatar: "📷 Изменить аватар", searchPlaceholder: "Поиск...", noDuels: "Батлов пока нет",
     notifications: "Уведомления", topTitle: "🏆 Лидеры",
     catAll: "Все", catMovies: "Фильмы", catMusic: "Музыка", catGames: "Игры",
     catSport: "Спорт", catMemes: "Мемы", catAuto: "Авто", catOther: "Другое",
-    typePhoto: "🖼️ Фото-батл", typeVideo: "🎥 Видео-батл"
+    typePhoto: "🖼️ Фото-батл", typeVideo: "🎥 Видео-батл",
+    duelTitlePlaceholder: "Тема батла...",
+    participantAPlaceholder: "Участник А",
+    participantBPlaceholder: "Участник Б"
   },
   ro: {
     arena: "Arenă", search: "Căutare", chat: "Chat", profile: "Profil",
@@ -387,7 +389,10 @@ const translations = {
     notifications: "Notificări", topTitle: "🏆 Clasament",
     catAll: "Toate", catMovies: "Filme", catMusic: "Muzică", catGames: "Jocuri",
     catSport: "Sport", catMemes: "Meme", catAuto: "Auto", catOther: "Altele",
-    typePhoto: "🖼️ Bătălie foto", typeVideo: "🎥 Bătălie video"
+    typePhoto: "🖼️ Bătălie foto", typeVideo: "🎥 Bătălie video",
+    duelTitlePlaceholder: "Tema bătăliei...",
+    participantAPlaceholder: "Participant A",
+    participantBPlaceholder: "Participant B"
   },
   en: {
     arena: "Arena", search: "Search", chat: "Chats", profile: "Profile",
@@ -404,7 +409,10 @@ const translations = {
     notifications: "Notifications", topTitle: "🏆 Leaderboard",
     catAll: "All", catMovies: "Movies", catMusic: "Music", catGames: "Games",
     catSport: "Sport", catMemes: "Memes", catAuto: "Auto", catOther: "Other",
-    typePhoto: "🖼️ Photo Battle", typeVideo: "🎥 Video Battle"
+    typePhoto: "🖼️ Photo Battle", typeVideo: "🎥 Video Battle",
+    duelTitlePlaceholder: "Battle topic...",
+    participantAPlaceholder: "Participant A",
+    participantBPlaceholder: "Participant B"
   }
 };
 
@@ -451,6 +459,13 @@ function applyLanguage() {
   if ($("avatarText")) $("avatarText").textContent = t.changeAvatar;
   if ($("searchInput")) $("searchInput").placeholder = t.searchPlaceholder;
   if ($("topTitle")) $("topTitle").textContent = t.topTitle;
+
+  // Динамические плейсхолдеры для темы и участников
+  if ($("duelTitle")) $("duelTitle").placeholder = t.duelTitlePlaceholder;
+  if ($("duelOptionA")) $("duelOptionA").placeholder = t.participantAPlaceholder;
+  if ($("duelOptionB")) $("duelOptionB").placeholder = t.participantBPlaceholder;
+  if ($("duelVideoOptionA")) $("duelVideoOptionA").placeholder = t.participantAPlaceholder;
+  if ($("duelVideoOptionB")) $("duelVideoOptionB").placeholder = t.participantBPlaceholder;
 }
 
 function changeLanguage(lang) {
@@ -644,7 +659,6 @@ function toggleDuelType() {
   }
 }
 
-// Предпросмотр и сохранение файлов из галереи
 function previewDuelMedia(target, event) {
   const file = event.target.files[0];
   if (!file) return;
