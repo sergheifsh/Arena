@@ -540,7 +540,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Кастомное модальное окно подтверждения вместо системного confirm -->
 <div id="customConfirmModal" class="modal" style="z-index: 10000;">
 <div class="modal-box" style="text-align: center; max-width: 380px; border-radius: 22px;">
 <p id="customConfirmText" style="font-size: 16px; font-weight: bold; margin-bottom: 20px; color: #172033;"></p>
@@ -1730,74 +1729,6 @@ d.video_b||
 d.video_option_a||
 d.video_option_b
 );
-}
-
-function updateDuelVoteUI(card,counts,vote){
-if(!card)return;
-
-const a=counts.a;
-const b=counts.b;
-const total=counts.total;
-const pa=counts.pa;
-const pb=counts.pb;
-
-const result=document.createElement("div");
-result.className="results";
-result.innerHTML=`
-<div class="result-row">
-<div class="result-info">
-<span class="result-a-text"></span>
-<b class="result-a-percent">${pa}%</b>
-</div>
-<div class="progress">
-<div class="progress-fill result-a-fill" style="width:${pa}%"></div>
-</div>
-</div>
-<div class="result-row">
-<div class="result-info">
-<span class="result-b-text"></span>
-<b class="result-b-percent">${pb}%</b>
-</div>
-<div class="progress">
-<div class="progress-fill result-b-fill" style="width:${pb}%"></div>
-</div>
-</div>
-`;
-
-const labels=card.querySelectorAll(".option-label");
-const labelA=labels[0]?.innerText||"A";
-const labelB=labels[1]?.innerText||"B";
-
-result.querySelector(".result-a-text").innerText=
-`A — ${labelA} · ${a} ${t("votes")}`;
-
-result.querySelector(".result-b-text").innerText=
-`B — ${labelB} · ${b} ${t("votes")}`;
-
-const old=card.querySelector(".results");
-
-if(old)old.replaceWith(result);
-else{
-const actions=card.querySelector(".duel-actions");
-if(actions)actions.before(result);
-}
-
-const totalSpan=card.querySelector(".duel-total-votes");
-
-if(totalSpan)
-totalSpan.innerText=`🗳️ ${total} ${t("votes")}`;
-
-const buttons=card.querySelectorAll(".vote-button");
-
-buttons.forEach((btn,index)=>{
-btn.disabled=true;
-if(vote==="a"&&index===0)
-btn.innerText=t("yourChoice");
-else if(vote==="b"&&index===1)
-btn.innerText=t("yourChoice");
-else
-btn.innerText=index===0?"A":"B";
-});
 }
 
 async function duelCard(duel){
