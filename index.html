@@ -283,7 +283,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="topScreen" class="screen">
 <div id="topTitle" class="section-title"></div>
 <div class="top-tabs">
-<button class="top-tab active" onclick="loadTop('all',this)">Все</button>
+<button class="top-tab active" onclick="loadTop('all',this)" data-i18n="topAll">Все</button>
 <button class="top-tab" onclick="loadTop('Фильмы',this)">🎬</button>
 <button class="top-tab" onclick="loadTop('Игры',this)">🎮</button>
 <button class="top-tab" onclick="loadTop('Музыка',this)">🎵</button>
@@ -419,24 +419,24 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="duelTitle">
 
 <select id="duelCategory">
-<option value="Фильмы">🎬 Фильмы</option>
-<option value="Музыка">🎵 Музыка</option>
-<option value="Игры">🎮 Игры</option>
-<option value="Спорт">⚽ Спорт</option>
-<option value="Мемы">😂 Мемы</option>
-<option value="Авто">🚗 Авто</option>
-<option value="Другое">✨ Другое</option>
+<option value="Фильмы" data-opt="films"></option>
+<option value="Музыка" data-opt="music"></option>
+<option value="Игры" data-opt="games"></option>
+<option value="Спорт" data-opt="sport"></option>
+<option value="Мемы" data-opt="memes"></option>
+<option value="Авто" data-opt="auto"></option>
+<option value="Другое" data-opt="other"></option>
 </select>
 
 <select id="duelType" onchange="toggleDuelType()">
-<option value="photo">🖼️ Фото-батл</option>
-<option value="video">🎥 Видео-батл</option>
+<option value="photo" data-opt="photoBattle"></option>
+<option value="video" data-opt="videoBattle"></option>
 </select>
 
 <select id="duelDuration">
-<option value="24">⏳ 24 часа</option>
-<option value="48" selected>⏳ 48 часов</option>
-<option value="72">⏳ 72 часа</option>
+<option value="24" data-opt="h24"></option>
+<option value="48" selected data-opt="h48"></option>
+<option value="72" data-opt="h72"></option>
 </select>
 
 <div id="photoFields">
@@ -470,7 +470,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="duelVideoOptionA">
 
 <label class="photo-button">
-<span id="videoAText">🎥 Видео участника A</span>
+<span id="videoAText"></span>
 <input id="duelVideoA" type="file" accept="video/*" onchange="previewDuelMedia('A',event,'video')">
 </label>
 
@@ -481,7 +481,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="duelVideoOptionB">
 
 <label class="photo-button">
-<span id="videoBText">🎥 Видео участника B</span>
+<span id="videoBText"></span>
 <input id="duelVideoB" type="file" accept="video/*" onchange="previewDuelMedia('B',event,'video')">
 </label>
 
@@ -489,7 +489,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <video id="previewVideoBElement" controls playsinline></video>
 </div>
 
-<div class="media-help" data-i18n="maxPhotoHelp">🎥 Максимальный размер видео — 100 MB.</div>
+<div class="media-help" data-i18n="maxPhotoHelp"></div>
 
 </div>
 
@@ -587,6 +587,7 @@ search:"Поиск",
 profile:"Профиль",
 chat:"Сообщения",
 all:"🔥 Все",
+topAll:"Все",
 films:"🎬 Фильмы",
 music:"🎵 Музыка",
 games:"🎮 Игры",
@@ -680,9 +681,9 @@ deleteMessage:"Удалить сообщение?",
 videoRequired:"Добавь хотя бы одно видео.",
 share:"📤 Поделиться",
 shareCopied:"🔗 Ссылка на батл скопирована!",
-h24:"24 часа",
-h48:"48 часов",
-h72:"72 часа",
+h24:"⏳ 24 часа",
+h48:"⏳ 48 часов",
+h72:"⏳ 72 часа",
 videoA:"🎥 Видео участника A",
 videoB:"🎥 Видео участника B"
 },
@@ -704,6 +705,7 @@ search:"Căutare",
 profile:"Profil",
 chat:"Mesaje",
 all:"🔥 Toate",
+topAll:"Toate",
 films:"🎬 Filme",
 music:"🎵 Muzică",
 games:"🎮 Jocuri",
@@ -797,9 +799,9 @@ deleteMessage:"Ștergi mesajul?",
 videoRequired:"Adaugă cel puțin un video.",
 share:"📤 Distribuie",
 shareCopied:"🔗 Linkul duelului a fost copiat!",
-h24:"24 de ore",
-h48:"48 de ore",
-h72:"72 de ore",
+h24:"⏳ 24 de ore",
+h48:"⏳ 48 de ore",
+h72:"⏳ 72 de ore",
 videoA:"🎥 Video participant A",
 videoB:"🎥 Video participant B"
 },
@@ -821,6 +823,7 @@ search:"Search",
 profile:"Profile",
 chat:"Messages",
 all:"🔥 All",
+topAll:"All",
 films:"🎬 Movies",
 music:"🎵 Music",
 games:"🎮 Games",
@@ -856,7 +859,7 @@ followed:"Following",
 admin:"👑 Admin panel",
 adminTitle:"👑 Administrator panel",
 active:"🟢 Active",
-blocked:"🚫 Blocked",
+blocked:"Blocked",
 block:"🚫",
 unblock:"🔓",
 chooseA:"Choose A",
@@ -914,9 +917,9 @@ deleteMessage:"Delete this message?",
 videoRequired:"Add at least one video.",
 share:"📤 Share",
 shareCopied:"🔗 Duel link copied!",
-h24:"24 hours",
-h48:"48 hours",
-h72:"72 hours",
+h24:"⏳ 24 hours",
+h48:"⏳ 48 hours",
+h72:"⏳ 72 hours",
 videoA:"🎥 Participant A video",
 videoB:"🎥 Participant B video"
 }
@@ -1063,6 +1066,10 @@ b.innerText=t(cat[b.dataset.category]);
 
 document.querySelectorAll("[data-nav]").forEach(e=>{
 e.innerText=t(e.dataset.nav);
+});
+
+document.querySelectorAll("[data-opt]").forEach(opt=>{
+opt.innerText=t(opt.dataset.opt);
 });
 
 document.querySelectorAll("[data-i18n]").forEach(e=>{
@@ -1898,6 +1905,16 @@ card.dataset.duelId=id;
 
 const hasVotes=voteCounts.total>0;
 
+const categoryKey={
+"Фильмы":"films",
+"Музыка":"music",
+"Игры":"games",
+"Спорт":"sport",
+"Мемы":"memes",
+"Авто":"auto",
+"Другое":"other"
+}[duel.category]||"other";
+
 card.innerHTML=`
 
 <div class="duel-head">
@@ -1905,7 +1922,7 @@ card.innerHTML=`
 <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
 
 <span class="duel-category">
-${esc(duel.category||"Другое")}
+${t(categoryKey)}
 </span>
 
 <span class="duel-type">
@@ -3026,6 +3043,16 @@ y.counts.total-x.counts.total
 
 const data=scored.slice(0,20);
 
+const categoryKey={
+"Фильмы":"films",
+"Музыка":"music",
+"Игры":"games",
+"Спорт":"sport",
+"Мемы":"memes",
+"Авто":"auto",
+"Другое":"other"
+};
+
 box.innerHTML=data.length
 
 ?data.map((item,i)=>{
@@ -3048,7 +3075,7 @@ ${esc(d.title)}
 
 <div class="rank-category">
 ${video?"🎥 ":"🖼️ "}
-${esc(d.category||"")}
+${t(categoryKey[d.category]||"other")}
 </div>
 
 </div>
@@ -3221,962 +3248,3 @@ box.appendChild(await duelCard(duel));
 
 /* =========================================================
 FOLLOW
-========================================================= */
-
-async function updateFollowButton(id){
-
-const button=$("otherFollowButton");
-
-const r=await db.from("follows")
-.select("id")
-.eq("follower_id",currentUser.id)
-.eq("following_id",String(id))
-.maybeSingle();
-
-button.innerText=r.data?t("followed"):t("follow");
-
-button.onclick=()=>toggleFollow(String(id));
-}
-
-async function toggleFollow(id){
-
-const r=await db.from("follows")
-.select("id")
-.eq("follower_id",currentUser.id)
-.eq("following_id",String(id))
-.maybeSingle();
-
-let op;
-
-if(r.data){
-
-op=await db.from("follows")
-.delete()
-.eq("id",r.data.id);
-
-}else{
-
-op=await db.from("follows")
-.insert({
-follower_id:currentUser.id,
-following_id:String(id)
-});
-
-}
-
-if(op.error){
-
-alert(op.error.message);
-return;
-
-}
-
-await updateFollowButton(String(id));
-
-$("otherFollowersCount").innerText=
-await count("follows","following_id",String(id));
-}
-
-/* =========================================================
-SAVE PROFILE
-========================================================= */
-
-async function saveProfile(){
-
-const name=$("editName").value.trim();
-const username=$("editUsername").value.trim();
-const bio=$("editBio").value.trim();
-
-const status=$("profileStatus");
-
-if(!name){
-
-status.innerText=t("nameRequired");
-return;
-
-}
-
-status.innerText=t("saving");
-
-try{
-
-let avatar=currentProfile?.avatar_url||"";
-
-if(selectedAvatar)
-avatar=await upload(selectedAvatar,"avatars");
-
-const r=await db.from("profiles")
-.update({
-full_name:name,
-username:username||null,
-bio,
-avatar_url:avatar
-})
-.eq("id",currentUser.id)
-.select()
-.single();
-
-if(r.error)throw r.error;
-
-currentProfile=r.data;
-
-await db.auth.updateUser({
-data:{
-full_name:name,
-username:username||null
-}
-});
-
-await loadProfile();
-
-closeModal("editModal");
-
-}catch(e){
-
-console.error(e);
-
-status.innerText=e.message||t("connection");
-
-}
-}
-
-/* =========================================================
-MY DUELS
-========================================================= */
-
-async function loadMyDuels(){
-
-const box=$("myDuels");
-
-const r=await db.from("duels")
-.select("*")
-.eq("user_id",currentUser.id)
-.order("created_at",{ascending:false});
-
-box.innerHTML="";
-
-if(r.error){
-
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-
-}
-
-if(!r.data?.length){
-
-box.innerHTML=`<div class="empty">${esc(t("noMyDuels"))}</div>`;
-return;
-
-}
-
-for(const duel of r.data)
-box.appendChild(await duelCard(duel));
-}
-
-/* =========================================================
-ADMIN
-========================================================= */
-
-async function openAdminPanel(){
-
-if(currentProfile?.is_admin!==true){
-
-alert("Нет прав администратора");
-return;
-
-}
-
-$("adminPanel").classList.toggle("hidden");
-
-if(!$("adminPanel").classList.contains("hidden"))
-await loadAdminUsers();
-}
-
-async function loadAdminUsers(){
-
-const box=$("adminContent");
-
-const r=await db.from("profiles")
-.select("id,full_name,username,is_admin,is_blocked")
-.order("full_name")
-.limit(100);
-
-if(r.error){
-
-box.innerText=r.error.message;
-return;
-
-}
-
-box.innerHTML=(r.data||[]).map(u=>`
-
-<div class="admin-user-row">
-
-<div class="admin-user-main">
-
-<div class="admin-user-name">
-${esc(u.full_name||t("participant"))}
-</div>
-
-<div style="font-size:11px;color:#64748b">
-@${esc(u.username||"arena")}
-</div>
-
-<div class="${u.is_blocked?"admin-blocked":"admin-active"}">
-${u.is_blocked?t("blocked"):t("active")}
-</div>
-
-</div>
-
-${u.is_admin?"👑":""}
-
-${u.id!==currentUser.id
-?`
-
-<button
-class="admin-action ${u.is_blocked?"admin-unblock-button":"admin-block-button"}"
-type="button"
-onclick="adminBlock('${escJS(u.id)}',${!!u.is_blocked})"
->
-${u.is_blocked?t("unblock"):t("block")}
-</button>
-
-`
-:""}
-
-</div>
-
-`).join("");
-}
-
-async function adminBlock(id,blocked){
-
-const question=blocked
-?(language==="ru"?"Разблокировать пользователя?":language==="ro"?"Deblochezi utilizatorul?":"Unblock user?")
-:(language==="ru"?"Заблокировать пользователя?":language==="ro"?"Blochezi utilizatorul?":"Block user?");
-
-if(!confirm(question))return;
-
-const r=await db.rpc(
-"admin_set_blocked",
-{
-target_user_id:id,
-blocked_value:!blocked
-}
-);
-
-if(r.error){
-
-alert(r.error.message);
-return;
-
-}
-
-await loadAdminUsers();
-}
-
-/* =========================================================
-PRIVATE CHAT
-========================================================= */
-
-async function openChat(){
-
-if(!currentUser){
-
-showAuth();
-return;
-
-}
-
-showScreen("chatScreen");
-
-privateChatUser=null;
-
-$("privateChat").classList.add("hidden");
-$("privateChatList").classList.remove("hidden");
-
-await loadConversations();
-await updateUnreadBadge();
-}
-
-function appendMessage(box,message,profile){
-
-const mine=String(message.sender_id)===String(currentUser.id);
-
-const name=
-profile?.full_name||
-profile?.username||
-t("participant");
-
-const text=
-message.is_deleted
-?t("messageDeleted")
-:(message.text||"");
-
-const tools=message.is_deleted
-?""
-:(mine
-?`<button type="button" onclick="deleteMessage('${escJS(message.id)}')">🗑️</button>`
-:`<button type="button" onclick="reportMessage('${escJS(message.id)}')">⚠️</button>`);
-
-const element=document.createElement("div");
-
-element.className="message"+(mine?" mine":"");
-
-element.innerHTML=`
-
-<div class="message-content">
-
-${!mine
-?`<div class="message-author">${esc(name)}</div>`
-:""}
-
-<div class="message-text">
-${esc(text)}
-</div>
-
-<div class="message-time">
-${date(message.created_at)}
-</div>
-
-<div class="message-tools">
-${tools}
-</div>
-
-</div>
-`;
-
-box.appendChild(element);
-}
-
-async function loadConversations(){
-
-const box=$("conversationList");
-
-const r=await db.from("messages")
-.select("*")
-.or(
-`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
-)
-.not("receiver_id","is",null)
-.order("created_at",{ascending:false})
-.limit(500);
-
-if(r.error){
-
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-
-}
-
-const conversations={};
-
-(r.data||[]).forEach(m=>{
-
-const id=
-String(m.sender_id)===String(currentUser.id)
-?m.receiver_id
-:m.sender_id;
-
-if(!id)return;
-
-if(!conversations[id])
-conversations[id]={last:m,unread:0};
-
-if(
-String(m.receiver_id)===String(currentUser.id)&&
-!m.is_read
-)
-conversations[id].unread++;
-
-});
-
-const ids=Object.keys(conversations);
-
-if(!ids.length){
-
-box.innerHTML=`<div class="empty">${esc(t("noConversations"))}</div>`;
-return;
-
-}
-
-const map=await profilesMap(ids);
-
-box.innerHTML="";
-
-ids.forEach(id=>{
-
-const p=map[id]||{};
-const c=conversations[id];
-
-const element=document.createElement("div");
-
-element.className="chat-user";
-
-element.onclick=()=>openPrivateChat(id);
-
-element.innerHTML=`
-
-<div class="profile-big-avatar"
-style="width:48px;height:48px;font-size:22px">
-
-${p.avatar_url
-?`<img src="${esc(p.avatar_url)}">`
-:"⚔️"}
-
-</div>
-
-<div class="chat-user-main">
-
-<div>
-${esc(p.full_name||t("participant"))}
-</div>
-
-<div class="chat-user-last">
-${c.last.is_deleted?t("messageDeleted"):(c.last.text||"")}
-</div>
-
-</div>
-
-${c.unread
-?`<div class="unread-badge">${c.unread>99?"99+":c.unread}</div>`
-:""}
-
-`;
-
-box.appendChild(element);
-
-});
-}
-
-/* =========================================================
-NEW MESSAGE
-========================================================= */
-
-function openNewMessageModal(){
-
-$("messageUserSearch").value="";
-
-$("messageUserResults").innerHTML=
-`<div class="empty">${esc(t("searchStart"))}</div>`;
-
-$("newMessageModal").classList.add("show");
-}
-
-async function searchMessageUsers(){
-
-const value=$("messageUserSearch").value.trim();
-const box=$("messageUserResults");
-
-if(!value){
-
-box.innerHTML=
-`<div class="empty">${esc(t("searchStart"))}</div>`;
-
-return;
-
-}
-
-const safe=safeSearch(value);
-
-const r=await db.from("profiles")
-.select("id,full_name,username,avatar_url")
-.or(
-`full_name.ilike.%${safe}%,username.ilike.%${safe}%`
-)
-.neq("id",currentUser.id)
-.limit(20);
-
-if(r.error){
-
-box.innerHTML=
-`<div class="empty">${esc(r.error.message)}</div>`;
-
-return;
-
-}
-
-box.innerHTML="";
-
-(r.data||[]).forEach(p=>{
-
-const element=document.createElement("div");
-
-element.className="chat-user";
-
-element.onclick=()=>{
-
-closeModal("newMessageModal");
-openPrivateChat(String(p.id));
-
-};
-
-element.innerHTML=`
-
-<div class="profile-big-avatar"
-style="width:48px;height:48px;font-size:22px">
-
-${p.avatar_url
-?`<img src="${esc(p.avatar_url)}">`
-:"⚔️"}
-
-</div>
-
-<div class="chat-user-main">
-
-<div>${esc(p.full_name||t("participant"))}</div>
-
-<div class="chat-user-last">
-@${esc(p.username||"arena")}
-</div>
-
-</div>
-
-`;
-
-box.appendChild(element);
-
-});
-}
-
-/* =========================================================
-PRIVATE CHAT
-========================================================= */
-
-async function openPrivateChat(id){
-
-if(!id||String(id)===String(currentUser.id))
-return;
-
-const userId=String(id);
-
-const r=await db.from("profiles")
-.select("*")
-.eq("id",userId)
-.maybeSingle();
-
-if(r.error){
-
-console.error("OPEN PRIVATE CHAT:",r.error);
-return;
-
-}
-
-if(!r.data){
-
-alert("Профиль не найден.");
-return;
-
-}
-
-privateChatUser=r.data;
-
-showScreen("chatScreen");
-
-$("privateChatList").classList.add("hidden");
-$("privateChat").classList.remove("hidden");
-
-$("privatePersonName").innerText=
-r.data.full_name||t("participant");
-
-$("privatePersonUsername").innerText=
-"@"+(r.data.username||"arena");
-
-setAvatar(
-"privatePersonAvatar",
-r.data.avatar_url
-);
-
-await markRead(userId);
-await loadPrivateMessages(userId);
-await updateUnreadBadge();
-
-setTimeout(()=>{
-$("privateMessageInput")?.focus();
-},50);
-}
-
-async function showConversationList(){
-
-privateChatUser=null;
-
-$("privateChat").classList.add("hidden");
-$("privateChatList").classList.remove("hidden");
-
-await loadConversations();
-await updateUnreadBadge();
-}
-
-async function loadPrivateMessages(id){
-
-const userId=String(id);
-
-const box=$("privateMessages");
-
-const r=await db.from("messages")
-.select("*")
-.or(
-`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`
-)
-.order("created_at")
-.limit(300);
-
-if(r.error){
-
-box.innerHTML=
-`<div class="empty">${esc(r.error.message)}</div>`;
-
-return;
-
-}
-
-box.innerHTML="";
-
-if(!r.data?.length){
-
-box.innerHTML=
-`<div class="empty">${esc(t("noMessages"))}</div>`;
-
-return;
-
-}
-
-r.data.forEach(m=>
-appendMessage(
-box,
-m,
-String(m.sender_id)===String(currentUser.id)
-?currentProfile
-:privateChatUser
-)
-);
-
-box.scrollTop=box.scrollHeight;
-}
-
-async function sendPrivateMessage(){
-
-if(!privateChatUser)return;
-
-const input=$("privateMessageInput");
-const text=input.value.trim();
-
-if(!text)return;
-
-input.disabled=true;
-
-try{
-
-const r=await db.rpc(
-"send_message",
-{
-p_receiver_id:privateChatUser.id,
-p_text:text
-}
-);
-
-if(r.error)throw r.error;
-
-input.value="";
-
-await loadPrivateMessages(privateChatUser.id);
-
-}catch(e){
-
-console.error("PRIVATE SEND:",e);
-alert(e.message||t("sendError"));
-
-}finally{
-
-input.disabled=false;
-input.focus();
-
-}
-
-}
-
-async function markRead(id){
-
-await db.from("messages")
-.update({is_read:true})
-.eq("receiver_id",currentUser.id)
-.eq("sender_id",String(id))
-.eq("is_read",false);
-}
-
-async function updateUnreadBadge(){
-
-if(!currentUser)return;
-
-const badge=$("chatUnreadBadge");
-
-const r=await db.from("messages")
-.select("id",{count:"exact",head:true})
-.eq("receiver_id",currentUser.id)
-.eq("is_read",false);
-
-const n=r.count||0;
-
-badge.innerText=n>99?"99+":n;
-badge.style.display=n?"flex":"none";
-}
-
-function handleChatEnter(event){
-
-if(event.key==="Enter"&&!event.shiftKey){
-
-event.preventDefault();
-sendPrivateMessage();
-
-}
-}
-
-async function deleteMessage(id){
-
-if(!confirm(t("deleteMessage")))return;
-
-const r=await db.from("messages")
-.update({is_deleted:true})
-.eq("id",String(id))
-.eq("sender_id",currentUser.id);
-
-if(r.error){
-
-alert(r.error.message);
-return;
-
-}
-
-if(privateChatUser)
-await loadPrivateMessages(privateChatUser.id);
-else
-await loadConversations();
-}
-
-async function reportMessage(id){
-
-const reason=prompt(t("reportReason"));
-
-if(reason===null)return;
-
-const r=await db.from("message_reports")
-.insert({
-message_id:Number(id),
-reporter_id:currentUser.id,
-reason:reason.trim()||"No reason"
-});
-
-if(r.error){
-
-alert(r.error.message);
-return;
-
-}
-
-alert(t("reported"));
-}
-
-/* =========================================================
-PRIVATE REALTIME
-========================================================= */
-
-async function setupPrivateRealtime(){
-
-try{
-
-if(privateChannel)
-await db.removeChannel(privateChannel);
-
-privateChannel=
-db.channel("arena-private-"+currentUser.id)
-
-.on(
-"postgres_changes",
-{
-event:"*",
-schema:"public",
-table:"messages"
-},
-async payload=>{
-
-const m=payload.new||payload.old;
-
-if(!m)return;
-
-if(
-String(m.sender_id)!==String(currentUser.id)&&
-String(m.receiver_id)!==String(currentUser.id)
-)
-return;
-
-if(
-privateChatUser&&
-(
-String(m.sender_id)===String(privateChatUser.id)||
-String(m.receiver_id)===String(privateChatUser.id)
-)
-){
-
-await loadPrivateMessages(privateChatUser.id);
-
-}else if(
-$("chatScreen").classList.contains("active")
-){
-
-await loadConversations();
-
-}
-
-await updateUnreadBadge();
-
-}
-)
-
-.subscribe();
-
-}catch(e){
-
-console.error("Private realtime:",e);
-
-}
-}
-
-/* =========================================================
-OTHER USER
-========================================================= */
-
-function messageCurrentOtherUser(){
-
-if(openedOtherUserId)
-openPrivateChat(openedOtherUserId);
-}
-
-/* =========================================================
-MODALS
-========================================================= */
-
-function closeModal(id){
-
-const modal=$(id);
-
-if(modal)
-modal.classList.remove("show");
-}
-
-document.addEventListener("click",event=>{
-
-if(event.target.classList.contains("modal"))
-event.target.classList.remove("show");
-
-});
-
-/* =========================================================
-INITIALIZATION
-========================================================= */
-
-document.addEventListener("DOMContentLoaded",async()=>{
-
-try{
-
-if(!["ru","ro","en"].includes(language))
-language="ru";
-
-applyLanguage();
-
-$("privateMessageInput")
-.addEventListener("keydown",handleChatEnter);
-
-$("searchInput")
-.addEventListener("input",searchUsers);
-
-$("messageUserSearch")
-.addEventListener("input",searchMessageUsers);
-
-if(!initDB()){
-
-hideStartup();
-showAuth();
-showLogin();
-
-return;
-}
-
-const sessionResult=await db.auth.getSession();
-
-if(sessionResult.error)
-console.error("GET SESSION:",sessionResult.error);
-
-const session=sessionResult.data?.session;
-
-if(session){
-
-currentUser=session.user;
-
-await startApp();
-
-}else{
-
-showAuth();
-showLogin();
-hideStartup();
-
-}
-
-db.auth.onAuthStateChange(async(event,session)=>{
-
-console.log("AUTH EVENT:",event);
-
-if(event==="SIGNED_OUT"){
-
-currentUser=null;
-currentProfile=null;
-privateChatUser=null;
-
-showAuth();
-showLogin();
-hideStartup();
-
-return;
-}
-
-if(event==="TOKEN_REFRESHED"&&session){
-
-currentUser=session.user;
-return;
-}
-
-if(event==="SIGNED_IN"&&session){
-
-currentUser=session.user;
-
-if($("app").classList.contains("hidden")){
-
-try{
-await startApp();
-}catch(e){
-console.error("SIGNED_IN START:",e);
-}
-
-}
-
-}
-
-});
-
-}catch(e){
-
-console.error("ARENA START ERROR:",e);
-
-showAuth();
-
-$("authStatus").innerText=t("connection");
-
-hideStartup();
-
-}
-
-});
-</script>
-
-</body>
-</html>
