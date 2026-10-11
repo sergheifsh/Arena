@@ -22,9 +22,9 @@ button{cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 #startupScreen.hide{opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
 
-.app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:100px;box-shadow:0 0 25px #1e40af1a}
+.app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:calc(100px + env(safe-area-inset-bottom));box-shadow:0 0 25px #1e40af1a}
 
-header{position:sticky;top:0;z-index:20;height:62px;background:#fff;border-bottom:1px solid #dbe4f0;padding:8px 12px}
+header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-top));background:#fff;border-bottom:1px solid #dbe4f0;padding:calc(8px + env(safe-area-inset-top)) 12px 8px}
 .top-row{height:100%;display:flex;align-items:center;justify-content:center;position:relative}
 .logo{font-size:21px}
 .language{position:absolute;right:2px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:8px;padding:5px 6px;font-size:10px}
@@ -168,7 +168,7 @@ header{position:sticky;top:0;z-index:20;height:62px;background:#fff;border-botto
 .new-message-button{width:calc(100% - 28px);padding:12px}
 .chat-person-title{display:flex;align-items:center;gap:10px;margin:0 14px 10px}
 
-nav{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:min(650px,calc(100% - 24px));height:68px;background:#fff;border:1px solid #dbe4f0;border-radius:20px;display:flex;align-items:center;justify-content:space-around;z-index:50;box-shadow:0 10px 25px #0f172a15}
+nav{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(650px,calc(100% - 24px));height:68px;background:#fff;border:1px solid #dbe4f0;border-radius:20px;display:flex;align-items:center;justify-content:space-around;z-index:50;box-shadow:0 10px 25px #0f172a15}
 nav button{position:relative;flex:1;height:100%;border:0;background:transparent;color:#64748b;font-size:16px}
 nav button span{font-size:10px}
 nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radius:50%;background:#2563eb;color:#fff;font-size:30px;box-shadow:0 6px 18px #2563eb55}
@@ -176,7 +176,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 .modal{display:none;position:fixed;inset:0;background:#0f172a99;z-index:100;align-items:flex-end;justify-content:center}
 .modal.show{display:flex}
-.modal-box{width:min(650px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px 22px 0 0;padding:18px}
+.modal-box{width:min(650px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px 22px 0 0;padding:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
 .modal-box h2{margin-bottom:12px;color:#2563eb}
 .modal-box textarea{resize:vertical;min-height:90px}
 .photo-button{display:block;padding:13px;margin:6px 0;border:2px dashed #60a5fa;border-radius:12px;text-align:center;color:#2563eb;font-weight:bold;background:#eff6ff}
@@ -537,6 +537,17 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="messageUserResults"></div>
 <button id="messageCancelButton" class="secondary" type="button" onclick="closeModal('newMessageModal')"></button>
 
+</div>
+</div>
+
+<!-- Кастомное модальное окно подтверждения вместо системного confirm -->
+<div id="customConfirmModal" class="modal" style="z-index: 10000;">
+<div class="modal-box" style="text-align: center; max-width: 380px; border-radius: 22px;">
+<p id="customConfirmText" style="font-size: 16px; font-weight: bold; margin-bottom: 20px; color: #172033;"></p>
+<div style="display: flex; gap: 10px;">
+<button id="customConfirmCancel" class="secondary" type="button" style="margin-top: 0;"></button>
+<button id="customConfirmOk" class="primary" type="button" style="margin-top: 0; background: #dc2626;"></button>
+</div>
 </div>
 </div>
 
@@ -1016,6 +1027,33 @@ return String(v)
 .replace(/\\/g,"\\\\")
 .replace(/%/g,"\\%")
 .replace(/_/g,"\\_");
+}
+
+function showCustomConfirm(message, onConfirm) {
+$("customConfirmText").innerText = message;
+$("customConfirmOk").innerText = t("delete");
+$("customConfirmCancel").innerText = t("cancel");
+
+const modal = $("customConfirmModal");
+modal.classList.add("show");
+
+const okBtn = $("customConfirmOk");
+const cancelBtn = $("customConfirmCancel");
+
+const clean = () => {
+okBtn.onclick = null;
+cancelBtn.onclick = null;
+modal.classList.remove("show");
+};
+
+okBtn.onclick = () => {
+clean();
+onConfirm();
+};
+
+cancelBtn.onclick = () => {
+clean();
+};
 }
 
 function applyLanguage(){
@@ -2154,9 +2192,7 @@ btn.innerText=index===0?t("chooseA"):t("chooseB");
 async function deleteDuel(id,admin=false){
 if(!currentUser)return;
 
-if(!confirm(t(admin?"adminDeleteConfirm":"deleteConfirm")))
-return;
-
+showCustomConfirm(t(admin?"adminDeleteConfirm":"deleteConfirm"), async () => {
 try{
 let q=db.from("duels").delete().eq("id",String(id));
 
@@ -2176,6 +2212,7 @@ await loadMyDuels();
 console.error("DELETE DUEL:",e);
 alert(e.message||t("connection"));
 }
+});
 }
 
 function toggleDuelType(){
@@ -2563,9 +2600,7 @@ input.focus();
 }
 
 async function deleteDuelMessage(id,duelId){
-if(!confirm(t("deleteMessage")))
-return;
-
+showCustomConfirm(t("deleteMessage"), async () => {
 const r=await db.from("duel_messages")
 .delete()
 .eq("id",String(id))
@@ -2586,6 +2621,7 @@ if(button){
 const count=await getDuelMessageCount(String(duelId));
 button.innerText=`${t("duelChat")} · ${count}`;
 }
+});
 }
 
 async function setupDuelMessagesRealtime(){
@@ -2963,8 +2999,7 @@ const question=blocked
 ?(language==="ru"?"Разблокировать пользователя?":language==="ro"?"Deblochezi utilizatorul?":"Unblock user?")
 :(language==="ru"?"Заблокировать пользователя?":language==="ro"?"Blochezi utilizatorul?":"Block user?");
 
-if(!confirm(question))return;
-
+showCustomConfirm(question, async () => {
 const r=await db.rpc("admin_set_blocked",{
 target_user_id:id,
 blocked_value:!blocked
@@ -2976,6 +3011,7 @@ return;
 }
 
 await loadAdminUsers();
+});
 }
 
 async function openChat(){
@@ -3271,8 +3307,7 @@ sendPrivateMessage();
 }
 
 async function deleteMessage(id){
-if(!confirm(t("deleteMessage")))return;
-
+showCustomConfirm(t("deleteMessage"), async () => {
 const r=await db.from("messages")
 .update({is_deleted:true})
 .eq("id",String(id))
@@ -3287,6 +3322,7 @@ if(privateChatUser)
 await loadPrivateMessages(privateChatUser.id);
 else
 await loadConversations();
+});
 }
 
 async function reportMessage(id){
@@ -3346,7 +3382,7 @@ if(modal)modal.classList.remove("show");
 }
 
 document.addEventListener("click",event=>{
-if(event.target.classList.contains("modal"))
+if(event.target.classList.contains("modal")&&event.target.id!=="customConfirmModal")
 event.target.classList.remove("show");
 });
 
