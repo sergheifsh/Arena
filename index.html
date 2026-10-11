@@ -438,6 +438,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <option value="24" data-opt="h24"></option>
 <option value="48" selected data-opt="h48"></option>
 <option value="72" data-opt="h72"></option>
+<option value="0" data-opt="unlimited"></option>
 </select>
 
 <div id="photoFields">
@@ -681,6 +682,7 @@ shareCopied:"🔗 Ссылка на батл скопирована!",
 h24:"⏳ 24 часа",
 h48:"⏳ 48 часов",
 h72:"⏳ 72 часа",
+unlimited:"♾️ Безлимитно",
 videoA:"🎥 Видео участника A",
 videoB:"🎥 Видео участника B",
 battleEnded:"🔴 Завершён"
@@ -800,6 +802,7 @@ shareCopied:"🔗 Linkul duelului a fost copiat!",
 h24:"⏳ 24 de ore",
 h48:"⏳ 48 de ore",
 h72:"⏳ 72 de ore",
+unlimited:"♾️ Nelimitat",
 videoA:"🎥 Video participant A",
 videoB:"🎥 Video participant B",
 battleEnded:"🔴 Finalizat"
@@ -919,6 +922,7 @@ shareCopied:"🔗 Duel link copied!",
 h24:"⏳ 24 hours",
 h48:"⏳ 48 hours",
 h72:"⏳ 72 hours",
+unlimited:"♾️ Unlimited",
 videoA:"🎥 Participant A video",
 videoB:"🎥 Participant B video",
 battleEnded:"🔴 Ended"
@@ -962,7 +966,7 @@ language==="en"?"en-US":language==="ro"?"ro-RO":"ru-RU",
 }
 
 function formatCountdown(expiresAt){
-if(!expiresAt)return{text:"⏳ --:--:--",ended:false};
+if(!expiresAt)return{text:t("unlimited"),ended:false};
 const end=new Date(expiresAt).getTime();
 const now=Date.now();
 const diff=end-now;
@@ -2301,7 +2305,7 @@ async function createDuel(){
 const title=$("duelTitle").value.trim();
 const type=$("duelType").value;
 const category=$("duelCategory").value;
-const duration=parseInt($("duelDuration").value,10)||48;
+const duration=parseInt($("duelDuration").value,10);
 const status=$("duelStatus");
 
 let optionA="";
@@ -2361,7 +2365,7 @@ imageB=await upload(selectedImageB,"duels");
 
 status.innerText=t("creatingDuel");
 
-const expiresAt=new Date(Date.now()+duration*3600*1000).toISOString();
+const expiresAt=duration>0?new Date(Date.now()+duration*3600*1000).toISOString():null;
 
 const payload={
 user_id:currentUser.id,
