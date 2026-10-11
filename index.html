@@ -2241,7 +2241,7 @@ $("previewVideoB").style.display="block";
 reader.readAsDataURL(file);
 }
 
-async function upload(file,folder){
+async function upload(file, folder){
 if(!file)return"";
 
 const ext=(file.name.split(".").pop()||"bin")
@@ -2250,17 +2250,19 @@ const ext=(file.name.split(".").pop()||"bin")
 const path=
 `${folder}/${currentUser.id}-${Date.now()}-${rnd()}.${ext}`;
 
+const bucketName = "Photos";
+
 const r=await db.storage
-.from("Photos")
+.from(bucketName)
 .upload(path,file,{
-upsert:false,
-contentType:file.type
+upsert:true,
+contentType: file.type || "application/octet-stream"
 });
 
 if(r.error)throw r.error;
 
 return db.storage
-.from("Photos")
+.from(bucketName)
 .getPublicUrl(path)
 .data.publicUrl;
 }
