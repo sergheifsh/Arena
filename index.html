@@ -419,24 +419,24 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="duelTitle">
 
 <select id="duelCategory">
-<option value="Фильмы">🎬 Фильмы</option>
-<option value="Музыка">🎵 Музыка</option>
-<option value="Игры">🎮 Игры</option>
-<option value="Спорт">⚽ Спорт</option>
-<option value="Мемы">😂 Мемы</option>
-<option value="Авто">🚗 Авто</option>
-<option value="Другое">✨ Другое</option>
+<option value="Фильмы">🎬 <span data-i18n-opt="films">Фильмы</span></option>
+<option value="Музыка">🎵 <span data-i18n-opt="music">Музыка</span></option>
+<option value="Игры">🎮 <span data-i18n-opt="games">Игры</span></option>
+<option value="Спорт">⚽ <span data-i18n-opt="sport">Спорт</span></option>
+<option value="Мемы">😂 <span data-i18n-opt="memes">Мемы</span></option>
+<option value="Авто">🚗 <span data-i18n-opt="auto">Авто</span></option>
+<option value="Другое">✨ <span data-i18n-opt="other">Другое</span></option>
 </select>
 
 <select id="duelType" onchange="toggleDuelType()">
-<option value="photo">🖼️ Фото-батл</option>
-<option value="video">🎥 Видео-батл</option>
+<option value="photo">🖼️ <span data-i18n-opt="photoBattle">Фото-батл</span></option>
+<option value="video">🎥 <span data-i18n-opt="videoBattle">Видео-батл</span></option>
 </select>
 
 <select id="duelDuration">
-<option value="24">⏳ 24 часа</option>
-<option value="48" selected>⏳ 48 часов</option>
-<option value="72">⏳ 72 часа</option>
+<option value="24">⏳ <span data-i18n-opt="h24">24 часа</span></option>
+<option value="48" selected>⏳ <span data-i18n-opt="h48">48 часов</span></option>
+<option value="72">⏳ <span data-i18n-opt="h72">72 часа</span></option>
 </select>
 
 <div id="photoFields">
@@ -470,7 +470,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="duelVideoOptionA">
 
 <label class="photo-button">
-🎥 Видео участника A
+<span id="videoAText">🎥 Видео участника A</span>
 <input id="duelVideoA" type="file" accept="video/*" onchange="previewDuelMedia('A',event,'video')">
 </label>
 
@@ -481,7 +481,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="duelVideoOptionB">
 
 <label class="photo-button">
-🎥 Видео участника B
+<span id="videoBText">🎥 Видео участника B</span>
 <input id="duelVideoB" type="file" accept="video/*" onchange="previewDuelMedia('B',event,'video')">
 </label>
 
@@ -489,7 +489,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <video id="previewVideoBElement" controls playsinline></video>
 </div>
 
-<div class="media-help">🎥 Максимальный размер видео — 100 MB.</div>
+<div class="media-help" data-i18n="maxPhotoHelp">🎥 Максимальный размер видео — 100 MB.</div>
 
 </div>
 
@@ -657,6 +657,7 @@ saving:"Сохраняем...",
 username:"Имя пользователя",
 avatar:"📷 Изменить аватар",
 maxPhoto:"Максимальный размер файла — 100 MB.",
+maxPhotoHelp:"🎥 Максимальный размер видео — 100 MB.",
 tooLongTitle:"Название дуэли слишком длинное.",
 tooLongOption:"Название варианта слишком длинное.",
 privateMessages:"Личные сообщения",
@@ -678,7 +679,12 @@ noDuelMessages:"Пока никто ничего не написал. Будь �
 deleteMessage:"Удалить сообщение?",
 videoRequired:"Добавь хотя бы одно видео.",
 share:"📤 Поделиться",
-shareCopied:"🔗 Ссылка на батл скопирована!"
+shareCopied:"🔗 Ссылка на батл скопирована!",
+h24:"24 часа",
+h48:"48 часов",
+h72:"72 часа",
+videoA:"🎥 Видео участника A",
+videoB:"🎥 Видео участника B"
 },
 
 ro:{
@@ -768,6 +774,7 @@ saving:"Se salvează...",
 username:"Nume utilizator",
 avatar:"📷 Schimbă avatarul",
 maxPhoto:"Dimensiunea maximă este 100 MB.",
+maxPhotoHelp:"🎥 Dimensiunea maximă video este 100 MB.",
 tooLongTitle:"Numele duelului este prea lung.",
 tooLongOption:"Numele variantei este prea lung.",
 privateMessages:"Mesaje private",
@@ -789,7 +796,12 @@ noDuelMessages:"Nimeni nu a scris încă. Fii primul!",
 deleteMessage:"Ștergi mesajul?",
 videoRequired:"Adaugă cel puțin un video.",
 share:"📤 Distribuie",
-shareCopied:"🔗 Linkul duelului a fost copiat!"
+shareCopied:"🔗 Linkul duelului a fost copiat!",
+h24:"24 de ore",
+h48:"48 de ore",
+h72:"72 de ore",
+videoA:"🎥 Video participant A",
+videoB:"🎥 Video participant B"
 },
 
 en:{
@@ -879,6 +891,7 @@ saving:"Saving...",
 username:"Username",
 avatar:"📷 Change avatar",
 maxPhoto:"Maximum size is 100 MB.",
+maxPhotoHelp:"🎥 Maximum video size is 100 MB.",
 tooLongTitle:"Duel title is too long.",
 tooLongOption:"Option name is too long.",
 privateMessages:"Private messages",
@@ -900,7 +913,12 @@ noDuelMessages:"Nobody has written yet. Be the first!",
 deleteMessage:"Delete this message?",
 videoRequired:"Add at least one video.",
 share:"📤 Share",
-shareCopied:"🔗 Duel link copied!"
+shareCopied:"🔗 Duel link copied!",
+h24:"24 hours",
+h48:"48 hours",
+h72:"72 hours",
+videoA:"🎥 Participant A video",
+videoB:"🎥 Participant B video"
 }
 };
 
@@ -990,6 +1008,8 @@ duelSubmitButton:"createDuel",
 duelCancelButton:"cancel",
 photoAText:"photoA",
 photoBText:"photoB",
+videoAText:"videoA",
+videoBText:"videoB",
 editProfileTitle:"editProfile",
 avatarText:"avatar",
 saveProfileButton:"save",
@@ -1045,12 +1065,12 @@ document.querySelectorAll("[data-nav]").forEach(e=>{
 e.innerText=t(e.dataset.nav);
 });
 
-document.querySelectorAll(".video-battle-text").forEach(e=>{
-e.innerText=t("videoBattle");
+document.querySelectorAll("[data-i18n-opt]").forEach(e=>{
+e.innerText=t(e.dataset.i18nOpt);
 });
 
-document.querySelectorAll(".photo-battle-text").forEach(e=>{
-e.innerText=t("photoBattle");
+document.querySelectorAll("[data-i18n]").forEach(e=>{
+e.innerText=t(e.dataset.i18n);
 });
 
 if($("profileName")&&!currentProfile?.full_name)
