@@ -1911,11 +1911,7 @@ ${vote?(vote==="b"?t("yourChoice"):"B"):t("chooseB")}
 
 <div class="duel-actions">
 <span class="duel-total-votes" onclick="openVotersModal('${idJS}')">
-🗳️ ${voteCounts.total} ${t("votes")} (кто голосовал)
-</span>
-
-<span>
-👤 ${esc(duel.author_name||duel.full_name||t("participant"))}
+🗳️ ${voteCounts.total} ${t("votes")}
 </span>
 
 <button
@@ -2190,7 +2186,7 @@ if(fillB)
 fillB.style.width=`${counts.pb}%`;
 
 if(total)
-total.innerHTML=`🗳️ ${counts.total} ${t("votes")} (кто голосовал)`;
+total.innerHTML=`🗳️ ${counts.total} ${t("votes")}`;
 
 const buttons=card.querySelectorAll(".vote-button");
 
