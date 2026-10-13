@@ -1795,11 +1795,11 @@ let mediaB="";
 
 if(video){
 mediaA=duel.video_a
-?`<video src="${esc(duel.video_a)}" controls playsinline preload="metadata"></video>`
+?`<video src="${esc(duel.video_a)}" controls playsinline preload="metadata" onclick="requestVideoFullscreen(this)"></video>`
 :`<div class="option-placeholder video-placeholder">🎥</div>`;
 
 mediaB=duel.video_b
-?`<video src="${esc(duel.video_b)}" controls playsinline preload="metadata"></video>`
+?`<video src="${esc(duel.video_b)}" controls playsinline preload="metadata" onclick="requestVideoFullscreen(this)"></video>`
 :`<div class="option-placeholder video-placeholder">🎥</div>`;
 
 }else{
@@ -1998,6 +1998,16 @@ sendDuelMessage(id);
 }
 
 return card;
+}
+
+function requestVideoFullscreen(videoEl) {
+    if (videoEl.requestFullscreen) {
+        videoEl.requestFullscreen();
+    } else if (videoEl.webkitRequestFullscreen) {
+        videoEl.webkitRequestFullscreen();
+    } else if (videoEl.msRequestFullscreen) {
+        videoEl.msRequestFullscreen();
+    }
 }
 
 async function openVotersModal(id){
