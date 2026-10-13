@@ -91,6 +91,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .admin-delete{color:#991b1b!important;font-weight:bold}
 .duel-chat-button{border:0!important;background:#eff6ff!important;color:#2563eb!important;padding:7px 10px!important;border-radius:9px!important;font-weight:bold}
 .duel-share-button{border:0!important;background:#f1f5f9!important;color:#2563eb!important;padding:7px 10px!important;border-radius:9px!important;font-weight:bold}
+.duel-total-votes{cursor:pointer;font-weight:bold;color:#2563eb}
 
 .duel-chat{border-top:1px solid #dbe4f0;background:#f8fafc;padding:10px}
 .duel-chat-messages{max-height:280px;overflow:auto;padding:5px 2px 8px}
@@ -537,6 +538,15 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="messageUserResults"></div>
 <button id="messageCancelButton" class="secondary" type="button" onclick="closeModal('newMessageModal')"></button>
 
+</div>
+</div>
+
+<!-- Модальное окно просмотра проголосовавших -->
+<div id="votersModal" class="modal">
+<div class="modal-box">
+<h2>👥 Кто за кого голосовал</h2>
+<div id="votersModalContent" style="max-height:50vh;overflow-y:auto;margin-bottom:15px"></div>
+<button class="secondary" type="button" onclick="closeModal('votersModal')">Закрыть</button>
 </div>
 </div>
 
@@ -1249,13 +1259,34 @@ return t("connection");
 return e?.message||"Ошибка";
 }
 
+async function getUniqueFullName(requestedName) {
+    let finalName = requestedName;
+    let counter = 1;
+
+    while (true) {
+        const check = await db.from("profiles")
+            .select("id")
+            .ilike("full_name", finalName)
+            .maybeSingle();
+
+        if (!check.data) {
+            break;
+        }
+
+        finalName = `${requestedName} ${counter}`;
+        counter++;
+    }
+
+    return finalName;
+}
+
 async function register(){
-const name=$("regName").value.trim();
+const rawName=$("regName").value.trim();
 const email=$("regEmail").value.trim().toLowerCase();
 const pass=$("regPassword").value;
 const status=$("authStatus");
 
-if(!name||!email||!pass){
+if(!rawName||!email||!pass){
 status.innerText=t("invalid");
 return;
 }
@@ -1269,6 +1300,7 @@ $("registerButton").disabled=true;
 status.innerText=t("creatingAccount");
 
 try{
+const name = await getUniqueFullName(rawName);
 const username="arena_"+rnd();
 
 const r=await db.auth.signUp({
@@ -1878,8 +1910,8 @@ ${vote?(vote==="b"?t("yourChoice"):"B"):t("chooseB")}
 </div>
 
 <div class="duel-actions">
-<span class="duel-total-votes">
-🗳️ ${voteCounts.total} ${t("votes")}
+<span class="duel-total-votes" onclick="openVotersModal('${idJS}')">
+🗳️ ${voteCounts.total} ${t("votes")} (кто голосовал)
 </span>
 
 <span>
@@ -1964,6 +1996,59 @@ sendDuelMessage(id);
 }
 
 return card;
+}
+
+async function openVotersModal(id){
+const duelId=String(id);
+const content=$("votersModalContent");
+content.innerHTML=`<div class="empty">${t("loading")}</div>`;
+$("votersModal").classList.add("show");
+
+try{
+const r=await db.from("duel_votes")
+.select("choice, user_id")
+.eq("duel_id",duelId);
+
+if(r.error)throw r.error;
+const votes=r.data||[];
+
+if(!votes.length){
+content.innerHTML=`<div class="empty">Пока нет голосов</div>`;
+return;
+}
+
+const userIds=[...new Set(votes.map(v=>v.user_id))];
+const profilesMapData=await profilesMap(userIds);
+
+let listA=[];
+let listB=[];
+
+votes.forEach(v=>{
+const p=profilesMapData[v.user_id]||{};
+const name=p.full_name||p.username||t("participant");
+const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px">⚔️</div>`;
+const username=p.username?`@${esc(p.username)}`:"";
+
+const item=`<div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;">${avatar}<div style="flex:1;min-width:0"><div style="font-weight:bold;font-size:13px">${esc(name)}</div><div style="font-size:11px;color:#64748b">${username}</div></div></div>`;
+
+if(v.choice==="a")listA.push(item);
+else if(v.choice==="b")listB.push(item);
+});
+
+content.innerHTML=`
+<div style="margin-bottom:15px">
+<h3 style="color:#2563eb;margin-bottom:8px">Вариант A (${listA.length})</h3>
+${listA.length?listA.join(""):`<div style="color:#64748b;font-size:12px">Никто не голосовал</div>`}
+</div>
+<div>
+<h3 style="color:#2563eb;margin-bottom:8px">Вариант B (${listB.length})</h3>
+${listB.length?listB.join(""):`<div style="color:#64748b;font-size:12px">Никто не голосовал</div>`}
+</div>
+`;
+}catch(e){
+console.error("Voters error:",e);
+content.innerHTML=`<div class="empty">Ошибка загрузки</div>`;
+}
 }
 
 async function loadDuels(){
@@ -2105,7 +2190,7 @@ if(fillB)
 fillB.style.width=`${counts.pb}%`;
 
 if(total)
-total.innerText=`🗳️ ${counts.total} ${t("votes")}`;
+total.innerHTML=`🗳️ ${counts.total} ${t("votes")} (кто голосовал)`;
 
 const buttons=card.querySelectorAll(".vote-button");
 
@@ -2811,12 +2896,12 @@ $("otherFollowersCount").innerText=await count("follows","following_id",String(i
 }
 
 async function saveProfile(){
-const name=$("editName").value.trim();
+const rawName=$("editName").value.trim();
 const username=$("editUsername").value.trim();
 const bio=$("editBio").value.trim();
 const status=$("profileStatus");
 
-if(!name){
+if(!rawName){
 status.innerText=t("nameRequired");
 return;
 }
@@ -2824,6 +2909,11 @@ return;
 status.innerText=t("saving");
 
 try{
+let name = rawName;
+if(rawName.toLowerCase() !== (currentProfile?.full_name || "").toLowerCase()){
+    name = await getUniqueFullName(rawName);
+}
+
 let avatar=currentProfile?.avatar_url||"";
 
 if(selectedAvatar)
@@ -2898,18 +2988,26 @@ await loadAdminUsers();
 
 async function loadAdminUsers(){
 const box=$("adminContent");
+box.innerHTML=`<div class="empty">${esc(t("loading"))}</div>`;
 
-const r=await db.from("profiles")
+const usersRes=await db.from("profiles")
 .select("id,full_name,username,is_admin,is_blocked")
 .order("full_name")
 .limit(100);
 
-if(r.error){
-box.innerText=r.error.message;
+const countRes=await db.from("profiles")
+.select("id",{count:"exact",head:true});
+
+const totalUsers=countRes.count||0;
+
+if(usersRes.error){
+box.innerText=usersRes.error.message;
 return;
 }
 
-box.innerHTML=(r.data||[]).map(u=>`
+const statsHtml=`<div style="margin-bottom:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;font-weight:bold;color:#2563eb;text-align:center;">👥 Всего пользователей на сайте: ${totalUsers}</div>`;
+
+const rows=(usersRes.data||[]).map(u=>`
 <div class="admin-user-row">
 <div class="admin-user-main">
 <div class="admin-user-name">${esc(u.full_name||t("participant"))}</div>
@@ -2926,6 +3024,8 @@ ${u.is_blocked?t("unblock"):t("block")}
 :""}
 </div>
 `).join("");
+
+box.innerHTML=statsHtml+rows;
 }
 
 async function adminBlock(id,blocked){
