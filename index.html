@@ -69,7 +69,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .option{border:2px solid #e2e8f0;border-radius:15px;overflow:hidden;background:#f8fafc}
 .option:hover{border-color:#93c5fd}
 .option-media{height:205px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.option-media img,.option-media video{width:100%;height:100%;object-fit:cover}
+.option-media img,.option-media video{width:100%;height:100%;object-fit:cover;cursor:pointer}
 .option-media video{background:#000}
 .option-placeholder{font-size:38px;color:#64748b}
 .video-placeholder{font-size:46px}
@@ -1552,11 +1552,12 @@ await loadMyDuels();
 async function shareDuel(id,button){
 const duelId=String(id);
 const url=window.location.origin + window.location.pathname + "?duel=" + encodeURIComponent(duelId);
-const title="⚔️ ARENA — Who Beats Who?";
+const title="⚔️ ARENA — Кто победит?";
+const text="Голосуй в открытом голосовании!";
 
 try{
 if(navigator.share){
-await navigator.share({title,text:title,url});
+await navigator.share({title,text,url});
 return;
 }
 
@@ -3385,6 +3386,36 @@ $("authStatus").innerText=t("connection");
 hideStartup();
 }
 });
+</script>
+
+<!-- Модуль полноэкранного просмотра фотографий и адаптивного масштабирования -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;cursor:pointer;';
+        
+        const fullImg = document.createElement('img');
+        fullImg.style.cssText = 'max-width:95%;max-height:95%;object-fit:contain;transition:transform 0.3s ease;';
+        overlay.appendChild(fullImg);
+        document.body.appendChild(overlay);
+
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview')) {
+                e.stopPropagation();
+                fullImg.src = e.target.src;
+                overlay.style.visibility = 'visible';
+                overlay.style.opacity = '1';
+            }
+        });
+
+        overlay.addEventListener('click', function() {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.visibility = 'hidden';
+                fullImg.src = '';
+            }, 300);
+        });
+    });
 </script>
 
 </body>
