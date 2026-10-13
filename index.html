@@ -555,7 +555,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <p id="customConfirmText" style="font-size: 16px; font-weight: bold; margin-bottom: 20px; color: #172033;"></p>
 <div style="display: flex; gap: 10px;">
 <button id="customConfirmCancel" class="secondary" type="button" style="margin-top: 0;"></button>
-<button id="customConfirmOk" class="primary" type="button" style="margin-top: 0; background: #dc2626;"></button>
+<button id="customConfirmOk" class="primary" type="button" style="margin-top: 0; background: #2563eb;"></button>
 </div>
 </div>
 </div>
@@ -644,6 +644,8 @@ active:"🟢 Активен",
 blocked:"🚫 Заблокирован",
 block:"🚫",
 unblock:"🔓",
+blockAction:"Заблокировать",
+unblockAction:"Разблокировать",
 chooseA:"Выбрать A",
 chooseB:"Выбрать B",
 yourChoice:"✓ Твой выбор",
@@ -764,6 +766,8 @@ active:"🟢 Activ",
 blocked:"🚫 Blocat",
 block:"🚫",
 unblock:"🔓",
+blockAction:"Blochează",
+unblockAction:"Deblochează",
 chooseA:"Alege A",
 chooseB:"Alege B",
 yourChoice:"✓ Alegerea ta",
@@ -884,6 +888,8 @@ active:"🟢 Active",
 blocked:"Blocked",
 block:"🚫",
 unblock:"🔓",
+blockAction:"Block",
+unblockAction:"Unblock",
 chooseA:"Choose A",
 chooseB:"Choose B",
 yourChoice:"✓ Your choice",
@@ -1038,9 +1044,9 @@ return String(v)
 .replace(/_/g,"\\_");
 }
 
-function showCustomConfirm(message, onConfirm) {
+function showCustomConfirm(message, onConfirm, okText = "OK") {
 $("customConfirmText").innerText = message;
-$("customConfirmOk").innerText = t("delete");
+$("customConfirmOk").innerText = okText;
 $("customConfirmCancel").innerText = t("cancel");
 
 const modal = $("customConfirmModal");
@@ -2225,7 +2231,7 @@ await loadMyDuels();
 console.error("DELETE DUEL:",e);
 alert(e.message||t("connection"));
 }
-});
+}, t("delete"));
 }
 
 function toggleDuelType(){
@@ -2636,7 +2642,7 @@ if(button){
 const count=await getDuelMessageCount(String(duelId));
 button.innerText=`${t("duelChat")} · ${count}`;
 }
-});
+}, t("delete"));
 }
 
 async function setupDuelMessagesRealtime(){
@@ -3029,6 +3035,8 @@ const question=blocked
 ?(language==="ru"?"Разблокировать пользователя?":language==="ro"?"Deblochezi utilizatorul?":"Unblock user?")
 :(language==="ru"?"Заблокировать пользователя?":language==="ro"?"Blochezi utilizatorul?":"Block user?");
 
+const actionButtonText = blocked ? t("unblockAction") : t("blockAction");
+
 showCustomConfirm(question, async () => {
 const r=await db.rpc("admin_set_blocked",{
 target_user_id:id,
@@ -3041,7 +3049,7 @@ return;
 }
 
 await loadAdminUsers();
-});
+}, actionButtonText);
 }
 
 async function openChat(){
@@ -3352,7 +3360,7 @@ if(privateChatUser)
 await loadPrivateMessages(privateChatUser.id);
 else
 await loadConversations();
-});
+}, t("delete"));
 }
 
 async function reportMessage(id){
