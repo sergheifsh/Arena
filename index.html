@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>ARENA — Who Beats Who</title>
 
 <style>
@@ -69,9 +69,12 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .duel-options{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 8px 8px}
 .option{border:2px solid #e2e8f0;border-radius:15px;overflow:hidden;background:#f8fafc}
 .option:hover{border-color:#93c5fd}
-.option-media{position:relative;height:205px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.option-media img,.option-media video{position:absolute;top:0;left:0;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:cover!important;cursor:pointer}
-.option-media video{background:#000}
+
+/* ИСПРАВЛЕНИЕ МАСШТАБИРОВАНИЯ ВИДЕО И ИЗОБРАЖЕНИЙ */
+.option-media{position:relative;height:230px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.option-media img{position:absolute;top:0;left:0;width:100%!important;height:100%!important;object-fit:cover!important;cursor:pointer}
+.option-media video{width:100%!important;height:100%!important;object-fit:contain!important;background:#000}
+
 .option-placeholder{font-size:38px;color:#64748b}
 .video-placeholder{font-size:46px}
 .option-label{padding:10px 7px;text-align:center;font-weight:bold;font-size:14px;word-break:break-word}
@@ -98,7 +101,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .duel-chat-messages{max-height:280px;overflow:auto;padding:5px 2px 8px}
 .duel-chat-form{display:flex;gap:6px}
 .duel-chat-input{flex:1;min-width:0;border:1px solid #cbd5e1;border-radius:10px;padding:10px;resize:none;height:42px;outline:0;background:#fff}
-.duel-chat-send{width:44px;border:0;border-radius:10px;background:#2563eb;color:#fff}
+.duel-chat-send{width:44px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:bold}
 .duel-message{display:flex;margin:7px 0}
 .duel-message.mine{justify-content:flex-end}
 .duel-message-content{max-width:82%;padding:8px 10px;border-radius:13px;background:#fff;border:1px solid #dbe4f0}
@@ -191,7 +194,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 @media(max-width:430px){
 .arena-title{font-size:27px}
-.option-media{height:170px}
+.option-media{height:180px}
 .option-label{font-size:13px}
 .vs{width:39px;height:39px}
 .profile-stats{gap:23px}
@@ -1072,9 +1075,7 @@ clean();
 }
 
 function applyLanguage(){
-
 document.documentElement.lang=language;
-
 if($("languageSelect"))$("languageSelect").value=language;
 
 const texts={
@@ -1166,15 +1167,6 @@ opt.innerText=t(opt.dataset.opt);
 document.querySelectorAll("[data-i18n]").forEach(e=>{
 e.innerText=t(e.dataset.i18n);
 });
-
-if($("profileName")&&!currentProfile?.full_name)
-$("profileName").innerText=t("participant");
-
-if($("privatePersonName")&&!privateChatUser)
-$("privatePersonName").innerText=t("participant");
-
-if($("otherName")&&!openedOtherUserId)
-$("otherName").innerText=t("participant");
 }
 
 async function changeLanguage(v){
@@ -1183,7 +1175,6 @@ localStorage.setItem("arena_language",language);
 applyLanguage();
 
 if(!currentUser)return;
-
 await loadDuels();
 
 if($("profileScreen").classList.contains("active"))
@@ -1459,20 +1450,7 @@ $("app").classList.remove("hidden");
 
 const screen=localStorage.getItem("arena_last_screen")||"homeScreen";
 
-if(screen==="profileScreen")
-showProfile();
-else if(screen==="chatScreen")
-showScreen("chatScreen");
-else if([
-"homeScreen",
-"topScreen",
-"searchScreen",
-"notificationsScreen",
-"otherProfileScreen"
-].includes(screen))
 showScreen(screen);
-else
-showScreen("homeScreen");
 
 Promise.allSettled([
 loadDuels(),
@@ -1812,11 +1790,11 @@ let mediaB="";
 
 if(video){
 mediaA=duel.video_a
-?`<video src="${esc(duel.video_a)}" controls playsinline preload="metadata" onclick="requestVideoFullscreen(this)" ontimeupdate="saveVideoTime(this)" onloadedmetadata="restoreVideoTime(this)"></video>`
+?`<video src="${esc(duel.video_a)}" controls playsinline preload="metadata"></video>`
 :`<div class="option-placeholder video-placeholder">🎥</div>`;
 
 mediaB=duel.video_b
-?`<video src="${esc(duel.video_b)}" controls playsinline preload="metadata" onclick="requestVideoFullscreen(this)" ontimeupdate="saveVideoTime(this)" onloadedmetadata="restoreVideoTime(this)"></video>`
+?`<video src="${esc(duel.video_b)}" controls playsinline preload="metadata"></video>`
 :`<div class="option-placeholder video-placeholder">🎥</div>`;
 
 }else{
@@ -2000,7 +1978,6 @@ onclick="sendDuelMessage(this.dataset.sendDuel)"
 `;
 
 const input=card.querySelector(".duel-chat-input");
-
 if(input){
 input.addEventListener("keydown",event=>{
 if(event.key==="Enter"&&!event.shiftKey){
@@ -2011,29 +1988,6 @@ sendDuelMessage(id);
 }
 
 return card;
-}
-
-function saveVideoTime(video) {
-    if(video.src) {
-        sessionStorage.setItem('vid_time_' + video.src, video.currentTime);
-    }
-}
-
-function restoreVideoTime(video) {
-    if(video.src) {
-        const t = sessionStorage.getItem('vid_time_' + video.src);
-        if(t) video.currentTime = parseFloat(t);
-    }
-}
-
-function requestVideoFullscreen(videoEl) {
-    if (videoEl.requestFullscreen) {
-        videoEl.requestFullscreen();
-    } else if (videoEl.webkitRequestFullscreen) {
-        videoEl.webkitRequestFullscreen();
-    } else if (videoEl.msRequestFullscreen) {
-        videoEl.msRequestFullscreen();
-    }
 }
 
 async function openVotersModal(id){
@@ -2687,7 +2641,7 @@ if(duelMessagesChannel)
 await db.removeChannel(duelMessagesChannel);
 
 duelMessagesChannel=
-db.channel("arena-duel-messages-"+currentUser.id)
+db.channel("arena-duel-messages-realtime")
 .on(
 "postgres_changes",
 {
@@ -3331,9 +3285,10 @@ if(!text)return;
 input.disabled=true;
 
 try{
-const r=await db.rpc("send_message",{
-p_receiver_id:privateChatUser.id,
-p_text:text
+const r=await db.from("messages").insert({
+sender_id: currentUser.id,
+receiver_id: privateChatUser.id,
+text: text
 });
 
 if(r.error)throw r.error;
@@ -3422,7 +3377,7 @@ try{
 if(privateChannel)
 await db.removeChannel(privateChannel);
 
-privateChannel=db.channel("arena-private-"+currentUser.id)
+privateChannel=db.channel("arena-private-messages")
 .on("postgres_changes",{event:"*",schema:"public",table:"messages"},async payload=>{
 const m=payload.new||payload.old;
 if(!m)return;
@@ -3460,51 +3415,12 @@ if(event.target.classList.contains("modal")&&event.target.id!=="customConfirmMod
 event.target.classList.remove("show");
 });
 
-window.addEventListener('beforeunload', () => {
-    const activeScreen = document.querySelector('.screen.active')?.id || 'homeScreen';
-    sessionStorage.setItem('arena_current_screen', activeScreen);
-    sessionStorage.setItem('arena_scroll_pos', window.scrollY);
-});
-
 document.addEventListener("DOMContentLoaded", async () => {
 try{
     let attempts = 0;
     while (!window.supabase && attempts < 20) {
         await new Promise(r => setTimeout(r, 100));
         attempts++;
-    }
-
-    let startY = 0;
-    let isPulling = false;
-
-    document.addEventListener('touchstart', (e) => {
-        if (window.scrollY === 0) {
-            startY = e.touches[0].clientY;
-            isPulling = true;
-        }
-    }, { passive: true });
-
-    document.addEventListener('touchmove', (e) => {
-        if (!isPulling) return;
-        const currentY = e.touches[0].clientY;
-        if (currentY - startY > 140 && window.scrollY === 0) {
-            isPulling = false;
-            window.location.reload();
-        }
-    }, { passive: true });
-
-    document.addEventListener('touchend', () => {
-        isPulling = false;
-    });
-
-    const savedScreen = sessionStorage.getItem('arena_current_screen');
-    if (savedScreen && $(savedScreen)) {
-        showScreen(savedScreen);
-    }
-    
-    const savedScroll = sessionStorage.getItem('arena_scroll_pos');
-    if (savedScroll) {
-        setTimeout(() => window.scrollTo(0, parseInt(savedScroll, 10)), 100);
     }
 
     if(!["ru","ro","en"].includes(language))
@@ -3573,6 +3489,7 @@ try{
 });
 </script>
 
+<!-- ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО ПРИ КЛИКЕ -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const overlay = document.createElement('div');
