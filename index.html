@@ -10,7 +10,8 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%;overscroll-behavior-y:none}
+/* Убрали запрет свайпа, чтобы работало обновление страницы (pull-to-refresh) */
+html,body{min-height:100%}
 body{background:#eef5ff;font-family:Arial,sans-serif;color:#172033}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
@@ -73,10 +74,10 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .option{border:2px solid #e2e8f0;border-radius:15px;overflow:hidden;background:#f8fafc}
 .option:hover{border-color:#93c5fd}
 
-/* Исправленное масштабирование видео и картинок */
+/* Исправленное масштабирование видео и картинок для APK и браузера */
 .option-media{position:relative;height:220px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .option-media img{position:absolute;top:0;left:0;width:100%!important;height:100%!important;object-fit:cover!important;cursor:pointer}
-.option-media video{position:absolute;top:0;left:0;width:100%!important;height:100%!important;object-fit:cover!important;background:#000}
+.option-media video{position:absolute;top:0;left:0;width:100%!important;height:100%!important;object-fit:contain!important;background:#000}
 
 .option-placeholder{font-size:38px;color:#64748b}
 .video-placeholder{font-size:46px}
@@ -414,7 +415,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button type="button" onclick="showScreen('homeScreen')">⚔️<br><span data-nav="arena"></span></button>
 <button type="button" onclick="showScreen('searchScreen')">🔍<br><span data-nav="search"></span></button>
 <button class="add" type="button" onclick="openDuelModal()">＋</button>
-<button type="button" onclick="openChat()">💬<span id="chatUnreadBadge" class="nav-unread">0</span><br><span data-nav="chat"></span></button>
+<button type="button" onclick="openChatTab()">💬<span id="chatUnreadBadge" class="nav-unread">0</span><br><span data-nav="chat"></span></button>
 <button type="button" onclick="showProfile()">👤<br><span data-nav="profile"></span></button>
 </nav>
 
@@ -1465,7 +1466,7 @@ updateUnreadBadge()
 if(screen==="profileScreen")
 showProfile();
 else if(screen==="chatScreen")
-openChat();
+openChatTab();
 
 }catch(e){
 console.error("ARENA startApp:",e);
@@ -3045,7 +3046,8 @@ await loadAdminUsers();
 }, actionButtonText);
 }
 
-async function openChat(){
+/* Исправленная функция открытия вкладки чата */
+async function openChatTab(){
 if(!currentUser){
 showAuth();
 return;
