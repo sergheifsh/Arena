@@ -8,7 +8,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%}
-body{background:#eef5ff;font-family:Arial,sans-serif;color:#172033}
+body{background:#eef5ff;font-family:Arial,sans-serif;color:#172033;overscroll-behavior-y:none}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
@@ -3454,8 +3454,25 @@ if(event.target.classList.contains("modal")&&event.target.id!=="customConfirmMod
 event.target.classList.remove("show");
 });
 
+// Сохранение и восстановление состояния экрана при повороте или изменении ориентации
+window.addEventListener('beforeunload', () => {
+    const activeScreen = document.querySelector('.screen.active')?.id || 'homeScreen';
+    sessionStorage.setItem('arena_current_screen', activeScreen);
+    sessionStorage.setItem('arena_scroll_pos', window.scrollY);
+});
+
 document.addEventListener("DOMContentLoaded",async()=>{
 try{
+    const savedScreen = sessionStorage.getItem('arena_current_screen');
+    if (savedScreen && $(savedScreen)) {
+        showScreen(savedScreen);
+    }
+    
+    const savedScroll = sessionStorage.getItem('arena_scroll_pos');
+    if (savedScroll) {
+        setTimeout(() => window.scrollTo(0, parseInt(savedScroll, 10)), 100);
+    }
+
 if(!["ru","ro","en"].includes(language))
 language="ru";
 
