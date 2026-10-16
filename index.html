@@ -1917,7 +1917,7 @@ ${vote?(vote==="b"?t("yourChoice"):"❤️"):t("chooseB")}
 <div class="results">
 <div class="result-row">
 <div class="result-info">
-<span class="result-a-text"></span>
+<span class="result-a-text">A — ${esc(labelA)} · ${voteCounts.a} ${t("votes")}</span>
 <b class="result-a-percent">${voteCounts.pa}%</b>
 </div>
 <div class="progress">
@@ -1927,7 +1927,7 @@ ${vote?(vote==="b"?t("yourChoice"):"❤️"):t("chooseB")}
 
 <div class="result-row">
 <div class="result-info">
-<span class="result-b-text"></span>
+<span class="result-b-text">B — ${esc(labelB)} · ${voteCounts.b} ${t("votes")}</span>
 <b class="result-b-percent">${voteCounts.pb}%</b>
 </div>
 <div class="progress">
@@ -1998,15 +1998,6 @@ onclick="sendDuelMessage(this.dataset.sendDuel)"
 </div>
 </div>
 `;
-
-const resultA=card.querySelector(".result-a-text");
-const resultB=card.querySelector(".result-b-text");
-
-if(resultA)
-resultA.innerText=`A — ${labelA} · ${counts.a} ${t("votes")}`;
-
-if(resultB)
-resultB.innerText=`B — ${labelB} · ${counts.b} ${t("votes")}`;
 
 const input=card.querySelector(".duel-chat-input");
 
@@ -3475,7 +3466,6 @@ window.addEventListener('beforeunload', () => {
     sessionStorage.setItem('arena_scroll_pos', window.scrollY);
 });
 
-// Инициализация при загрузке документа с поддержкой свайпа вниз
 document.addEventListener("DOMContentLoaded", async () => {
 try{
     let attempts = 0;
