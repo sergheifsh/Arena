@@ -2003,10 +2003,10 @@ const resultA=card.querySelector(".result-a-text");
 const resultB=card.querySelector(".result-b-text");
 
 if(resultA)
-resultA.innerText=`A — ${labelA} · ${voteCounts.a} ${t("votes")}`;
+resultA.innerText=`A — ${labelA} · ${counts.a} ${t("votes")}`;
 
 if(resultB)
-resultB.innerText=`B — ${labelB} · ${voteCounts.b} ${t("votes")}`;
+resultB.innerText=`B — ${labelB} · ${counts.b} ${t("votes")}`;
 
 const input=card.querySelector(".duel-chat-input");
 
@@ -3475,7 +3475,7 @@ window.addEventListener('beforeunload', () => {
     sessionStorage.setItem('arena_scroll_pos', window.scrollY);
 });
 
-// Нативная стабильная инициализация с оверлей-свайпом вниз и ожиданием Supabase
+// Инициализация при загрузке документа с поддержкой свайпа вниз
 document.addEventListener("DOMContentLoaded", async () => {
 try{
     let attempts = 0;
@@ -3484,7 +3484,6 @@ try{
         attempts++;
     }
 
-    // Встроенный стабильный Pull-To-Refresh для WebView
     let startY = 0;
     let isPulling = false;
 
