@@ -1230,10 +1230,14 @@ setTimeout(()=>$("startupScreen").style.display="none",220);
 }
 
 function initDB(){
-if(!window.supabase)return false;
+// Безопасная проверка загрузки библиотеки supabase с CDN
+if(!window.supabase || typeof window.supabase.createClient !== 'function'){
+    console.warn("Supabase library not ready yet.");
+    return false;
+}
 
 try{
-db=supabase.createClient(
+db=window.supabase.createClient(
 SUPABASE_URL,
 SUPABASE_KEY,
 {
@@ -1460,7 +1464,7 @@ $("app").classList.remove("hidden");
 const screen=localStorage.getItem("arena_last_screen")||"homeScreen";
 
 if(screen==="profileScreen")
-showScreen("profileScreen");
+showProfile();
 else if(screen==="chatScreen")
 showScreen("chatScreen");
 else if([
@@ -3476,18 +3480,29 @@ window.addEventListener('beforeunload', () => {
     sessionStorage.setItem('arena_scroll_pos', window.scrollY);
 });
 
-// Инициализация PullToRefresh для свайпа вниз
+// Инициализация при загрузке документа с ожиданием библиотек
 document.addEventListener("DOMContentLoaded",async()=>{
 try{
-    PullToRefresh.init({
-      mainElement: 'body',
-      onRefresh() {
-        window.location.reload();
-      },
-      instructionsPullToRefresh: 'Потяните вниз для обновления',
-      instructionsReleaseToRefresh: 'Отпустите для обновления',
-      instructionsRefreshing: 'Обновление...',
-    });
+    // Ждем полной загрузки внешнего скрипта Supabase, если интернет медленный
+    let attempts = 0;
+    while (!window.supabase && attempts < 20) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+    }
+
+    try{
+        PullToRefresh.init({
+          mainElement: 'body',
+          onRefresh() {
+            window.location.reload();
+          },
+          instructionsPullToRefresh: 'Потяните вниз для обновления',
+          instructionsReleaseToRefresh: 'Отпустите для обновления',
+          instructionsRefreshing: 'Обновление...',
+        });
+    }catch(err){
+        console.warn("PullToRefresh init error:", err);
+    }
 
     const savedScreen = sessionStorage.getItem('arena_current_screen');
     if (savedScreen && $(savedScreen)) {
