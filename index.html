@@ -8,7 +8,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%}
-body{background:#eef5ff;font-family:Arial,sans-serif;color:#172033;overscroll-behavior-y:none}
+body{background:#eef5ff;font-family:Arial,sans-serif;color:#172033}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
@@ -1791,7 +1791,6 @@ const idJS=escJS(id);
 const messageCount=await getDuelMessageCount(id);
 const video=isVideoDuel(duel);
 
-// Загружаем автора дуэли
 let authorName = t("participant");
 let authorId = duel.user_id;
 if(authorId){
@@ -3454,7 +3453,6 @@ if(event.target.classList.contains("modal")&&event.target.id!=="customConfirmMod
 event.target.classList.remove("show");
 });
 
-// Сохранение и восстановление состояния экрана при повороте или изменении ориентации
 window.addEventListener('beforeunload', () => {
     const activeScreen = document.querySelector('.screen.active')?.id || 'homeScreen';
     sessionStorage.setItem('arena_current_screen', activeScreen);
