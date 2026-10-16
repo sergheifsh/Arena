@@ -63,6 +63,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .duel-type{background:#172033;color:#fff;padding:6px 9px;border-radius:10px;font-size:11px;font-weight:bold}
 .duel-time{color:#dc2626;font-size:12px;font-weight:bold;background:#fef2f2;padding:4px 8px;border-radius:8px;border:1px solid #fecaca}
 .duel-time.ended{color:#64748b;background:#f1f5f9;border-color:#e2e8f0}
+.duel-author-row{padding:0 14px 8px;font-size:12px;color:#64748b;font-weight:bold;display:flex;align-items:center;gap:6px}
 .duel-title{padding:0 14px 13px;font-size:18px;font-weight:bold}
 
 .duel-options{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 8px 8px}
@@ -74,7 +75,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .option-placeholder{font-size:38px;color:#64748b}
 .video-placeholder{font-size:46px}
 .option-label{padding:10px 7px;text-align:center;font-weight:bold;font-size:14px;word-break:break-word}
-.vote-button{width:calc(100% - 16px);margin:0 8px 8px;border:0;border-radius:12px;padding:12px;background:#2563eb;color:#fff;font-weight:bold}
+.vote-button{width:calc(100% - 16px);margin:0 8px 8px;border:0;border-radius:12px;padding:12px;background:#2563eb;color:#fff;font-weight:bold;font-size:16px}
 .vote-button:disabled{opacity:.55;cursor:not-allowed}
 .vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#172033;color:#fff;font-size:13px;font-weight:900;box-shadow:0 4px 15px #0003}
 
@@ -90,7 +91,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .owner-delete{color:#dc2626!important;font-weight:bold}
 .admin-delete{color:#991b1b!important;font-weight:bold}
 .duel-chat-button{border:0!important;background:#eff6ff!important;color:#2563eb!important;padding:7px 10px!important;border-radius:9px!important;font-weight:bold}
-.duel-share-button{border:0!important;background:#f1f5f9!important;color:#2563eb!important;padding:7px 10px!important;border-radius:9px!important;font-weight:bold}
+.duel-share-button{border:0!important;background:#f1f5f9!important;color:#2563eb!important;padding:7px 10px!important;border-radius:9px!important;font-weight:bold;display:flex;align-items:center;gap:5px}
 .duel-total-votes{cursor:pointer;font-weight:bold;color:#2563eb}
 
 .duel-chat{border-top:1px solid #dbe4f0;background:#f8fafc;padding:10px}
@@ -541,7 +542,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно просмотра проголосовавших -->
 <div id="votersModal" class="modal">
 <div class="modal-box">
 <h2>👥 Кто за кого голосовал</h2>
@@ -646,11 +646,11 @@ block:"🚫",
 unblock:"🔓",
 blockAction:"Заблокировать",
 unblockAction:"Разблокировать",
-chooseA:"Выбрать A",
-chooseB:"Выбрать B",
+chooseA:"❤️",
+chooseB:"❤️",
 yourChoice:"✓ Твой выбор",
 votes:"голосов",
-delete:"🗑️ Удалить",
+delete:"Удалить",
 adminDelete:"🛡️ Удалить",
 loading:"Загрузка...",
 noDuels:"Здесь пока нет дуэлей.",
@@ -699,8 +699,8 @@ photoBattle:"🖼️ Фото-батл",
 noDuelMessages:"Пока никто ничего не написал. Будь первым!",
 deleteMessage:"Удалить сообщение?",
 videoRequired:"Добавь хотя бы одно видео.",
-share:"📤 Поделиться",
-shareCopied:"🔗 Ссылка на батл скопирована!",
+share:"Поделиться",
+shareCopied:"🔗 Ссылка скопирована!",
 h24:"⏳ 24 часа",
 h48:"⏳ 48 часов",
 h72:"⏳ 72 часа",
@@ -768,11 +768,11 @@ block:"🚫",
 unblock:"🔓",
 blockAction:"Blochează",
 unblockAction:"Deblochează",
-chooseA:"Alege A",
-chooseB:"Alege B",
+chooseA:"❤️",
+chooseB:"❤️",
 yourChoice:"✓ Alegerea ta",
 votes:"voturi",
-delete:"🗑️ Șterge",
+delete:"Șterge",
 adminDelete:"🛡️ Șterge",
 loading:"Se încarcă...",
 noDuels:"Nu există încă dueluri.",
@@ -821,8 +821,8 @@ photoBattle:"🖼️ Duel foto",
 noDuelMessages:"Nimeni nu a scris încă. Fii primul!",
 deleteMessage:"Ștergi mesajul?",
 videoRequired:"Adaugă cel puțin un video.",
-share:"📤 Distribuie",
-shareCopied:"🔗 Linkul duelului a fost copiat!",
+share:"Distribuie",
+shareCopied:"🔗 Link copiat!",
 h24:"⏳ 24 de ore",
 h48:"⏳ 48 de ore",
 h72:"⏳ 72 de ore",
@@ -890,11 +890,11 @@ block:"🚫",
 unblock:"🔓",
 blockAction:"Block",
 unblockAction:"Unblock",
-chooseA:"Choose A",
-chooseB:"Choose B",
+chooseA:"❤️",
+chooseB:"❤️",
 yourChoice:"✓ Your choice",
 votes:"votes",
-delete:"🗑️ Delete",
+delete:"Delete",
 adminDelete:"🛡️ Delete",
 loading:"Loading...",
 noDuels:"There are no duels yet.",
@@ -943,8 +943,8 @@ photoBattle:"🖼️ Photo battle",
 noDuelMessages:"Nobody has written yet. Be the first!",
 deleteMessage:"Delete this message?",
 videoRequired:"Add at least one video.",
-share:"📤 Share",
-shareCopied:"🔗 Duel link copied!",
+share:"Share",
+shareCopied:"🔗 Link copied!",
 h24:"⏳ 24 hours",
 h48:"⏳ 48 hours",
 h72:"⏳ 72 hours",
@@ -1612,8 +1612,9 @@ textarea.remove();
 
 if(successful){
 if(button){
+const origText=button.innerHTML;
 button.innerText=t("shareCopied");
-setTimeout(()=>button.innerText=t("share"),1800);
+setTimeout(()=>button.innerHTML=origText,1800);
 }
 return;
 }
@@ -1790,6 +1791,20 @@ const idJS=escJS(id);
 const messageCount=await getDuelMessageCount(id);
 const video=isVideoDuel(duel);
 
+// Загружаем автора дуэли
+let authorName = t("participant");
+let authorId = duel.user_id;
+if(authorId){
+  try{
+    const authorRes = await db.from("profiles").select("full_name, username").eq("id", authorId).maybeSingle();
+    if(authorRes.data){
+      authorName = authorRes.data.full_name || authorRes.data.username || t("participant");
+    }
+  }catch(err){
+    console.error("Author load error:", err);
+  }
+}
+
 let mediaA="";
 let mediaB="";
 
@@ -1851,6 +1866,10 @@ ${timerRes.text}
 </span>
 </div>
 
+<div class="duel-author-row">
+👤 ${esc(authorName)}
+</div>
+
 <div class="duel-title">
 ${esc(duel.title||t("winner"))}
 </div>
@@ -1869,7 +1888,7 @@ type="button"
 ${(vote||timerRes.ended)?"disabled":""}
 onclick="voteDuel('${idJS}','a',this)"
 >
-${vote?(vote==="a"?t("yourChoice"):"A"):t("chooseA")}
+${vote?(vote==="a"?t("yourChoice"):"❤️"):t("chooseA")}
 </button>
 </div>
 
@@ -1886,7 +1905,7 @@ type="button"
 ${(vote||timerRes.ended)?"disabled":""}
 onclick="voteDuel('${idJS}','b',this)"
 >
-${vote?(vote==="b"?t("yourChoice"):"B"):t("chooseB")}
+${vote?(vote==="b"?t("yourChoice"):"❤️"):t("chooseB")}
 </button>
 </div>
 
@@ -1934,6 +1953,7 @@ class="duel-share-button"
 type="button"
 onclick="shareDuel('${idJS}',this)"
 >
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
 ${t("share")}
 </button>
 
@@ -2214,7 +2234,7 @@ btn.innerText=t("yourChoice");
 else if(vote==="b"&&index===1)
 btn.innerText=t("yourChoice");
 else
-btn.innerText=index===0?t("chooseA"):t("chooseB");
+btn.innerText="❤️";
 });
 }
 
@@ -3502,7 +3522,6 @@ hideStartup();
 });
 </script>
 
-<!-- Модуль полноэкранного просмотра фотографий и адаптивного масштабирования -->
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const overlay = document.createElement('div');
