@@ -1556,57 +1556,34 @@ await loadProfile();
 await loadMyDuels();
 }
 
-async function shareDuel(id,button){
-const duelId=String(id);
-const url=window.location.origin + window.location.pathname + "?duel=" + encodeURIComponent(duelId);
-const title="⚔️ ARENA — Кто победит?";
-const text="Голосуй в открытом голосовании!";
+async function shareDuel(id, button){
+const duelId = String(id);
+const url = window.location.origin + window.location.pathname + "?duel=" + encodeURIComponent(duelId);
+const title = "⚔️ ARENA — Кто победит?";
+const text = "Голосуй в открытом голосовании!";
 
-try{
-if(navigator.share){
-await navigator.share({title,text,url});
-return;
-}
-}catch(e){
-if(e?.name==="AbortError") return;
-}
-
-try {
-if(navigator.clipboard && navigator.clipboard.writeText) {
-await navigator.clipboard.writeText(url);
-if(button){
-const origText=button.innerHTML;
-button.innerText=t("shareCopied");
-setTimeout(()=>button.innerHTML=origText,1800);
-}
-return;
-}
-} catch(err) {}
-
-const textarea=document.createElement("textarea");
-textarea.value=url;
-textarea.style.position="fixed";
-textarea.style.opacity="0";
-document.body.appendChild(textarea);
-textarea.focus();
-textarea.select();
-
-try{
-const successful=document.execCommand("copy");
-textarea.remove();
-if(successful){
-if(button){
-const origText=button.innerHTML;
-button.innerText=t("shareCopied");
-setTimeout(()=>button.innerHTML=origText,1800);
-}
-return;
-}
-}catch(err){
-textarea.remove();
+if (navigator.share) {
+  try {
+    await navigator.share({ title, text, url });
+    return;
+  } catch (e) {
+    if (e.name === "AbortError") return;
+  }
 }
 
-prompt("Скопируйте ссылку на дуэль:",url);
+if (navigator.clipboard && navigator.clipboard.writeText) {
+  try {
+    await navigator.clipboard.writeText(url);
+    if (button) {
+      const origText = button.innerHTML;
+      button.innerText = t("shareCopied");
+      setTimeout(() => button.innerHTML = origText, 1800);
+    }
+    return;
+  } catch (err) {}
+}
+
+prompt("Скопируйте ссылку на дуэль:", url);
 }
 
 async function openSharedDuel(){
@@ -2434,18 +2411,17 @@ $("duelSubmitButton").disabled=false;
 }
 
 async function toggleDuelChat(id){
-const duelId=String(id);
-const box=$(`duelChat-${duelId}`);
+const duelId = String(id);
+const box = document.querySelector(`[data-duel-id="${CSS.escape(duelId)}"]`);
 
-if(!box)return;
+if(!box) return;
 
-const opening=box.classList.contains("hidden");
-box.classList.toggle("hidden",!opening);
+const opening = box.classList.contains("hidden");
+box.classList.toggle("hidden", !opening);
 
 if(opening){
 await loadDuelMessages(duelId);
-const input=$(`duelInput-${duelId}`);
-
+const input = box.querySelector(".duel-chat-input");
 if(input){
 setTimeout(()=>{
 input.focus();
