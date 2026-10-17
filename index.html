@@ -10,9 +10,8 @@
 
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-/* Убрали запрет свайпа, чтобы работало обновление страницы (pull-to-refresh) */
-html,body{min-height:100%}
-body{background:#eef5ff;font-family:Arial,sans-serif;color:#172033}
+html,body{min-height:100%;width:100%;overflow-x:hidden}
+body{background:#eef5ff;font-family:Arial,sans-serif;color:#172033;-webkit-tap-highlight-color:transparent}
 button,input,textarea,select{font:inherit}
 button{cursor:pointer}
 .hidden{display:none!important}
@@ -74,10 +73,9 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .option{border:2px solid #e2e8f0;border-radius:15px;overflow:hidden;background:#f8fafc}
 .option:hover{border-color:#93c5fd}
 
-/* Исправленное масштабирование видео и картинок для APK и браузера */
-.option-media{position:relative;height:220px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
-.option-media img{position:absolute;top:0;left:0;width:100%!important;height:100%!important;object-fit:cover!important;cursor:pointer}
-.option-media video{position:absolute;top:0;left:0;width:100%!important;height:100%!important;object-fit:contain!important;background:#000}
+.option-media{position:relative;width:100%;height:220px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.option-media img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+.option-media video{width:100%;height:100%;object-fit:cover;background:#000}
 
 .option-placeholder{font-size:38px;color:#64748b}
 .video-placeholder{font-size:46px}
@@ -716,7 +714,6 @@ videoA:"🎥 Видео участника A",
 videoB:"🎥 Видео участника B",
 battleEnded:"🔴 Завершён"
 },
-
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
 who:"Cine pe cine?",
@@ -838,7 +835,6 @@ videoA:"🎥 Video participant A",
 videoB:"🎥 Video participant B",
 battleEnded:"🔴 Finalizat"
 },
-
 en:{
 subtitle:"Who wins? You decide.",
 who:"Who Beats Who?",
@@ -1223,7 +1219,6 @@ setTimeout(()=>$("startupScreen").style.display="none",220);
 
 function initDB(){
 if(!window.supabase || typeof window.supabase.createClient !== 'function'){
-    console.warn("Supabase library not ready yet.");
     return false;
 }
 
@@ -1243,7 +1238,6 @@ flowType:"pkce"
 );
 return true;
 }catch(e){
-console.error(e);
 return false;
 }
 }
@@ -1339,7 +1333,6 @@ showLogin();
 }
 
 }catch(e){
-console.error(e);
 status.innerText=authError(e);
 }
 
@@ -1379,7 +1372,6 @@ currentUser=r.data.user;
 await startApp();
 
 }catch(e){
-console.error("LOGIN ERROR:",e);
 status.innerText=authError(e);
 $("loginButton").disabled=false;
 }
@@ -1390,9 +1382,7 @@ try{
 if(privateChannel)await db.removeChannel(privateChannel);
 if(duelMessagesChannel)await db.removeChannel(duelMessagesChannel);
 await db.auth.signOut();
-}catch(e){
-console.error(e);
-}
+}catch(e){}
 
 privateChannel=null;
 duelMessagesChannel=null;
@@ -1435,9 +1425,7 @@ new Promise((_,reject)=>
 setTimeout(()=>reject(new Error("Profile timeout")),10000)
 )
 ]);
-}catch(e){
-console.warn("Profile load:",e);
-}
+}catch(e){}
 
 if(currentProfile?.is_blocked){
 alert(t("blockedAccount"));
@@ -1469,7 +1457,6 @@ else if(screen==="chatScreen")
 openChatTab();
 
 }catch(e){
-console.error("ARENA startApp:",e);
 try{
 showAuth();
 showLogin();
@@ -1505,9 +1492,6 @@ id:currentUser.id,
 full_name:name,
 username
 },{onConflict:"id"});
-
-if(create.error)
-console.warn("Profile create:",create.error);
 
 r=await db.from("profiles")
 .select("*")
@@ -1606,7 +1590,6 @@ return;
 throw new Error("Copy failed");
 }catch(e){
 if(e?.name!=="AbortError"){
-console.error("SHARE ERROR:",e);
 prompt("Скопируйте ссылку на дуэль:",url);
 }
 }
@@ -1646,9 +1629,7 @@ behavior:"smooth",
 block:"center"
 });
 
-}catch(e){
-console.error("Shared duel:",e);
-}
+}catch(e){}
 }
 
 function openEditProfile(){
@@ -1696,10 +1677,7 @@ const r=await db.from("duel_votes")
 .eq("user_id",currentUser.id)
 .maybeSingle();
 
-if(r.error){
-console.error("GET VOTE:",r.error);
-return null;
-}
+if(r.error)return null;
 
 return r.data?.choice||null;
 }
@@ -1739,10 +1717,7 @@ const r=await db.from("duel_messages")
 .select("id",{count:"exact",head:true})
 .eq("duel_id",id);
 
-if(r.error){
-console.error("MESSAGE COUNT:",r.error);
-return 0;
-}
+if(r.error)return 0;
 
 return r.count||0;
 }
@@ -1763,7 +1738,6 @@ let voteCounts;
 try{
 voteCounts=await getDuelVoteCounts(duel.id);
 }catch(e){
-console.error("Vote counts:",e);
 voteCounts={a:0,b:0,total:0,pa:0,pb:0};
 }
 
@@ -1784,9 +1758,7 @@ if(authorId){
     if(authorRes.data){
       authorName = authorRes.data.full_name || authorRes.data.username || t("participant");
     }
-  }catch(err){
-    console.error("Author load error:", err);
-  }
+  }catch(err){}
 }
 
 let mediaA="";
@@ -2042,7 +2014,6 @@ ${listB.length?listB.join(""):`<div style="color:#64748b;font-size:12px">Ник�
 </div>
 `;
 }catch(e){
-console.error("Voters error:",e);
 content.innerHTML=`<div class="empty">Ошибка загрузки</div>`;
 }
 }
@@ -2076,9 +2047,7 @@ return;
 for(const duel of r.data){
 try{
 box.appendChild(await duelCard(duel));
-}catch(e){
-console.error("Duel:",e);
-}
+}catch(e){}
 }
 
 await openSharedDuel();
@@ -2146,7 +2115,6 @@ throw insert.error;
 await updateDuelVoteCard(card,duelId,choice);
 
 }catch(e){
-console.error("Vote error:",e);
 alert(e.message||t("connection"));
 buttons.forEach(b=>b.disabled=false);
 }
@@ -2222,7 +2190,6 @@ if($("profileScreen")?.classList.contains("active"))
 await loadMyDuels();
 
 }catch(e){
-console.error("DELETE DUEL:",e);
 alert(e.message||t("connection"));
 }
 }, t("delete"));
@@ -2446,7 +2413,6 @@ await loadMyDuels();
 alert(t("created"));
 
 }catch(e){
-console.error(e);
 status.innerText=e.message||t("connection");
 }
 
@@ -2457,10 +2423,7 @@ async function toggleDuelChat(id){
 const duelId=String(id);
 const box=$(`duelChat-${duelId}`);
 
-if(!box){
-console.error("DUEL CHAT NOT FOUND:",duelId);
-return;
-}
+if(!box)return;
 
 const opening=box.classList.contains("hidden");
 box.classList.toggle("hidden",!opening);
@@ -2484,10 +2447,7 @@ const r=await db.from("profiles")
 .select("id,full_name,username,avatar_url")
 .in("id",ids);
 
-if(r.error){
-console.error("PROFILES MAP:",r.error);
-return{};
-}
+if(r.error)return{};
 
 const map={};
 (r.data||[]).forEach(p=>{
@@ -2606,7 +2566,6 @@ button.innerText=`${t("duelChat")} · ${count}`;
 }
 
 }catch(e){
-console.error("DUEL CHAT SEND:",e);
 alert(e.message||t("connection"));
 }finally{
 input.disabled=false;
@@ -2675,9 +2634,7 @@ button.innerText=`${t("duelChat")} · ${count}`;
 )
 .subscribe();
 
-}catch(e){
-console.error("Duel realtime:",e);
-}
+}catch(e){}
 }
 
 async function loadTop(category="all",button){
@@ -2941,7 +2898,6 @@ await loadProfile();
 closeModal("editModal");
 
 }catch(e){
-console.error(e);
 status.innerText=e.message||t("connection");
 }
 }
@@ -3046,7 +3002,6 @@ await loadAdminUsers();
 }, actionButtonText);
 }
 
-/* Исправленная функция открытия вкладки чата */
 async function openChatTab(){
 if(!currentUser){
 showAuth();
@@ -3302,7 +3257,6 @@ input.value="";
 await loadPrivateMessages(privateChatUser.id);
 
 }catch(e){
-console.error("PRIVATE SEND:",e);
 alert(e.message||t("sendError"));
 }finally{
 input.disabled=false;
@@ -3400,9 +3354,7 @@ await updateUnreadBadge();
 })
 .subscribe();
 
-}catch(e){
-console.error("Private realtime:",e);
-}
+}catch(e){}
 }
 
 function messageCurrentOtherUser(){
@@ -3478,15 +3430,12 @@ try{
             if($("app").classList.contains("hidden")){
                 try{
                     await startApp();
-                }catch(e){
-                    console.error("SIGNED_IN START:",e);
-                }
+                }catch(e){}
             }
         }
     });
 
 }catch(e){
-    console.error("ARENA START ERROR:",e);
     showAuth();
     $("authStatus").innerText=t("connection");
     hideStartup();
