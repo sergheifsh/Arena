@@ -1792,7 +1792,6 @@ ${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(duelId)}')" style
 `;
 }).join("");
 }catch(e){
-console.error("Load comments error:", e);
 container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center;padding:6px">Ошибка загрузки чата</div>`;
 }
 }
@@ -1924,7 +1923,11 @@ box.innerHTML=`<div class="empty">${esc(t("noDuels"))}</div>`;
 return;
 }
 
+// Устранение дублирования элементов по уникальному идентификатору дуэли (id)
+const seenIds = new Set();
 for(const duel of r.data){
+if(seenIds.has(duel.id)) continue;
+seenIds.add(duel.id);
 try{
 box.appendChild(await duelCard(duel));
 }catch(e){}
@@ -2326,8 +2329,11 @@ return;
 }
 
 const scored=[];
+const seenTopIds = new Set();
 
 for(const d of r.data||[]){
+if(seenTopIds.has(d.id)) continue;
+seenTopIds.add(d.id);
 try{
 const counts=await getDuelVoteCounts(d.id);
 scored.push({duel:d,counts});
@@ -2395,8 +2401,15 @@ box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
 return;
 }
 
-box.innerHTML=r.data?.length
-?r.data.map(p=>`
+const seenUsers = new Set();
+const uniqueUsers = (r.data||[]).filter(p => {
+if(seenUsers.has(p.id)) return false;
+seenUsers.add(p.id);
+return true;
+});
+
+box.innerHTML=uniqueUsers.length
+?uniqueUsers.map(p=>`
 <div class="search-result" onclick="openUserProfile('${escJS(p.id)}')">
 <div class="profile-big-avatar" style="width:48px;height:48px;font-size:22px">
 ${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
@@ -2467,8 +2480,12 @@ box.innerHTML=`<div class="empty">${esc(t("noDuels"))}</div>`;
 return;
 }
 
-for(const duel of r.data)
+const seenOtherDuels = new Set();
+for(const duel of r.data){
+if(seenOtherDuels.has(duel.id)) continue;
+seenOtherDuels.add(duel.id);
 box.appendChild(await duelCard(duel));
+}
 }
 
 async function updateFollowButton(id){
@@ -2584,8 +2601,12 @@ box.innerHTML=`<div class="empty">${esc(t("noMyDuels"))}</div>`;
 return;
 }
 
-for(const duel of r.data)
+const seenMyDuels = new Set();
+for(const duel of r.data){
+if(seenMyDuels.has(duel.id)) continue;
+seenMyDuels.add(duel.id);
 box.appendChild(await duelCard(duel));
+}
 }
 
 async function openAdminPanel(){
@@ -2619,9 +2640,16 @@ box.innerText=usersRes.error.message;
 return;
 }
 
+const seenAdminUsers = new Set();
+const uniqueAdminUsers = (usersRes.data||[]).filter(u => {
+if(seenAdminUsers.has(u.id)) return false;
+seenAdminUsers.add(u.id);
+return true;
+});
+
 const statsHtml=`<div style="margin-bottom:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;font-weight:bold;color:#2563eb;text-align:center;">👥 Всего пользователей на сайте: ${totalUsers}</div>`;
 
-const rows=(usersRes.data||[]).map(u=>`
+const rows=uniqueAdminUsers.map(u=>`
 <div class="admin-user-row">
 <div class="admin-user-main">
 <div class="admin-user-name">${esc(u.full_name||t("participant"))}</div>
