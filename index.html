@@ -1544,7 +1544,7 @@ if(!currentUser)return null;
 
 const r=await db.from("duel_votes")
 .select("id,choice")
-.eq("duel_id",id)
+.eq("duel_id",String(id))
 .eq("user_id",currentUser.id)
 .maybeSingle();
 
@@ -1794,25 +1794,27 @@ return card;
 }
 
 function toggleDuelChat(duelId){
-const box=document.getElementById(`duel-chat-box-${duelId}`);
+const sId = String(duelId);
+const box=document.getElementById(`duel-chat-box-${sId}`);
 if(!box)return;
 const isHidden=box.classList.contains("hidden");
 if(isHidden){
 box.classList.remove("hidden");
-loadComments(duelId);
+loadComments(sId);
 }else{
 box.classList.add("hidden");
 }
 }
 
 async function loadComments(duelId){
-const container=document.getElementById(`comments-${duelId}`);
+const sId = String(duelId);
+const container=document.getElementById(`comments-${sId}`);
 if(!container)return;
 
 try{
 const r=await db.from("duel_comments")
 .select("*")
-.eq("duel_id",String(duelId))
+.eq("duel_id",sId)
 .order("created_at",{ascending:true});
 
 if(r.error)throw r.error;
@@ -1840,7 +1842,7 @@ ${avatar}
 <div style="flex:1;background:#fff;padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
 <span style="font-weight:bold;color:#172033">${esc(name)}</span>
-${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(duelId)}')" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px">✕</button>`:""}
+${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}')" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px">✕</button>`:""}
 </div>
 <div style="color:#334155;word-break:break-word">${esc(c.text)}</div>
 </div>
@@ -1853,7 +1855,8 @@ container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center"
 }
 
 async function addComment(duelId){
-const input=document.getElementById(`comment-input-${duelId}`);
+const sId = String(duelId);
+const input=document.getElementById(`comment-input-${sId}`);
 if(!input)return;
 const text=input.value.trim();
 if(!text)return;
@@ -1865,24 +1868,25 @@ return;
 
 try{
 const r=await db.from("duel_comments").insert({
-duel_id:String(duelId),
+duel_id:sId,
 user_id:currentUser.id,
 text
 });
 
 if(r.error)throw r.error;
 input.value="";
-await loadComments(duelId);
+await loadComments(sId);
 }catch(e){
 alert(e.message||t("connection"));
 }
 }
 
 async function deleteComment(commentId,duelId){
+const sId = String(duelId);
 try{
 const r=await db.from("duel_comments").delete().eq("id",commentId);
 if(r.error)throw r.error;
-await loadComments(duelId);
+await loadComments(sId);
 }catch(e){
 alert(e.message||t("connection"));
 }
