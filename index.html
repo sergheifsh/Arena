@@ -75,7 +75,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 
 .option-media{position:relative;width:100%;height:220px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .option-media img{width:100%;height:100%;object-fit:cover;cursor:pointer}
-.option-media video{width:100%;height:100%;object-fit:cover;background:#000}
+.option-media video{width:100%;height:100%;object-fit:cover;background:#000;cursor:pointer}
 
 .option-placeholder{font-size:38px;color:#64748b}
 .video-placeholder{font-size:46px}
@@ -124,7 +124,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .profile-buttons{display:flex;gap:8px;flex-wrap:wrap}
 .profile-buttons button{flex:1;min-width:120px;border:0;border-radius:10px;padding:11px;background:#eff6ff;color:#1d4ed8}
 .follow-button{background:#2563eb!important;color:#fff!important}
-.admin-button{width:100%!important;flex-basis:100%;background:#172033!important;color:#fff!important}
+.admin-button{width:100%!important;flex-basis:100%!important;background:#172033!important;color:#fff!important}
 
 .admin-panel{margin-top:15px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff}
 .admin-user-row{display:flex;align-items:center;gap:8px;padding:10px;margin-bottom:8px;background:#fff;border-radius:10px;border:1px solid #dbe4f0}
@@ -1626,11 +1626,11 @@ let mediaB="";
 
 if(video){
 mediaA=duel.video_a
-?`<video src="${esc(duel.video_a)}" controls playsinline webkit-playsinline x5-playsinline preload="metadata" onplay="if(this.requestFullscreen)this.requestFullscreen();else if(this.webkitRequestFullscreen)this.webkitRequestFullscreen();"></video>`
+?`<video src="${esc(duel.video_a)}" controls playsinline webkit-playsinline x5-playsinline preload="metadata"></video>`
 :`<div class="option-placeholder video-placeholder">🎥</div>`;
 
 mediaB=duel.video_b
-?`<video src="${esc(duel.video_b)}" controls playsinline webkit-playsinline x5-playsinline preload="metadata" onplay="if(this.requestFullscreen)this.requestFullscreen();else if(this.webkitRequestFullscreen)this.webkitRequestFullscreen();"></video>`
+?`<video src="${esc(duel.video_b)}" controls playsinline webkit-playsinline x5-playsinline preload="metadata"></video>`
 :`<div class="option-placeholder video-placeholder">🎥</div>`;
 
 }else{
@@ -2969,12 +2969,40 @@ try{
         overlay.appendChild(fullImg);
         document.body.appendChild(overlay);
 
+        const videoOverlay = document.createElement('div');
+        videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;';
+        
+        const fullVideo = document.createElement('video');
+        fullVideo.style.cssText = 'width:100%;max-height:100%;object-fit:contain;';
+        fullVideo.controls = true;
+        fullVideo.playsInline = true;
+        videoOverlay.appendChild(fullVideo);
+
+        const closeVideoBtn = document.createElement('button');
+        closeVideoBtn.innerHTML = '✕';
+        closeVideoBtn.style.cssText = 'position:absolute;top:20px;right:20px;background:#fff;color:#000;border:0;width:40px;height:40px;border-radius:50%;font-size:20px;font-weight:bold;cursor:pointer;z-index:100000;';
+        closeVideoBtn.onclick = function() {
+            fullVideo.pause();
+            fullVideo.src = '';
+            videoOverlay.style.opacity = '0';
+            setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
+        };
+        videoOverlay.appendChild(closeVideoBtn);
+        document.body.appendChild(videoOverlay);
+
         document.addEventListener('click', function(e) {
             if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview')) {
                 e.stopPropagation();
                 fullImg.src = e.target.src;
                 overlay.style.visibility = 'visible';
                 overlay.style.opacity = '1';
+            }
+            if (e.target.tagName === 'VIDEO' && e.target.closest('.option-media, .image-preview')) {
+                e.stopPropagation();
+                fullVideo.src = e.target.src;
+                videoOverlay.style.visibility = 'visible';
+                videoOverlay.style.opacity = '1';
+                fullVideo.play().catch(err => {});
             }
         });
 
