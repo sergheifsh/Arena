@@ -2978,31 +2978,31 @@ try{
         overlay.appendChild(fullImg);
         document.body.appendChild(overlay);
 
-        // Полноэкранный плеер для видео
+        // Полноэкранный плеер для видео (без крестика, закрытие по кнопке «Назад» телефона)
         const videoOverlay = document.createElement('div');
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;';
         
         const fullVideo = document.createElement('video');
         fullVideo.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-        fullVideo.controls = true; // Возвращаем controls, чтобы работал родной плеер с квадратиком
+        fullVideo.controls = true; // Родной плеер с элементами управления
         fullVideo.playsInline = true;
         videoOverlay.appendChild(fullVideo);
 
-        // Крестик строго в правом нижнем углу прямо над квадратиком
-        const closeVideoBtn = document.createElement('button');
-        closeVideoBtn.innerHTML = '✕';
-        closeVideoBtn.style.cssText = 'position:absolute;bottom:20px;right:15px;background:#fff;color:#000;border:0;width:40px;height:40px;border-radius:50%;font-size:20px;font-weight:bold;cursor:pointer;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
-        
-        closeVideoBtn.onclick = function(e) {
-            e.stopPropagation();
+        document.body.appendChild(videoOverlay);
+
+        function closeVideoPlayer() {
             fullVideo.pause();
             fullVideo.src = '';
             videoOverlay.style.opacity = '0';
             setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
-        };
-        videoOverlay.appendChild(closeVideoBtn);
+        }
 
-        document.body.appendChild(videoOverlay);
+        // Отслеживание нажатия кнопки «Назад» на телефоне
+        window.addEventListener('popstate', function(e) {
+            if (videoOverlay.style.visibility === 'visible') {
+                closeVideoPlayer();
+            }
+        });
 
         // Обработчик кликов по фото и специальному слою видео в ленте
         document.addEventListener('click', function(e) {
@@ -3020,6 +3020,10 @@ try{
                     fullVideo.src = videoSrc;
                     videoOverlay.style.visibility = 'visible';
                     videoOverlay.style.opacity = '1';
+                    
+                    // Добавляем запись в историю браузера, чтобы кнопка «Назад» закрывала плеер
+                    history.pushState({ videoOpen: true }, "");
+
                     fullVideo.play().catch(err => {});
                 }
             }
