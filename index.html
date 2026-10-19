@@ -266,7 +266,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <div id="messagesScreen" class="screen">
 <div class="profile" style="padding:15px">
-<h2 style="color:#2563eb;margin-bottom:15px">💬 Личные сообщения</h2>
+<h2 id="messagesTitle" style="color:#2563eb;margin-bottom:15px"></h2>
 <div id="conversationsList" style="margin-bottom:15px"></div>
 <div id="chatBox" class="hidden">
 <button class="secondary" onclick="$('chatBox').classList.add('hidden');$('conversationsList').classList.remove('hidden')" style="margin-bottom:10px">← Назад к списку</button>
@@ -348,7 +348,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button type="button" onclick="showScreen('homeScreen')">⚔️<br><span data-nav="arena"></span></button>
 <button type="button" onclick="showScreen('searchScreen')">🔍<br><span data-nav="search"></span></button>
 <button class="add" type="button" onclick="openDuelModal()">＋</button>
-<button type="button" onclick="showMessagesScreen()">💬<br><span data-nav="messages">Сообщения</span></button>
+<button type="button" onclick="showMessagesScreen()">💬<br><span data-nav="messages"></span></button>
 <button type="button" onclick="showProfile()">👤<br><span data-nav="profile"></span></button>
 </nav>
 
@@ -621,7 +621,9 @@ chatButton:"💬 Чат дуэли",
 send:"Отправить",
 noComments:"Пока нет сообщений в чате. Будь первым!",
 photoBattle:"Фото батл",
-videoBattle:"Видео батл"
+videoBattle:"Видео батл",
+privateMessages:"💬 Личные сообщения",
+noActiveDialogs:"Нет активных диалогов"
 },
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
@@ -729,7 +731,9 @@ chatButton:"💬 Chatul duelului",
 send:"Trimite",
 noComments:"Niciun mesaj în chat. Fii primul!",
 photoBattle:"Duel Foto",
-videoBattle:"Duel Video"
+videoBattle:"Duel Video",
+privateMessages:"💬 Mesaje private",
+noActiveDialogs:"Nu există dialoguri active"
 },
 en:{
 subtitle:"Who wins? You decide.",
@@ -837,7 +841,9 @@ chatButton:"💬 Duel Chat",
 send:"Send",
 noComments:"No messages in chat yet. Be the first!",
 photoBattle:"Photo battle",
-videoBattle:"Video battle"
+videoBattle:"Video battle",
+privateMessages:"💬 Direct Messages",
+noActiveDialogs:"No active conversations"
 }
 };
 
@@ -981,7 +987,8 @@ avatarText:"avatar",
 saveProfileButton:"save",
 editCancelButton:"cancel",
 otherBackButton:"back",
-otherDuelsTitle:"duelList"
+otherDuelsTitle:"duelList",
+messagesTitle:"privateMessages"
 };
 
 Object.entries(texts).forEach(([id,key])=>setText(id,key));
@@ -1046,6 +1053,9 @@ await loadMyDuels();
 
 if($("otherProfileScreen").classList.contains("active")&&openedOtherUserId)
 await loadOtherDuels(openedOtherUserId);
+
+if($("messagesScreen").classList.contains("active"))
+await showMessagesScreen();
 }
 
 function showAuth(){
@@ -1901,7 +1911,7 @@ if(r.error)throw r.error;
 const userIds=[...new Set((r.data||[]).flatMap(m=>[m.sender_id,m.receiver_id]))].filter(id=>id!==currentUser.id);
 
 if(!userIds.length){
-box.innerHTML=`<div class="empty">Нет активных диалогов</div>`;
+box.innerHTML=`<div class="empty">${t("noActiveDialogs")}</div>`;
 return;
 }
 
