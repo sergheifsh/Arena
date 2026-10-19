@@ -1435,6 +1435,8 @@ if(!duelId||!currentUser)return;
 
 try{
 const feed=$("duelsFeed");
+if(!feed)return;
+
 const existingCard=feed.querySelector(`[data-duel-id="${CSS.escape(String(duelId))}"]`);
 
 if(existingCard){
@@ -1745,7 +1747,7 @@ ${admin
 </div>
 `;
 
-loadComments(idJS);
+setTimeout(()=>loadComments(idJS),0);
 return card;
 }
 
