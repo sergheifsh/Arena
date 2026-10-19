@@ -63,7 +63,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .duel{margin:10px 12px 18px;border:1px solid #dbe4f0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 5px 18px #0f172a12}
 .duel-head{padding:13px 14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 .duel-category{background:#eff6ff;color:#2563eb;padding:6px 9px;border-radius:10px;font-size:11px;font-weight:bold}
-.duel-type{background:#172033;color:#fff;padding:6px 9px;border-radius:10px;font-size:11px;font-weight:bold}
+.duel-type{background:#172033;color:#fff;padding:6px 9px;border-radius:10px;font-size:11px;font-weight:bold;display:flex;align-items:center;gap:4px}
 .duel-time{color:#dc2626;font-size:12px;font-weight:bold;background:#fef2f2;padding:4px 8px;border-radius:8px;border:1px solid #fecaca}
 .duel-time.ended{color:#64748b;background:#f1f5f9;border-color:#e2e8f0}
 .duel-author-row{padding:0 14px 8px;font-size:12px;color:#64748b;font-weight:bold;display:flex;align-items:center;gap:6px;cursor:pointer}
@@ -619,7 +619,9 @@ battleEnded:"🔴 Завершён",
 commentPlaceholder:"Написать в чат дуэли...",
 chatButton:"💬 Чат дуэли",
 send:"Отправить",
-noComments:"Пока нет сообщений в чате. Будь первым!"
+noComments:"Пока нет сообщений в чате. Будь первым!",
+photoBattle:"Фото батл",
+videoBattle:"Видео батл"
 },
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
@@ -725,7 +727,9 @@ battleEnded:"🔴 Finalizat",
 commentPlaceholder:"Scrie în chatul duelului...",
 chatButton:"💬 Chatul duelului",
 send:"Trimite",
-noComments:"Niciun mesaj în chat. Fii primul!"
+noComments:"Niciun mesaj în chat. Fii primul!",
+photoBattle:"Duel Foto",
+videoBattle:"Duel Video"
 },
 en:{
 subtitle:"Who wins? You decide.",
@@ -831,7 +835,9 @@ battleEnded:"🔴 Ended",
 commentPlaceholder:"Write in duel chat...",
 chatButton:"💬 Duel Chat",
 send:"Send",
-noComments:"No messages in chat yet. Be the first!"
+noComments:"No messages in chat yet. Be the first!",
+photoBattle:"Photo battle",
+videoBattle:"Video battle"
 }
 };
 
@@ -1354,7 +1360,6 @@ $("profileBio").innerText=currentProfile.bio||"";
 
 setAvatar("profileAvatar",currentProfile.avatar_url);
 
-// Принудительно показываем кнопку администратора если это Feederfsh@gmail.com или прописан флаг is_admin
 const isAdmin = currentProfile.is_admin === true || (currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
 const adminBtn = $("adminButton");
 if (isAdmin) {
@@ -1668,7 +1673,7 @@ card.innerHTML=`
 ${t(categoryKey)}
 </span>
 <span class="duel-type">
-${video?t("videoBattle"):t("photoBattle")}
+${video ? '📹 ' + t("videoBattle") : '📷 ' + t("photoBattle")}
 </span>
 </div>
 <span class="duel-time ${timerRes.ended?'ended':''}" data-expires="${esc(duel.expires_at||'')}">
