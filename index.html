@@ -616,11 +616,10 @@ unlimited:"♾️ Безлимитно",
 videoA:"🎥 Видео участника A",
 videoB:"🎥 Видео участника B",
 battleEnded:"🔴 Завершён",
-commentPlaceholder:"Написать комментарий...",
-secretComments:"🔒 Скрытое обсуждение",
-secretPlaceholder:"Написать в скрытое обсуждение...",
+commentPlaceholder:"Написать в чат дуэли...",
+chatButton:"💬 Чат дуэли",
 send:"Отправить",
-noComments:"Пока нет комментариев. Будь первым!"
+noComments:"Пока нет сообщений в чате. Будь первым!"
 },
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
@@ -723,11 +722,10 @@ unlimited:"♾️ Nelimitat",
 videoA:"🎥 Video participant A",
 videoB:"🎥 Video participant B",
 battleEnded:"🔴 Finalizat",
-commentPlaceholder:"Scrie un comentariu...",
-secretComments:"🔒 Discuție secretă",
-secretPlaceholder:"Scrie în discuția secretă...",
+commentPlaceholder:"Scrie în chatul duelului...",
+chatButton:"💬 Chatul duelului",
 send:"Trimite",
-noComments:"Niciun comentariu încă. Fii primul!"
+noComments:"Niciun mesaj în chat. Fii primul!"
 },
 en:{
 subtitle:"Who wins? You decide.",
@@ -830,11 +828,10 @@ unlimited:"♾️ Unlimited",
 videoA:"🎥 Participant A video",
 videoB:"🎥 Participant B video",
 battleEnded:"🔴 Ended",
-commentPlaceholder:"Write a comment...",
-secretComments:"🔒 Secret discussion",
-secretPlaceholder:"Write in secret discussion...",
+commentPlaceholder:"Write in duel chat...",
+chatButton:"💬 Duel Chat",
 send:"Send",
-noComments:"No comments yet. Be the first!"
+noComments:"No messages in chat yet. Be the first!"
 }
 };
 
@@ -1764,10 +1761,16 @@ ${admin
 :""}
 </div>
 
-<!-- Публичные комментарии -->
-<div class="duel-comments-section" style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#f8fafc">
-<div style="font-weight:bold;font-size:12px;color:#2563eb;margin-bottom:6px">💬 Комментарии</div>
-<div class="comments-list" id="comments-${idJS}" style="margin-bottom:8px;max-height:160px;overflow-y:auto">
+<!-- Кнопка переключения чата дуэли -->
+<div style="padding: 0 14px 12px;">
+<button type="button" onclick="toggleDuelChat('${idJS}')" style="width:100%;padding:10px;border:1px solid #dbe4f0;background:#f8fafc;color:#2563eb;border-radius:12px;font-weight:bold;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px">
+${t("chatButton")}
+</button>
+</div>
+
+<!-- Раскрывающийся блок чата дуэли -->
+<div id="duel-chat-box-${idJS}" class="hidden" style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#f8fafc;border-radius:0 0 20px 20px">
+<div class="comments-list" id="comments-${idJS}" style="margin-bottom:8px;max-height:200px;overflow-y:auto">
 <div style="font-size:12px;color:#64748b;text-align:center">${t("loading")}</div>
 </div>
 <div style="display:flex;gap:6px">
@@ -1775,25 +1778,21 @@ ${admin
 <button type="button" onclick="addComment('${idJS}')" style="padding:8px 12px;border:0;background:#2563eb;color:#fff;border-radius:10px;font-weight:bold;font-size:12px">${t("send")}</button>
 </div>
 </div>
-
-<!-- Скрытое (приватное) обсуждение -->
-<div class="duel-secret-section" style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#eff6ff;border-radius:0 0 20px 20px">
-<div style="font-weight:bold;font-size:12px;color:#1e40af;margin-bottom:6px">${t("secretComments")}</div>
-<div class="secret-comments-list" id="secret-comments-${idJS}" style="margin-bottom:8px;max-height:160px;overflow-y:auto">
-<div style="font-size:12px;color:#64748b;text-align:center">${t("loading")}</div>
-</div>
-<div style="display:flex;gap:6px">
-<input type="text" id="secret-input-${idJS}" placeholder="${t("secretPlaceholder")}" style="flex:1;padding:8px 10px;border:1px solid #bfdbfe;border-radius:10px;font-size:12px;outline:0;background:#fff" onkeydown="if(event.key==='Enter')addSecretComment('${idJS}')">
-<button type="button" onclick="addSecretComment('${idJS}')" style="padding:8px 12px;border:0;background:#1e40af;color:#fff;border-radius:10px;font-weight:bold;font-size:12px">${t("send")}</button>
-</div>
-</div>
 `;
 
-setTimeout(()=>{
-loadComments(idJS);
-loadSecretComments(idJS);
-},0);
 return card;
+}
+
+function toggleDuelChat(duelId){
+const box=$(`duel-chat-box-${duelId}`);
+if(!box)return;
+const isHidden=box.classList.contains("hidden");
+if(isHidden){
+box.classList.remove("hidden");
+loadComments(duelId);
+}else{
+box.classList.add("hidden");
+}
 }
 
 async function loadComments(duelId){
@@ -1867,68 +1866,6 @@ try{
 const r=await db.from("duel_comments").delete().eq("id",commentId);
 if(r.error)throw r.error;
 await loadComments(duelId);
-}catch(e){
-alert(e.message||t("connection"));
-}
-}
-
-async function loadSecretComments(duelId){
-const container=$(`secret-comments-${duelId}`);
-if(!container)return;
-
-try{
-const r=await db.from("duel_secret_comments")
-.select("*")
-.eq("duel_id",duelId)
-.order("created_at",{ascending:true});
-
-if(r.error)throw r.error;
-
-const comments=r.data||[];
-if(!comments.length){
-container.innerHTML=`<div style="font-size:12px;color:#64748b;text-align:center;padding:4px">${t("noComments")}</div>`;
-return;
-}
-
-const userIds=[...new Set(comments.map(c=>c.user_id))];
-const profilesMapData=await profilesMap(userIds);
-
-container.innerHTML=comments.map(c=>{
-const p=profilesMapData[c.user_id]||{};
-const name=p.full_name||p.username||t("participant");
-const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:24px;height:24px;border-radius:50%;object-fit:cover">`:`<div style="width:24px;height:24px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:10px">⚔️</div>`;
-
-return `
-<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;font-size:12px">
-${avatar}
-<div style="flex:1;background:#fff;padding:6px 8px;border-radius:8px;border:1px solid #bfdbfe">
-<div style="font-weight:bold;color:#1e40af;margin-bottom:2px">${esc(name)}</div>
-<div style="color:#334155;word-break:break-word">${esc(c.text)}</div>
-</div>
-</div>
-`;
-}).join("");
-}catch(e){
-container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center">Ошибка загрузки</div>`;
-}
-}
-
-async function addSecretComment(duelId){
-const input=$(`secret-input-${duelId}`);
-if(!input)return;
-const text=input.value.trim();
-if(!text)return;
-
-try{
-const r=await db.from("duel_secret_comments").insert({
-duel_id:duelId,
-user_id:currentUser.id,
-text
-});
-
-if(r.error)throw r.error;
-input.value="";
-await loadSecretComments(duelId);
 }catch(e){
 alert(e.message||t("connection"));
 }
