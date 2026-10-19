@@ -502,6 +502,7 @@ let currentUser=null;
 let currentProfile=null;
 let currentCategory="all";
 let language=localStorage.getItem("arena_language")||"ru";
+let isDuelsLoading=false;
 
 let selectedImageA=null;
 let selectedImageB=null;
@@ -1811,7 +1812,7 @@ if(!container)return;
 try{
 const r=await db.from("duel_comments")
 .select("*")
-.eq("duel_id",duelId)
+.eq("duel_id",String(duelId))
 .order("created_at",{ascending:true});
 
 if(r.error)throw r.error;
@@ -1857,9 +1858,14 @@ if(!input)return;
 const text=input.value.trim();
 if(!text)return;
 
+if(!currentUser){
+alert("Требуется авторизация");
+return;
+}
+
 try{
 const r=await db.from("duel_comments").insert({
-duel_id:duelId,
+duel_id:String(duelId),
 user_id:currentUser.id,
 text
 });
@@ -2050,9 +2056,18 @@ return map;
 }
 
 async function loadDuels(){
+if(isDuelsLoading)return;
+isDuelsLoading=true;
+
 const box=$("duelsFeed");
+if(!box) {
+isDuelsLoading=false;
+return;
+}
+
 box.innerHTML=`<div class="status">${esc(t("loading"))} ⏳</div>`;
 
+try{
 let q=db.from("duels")
 .select("*")
 .order("created_at",{ascending:false})
@@ -2063,10 +2078,7 @@ q=q.eq("category",currentCategory);
 
 const r=await q;
 
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
+if(r.error)throw r.error;
 
 box.innerHTML="";
 
@@ -2085,6 +2097,11 @@ box.appendChild(await duelCard(duel));
 }
 
 await openSharedDuel();
+}catch(e){
+box.innerHTML=`<div class="empty">${esc(e.message||"Ошибка загрузки")}</div>`;
+}finally{
+isDuelsLoading=false;
+}
 }
 
 function selectCategory(category,button){
@@ -2635,7 +2652,9 @@ const seenOtherDuels = new Set();
 for(const duel of r.data){
 if(seenOtherDuels.has(duel.id)) continue;
 seenOtherDuels.add(duel.id);
+try{
 box.appendChild(await duelCard(duel));
+}catch(e){}
 }
 }
 
@@ -2756,7 +2775,9 @@ const seenMyDuels = new Set();
 for(const duel of r.data){
 if(seenMyDuels.has(duel.id)) continue;
 seenMyDuels.add(duel.id);
+try{
 box.appendChild(await duelCard(duel));
+}catch(e){}
 }
 }
 
@@ -2905,6 +2926,7 @@ try{
         }
 
         if(event==="SIGNED_IN"&&session){
+            if(currentUser && currentUser.id === session.user.id) return;
             currentUser=session.user;
             if($("app").classList.contains("hidden")){
                 try{
