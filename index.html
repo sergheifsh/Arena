@@ -1779,13 +1779,13 @@ ${t("chatButton")}
 </button>
 </div>
 
-<div id="duel-chat-box-${idJS}" class="hidden" style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#f8fafc;border-radius:0 0 20px 20px">
-<div class="comments-list" id="comments-${idJS}" style="margin-bottom:8px;max-height:200px;overflow-y:auto">
+<div class="duel-chat-box hidden" style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#f8fafc;border-radius:0 0 20px 20px" data-chat-id="${idJS}">
+<div class="comments-list" style="margin-bottom:8px;max-height:200px;overflow-y:auto">
 <div style="font-size:12px;color:#64748b;text-align:center">${t("loading")}</div>
 </div>
 <div style="display:flex;gap:6px">
-<input type="text" id="comment-input-${idJS}" placeholder="${t("commentPlaceholder")}" style="flex:1;padding:8px 10px;border:1px solid #cbd5e1;border-radius:10px;font-size:12px;outline:0;background:#fff" onkeydown="if(event.key==='Enter')addComment('${idJS}')">
-<button type="button" onclick="addComment('${idJS}')" style="padding:8px 12px;border:0;background:#2563eb;color:#fff;border-radius:10px;font-weight:bold;font-size:12px">${t("send")}</button>
+<input type="text" class="comment-input" placeholder="${t("commentPlaceholder")}" style="flex:1;padding:8px 10px;border:1px solid #cbd5e1;border-radius:10px;font-size:12px;outline:0;background:#fff" onkeydown="if(event.key==='Enter')addComment(this, '${idJS}')">
+<button type="button" onclick="addComment(this, '${idJS}')" style="padding:8px 12px;border:0;background:#2563eb;color:#fff;border-radius:10px;font-weight:bold;font-size:12px">${t("send")}</button>
 </div>
 </div>
 `;
@@ -1793,34 +1793,27 @@ ${t("chatButton")}
 return card;
 }
 
-function toggleDuelChat(btnOrId, duelId){
-let sId = duelId ? String(duelId) : String(btnOrId);
-let box = document.getElementById(`duel-chat-box-${sId}`);
+function toggleDuelChat(button, duelId){
+const card = button.closest(".duel");
+if(!card) return;
+const box = card.querySelector(".duel-chat-box");
+if(!box) return;
 
-if (!box && btnOrId instanceof HTMLElement) {
-const card = btnOrId.closest('.duel');
-if (card) {
-box = card.querySelector(`[id^="duel-chat-box-"]`);
-if (box) {
-const match = box.id.match(/duel-chat-box-(.+)$/);
-if (match) sId = match[1];
-}
-}
-}
-
-if(!box)return;
-const isHidden=box.classList.contains("hidden");
+const isHidden = box.classList.contains("hidden");
 if(isHidden){
 box.classList.remove("hidden");
-loadComments(sId);
+loadComments(box, duelId);
 }else{
 box.classList.add("hidden");
 }
 }
 
-async function loadComments(duelId){
+async function loadComments(boxOrContainer, duelId){
 const sId = String(duelId);
-const container=document.getElementById(`comments-${sId}`);
+const container = boxOrContainer.classList?.contains("duel-chat-box") 
+  ? boxOrContainer.querySelector(".comments-list") 
+  : document.querySelector(`[data-chat-id="${sId}"] .comments-list`);
+
 if(!container)return;
 
 try{
@@ -1854,7 +1847,7 @@ ${avatar}
 <div style="flex:1;background:#fff;padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
 <span style="font-weight:bold;color:#172033">${esc(name)}</span>
-${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}')" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px">✕</button>`:""}
+${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}', this)" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px">✕</button>`:""}
 </div>
 <div style="color:#334155;word-break:break-word">${esc(c.text)}</div>
 </div>
@@ -1866,10 +1859,13 @@ container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center"
 }
 }
 
-async function addComment(duelId){
+async function addComment(inputOrButton, duelId){
 const sId = String(duelId);
-const input=document.getElementById(`comment-input-${sId}`);
-if(!input)return;
+const card = inputOrButton.closest(".duel");
+if(!card) return;
+const input = card.querySelector(".comment-input");
+if(!input) return;
+
 const text=input.value.trim();
 if(!text)return;
 
@@ -1887,18 +1883,21 @@ text
 
 if(r.error)throw r.error;
 input.value="";
-await loadComments(sId);
+loadComments(card.querySelector(".duel-chat-box"), sId);
 }catch(e){
 alert(e.message||t("connection"));
 }
 }
 
-async function deleteComment(commentId,duelId){
+async function deleteComment(commentId, duelId, button){
 const sId = String(duelId);
+const card = button.closest(".duel");
 try{
 const r=await db.from("duel_comments").delete().eq("id",commentId);
 if(r.error)throw r.error;
-await loadComments(sId);
+if(card){
+loadComments(card.querySelector(".duel-chat-box"), sId);
+}
 }catch(e){
 alert(e.message||t("connection"));
 }
