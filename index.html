@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>ARENA — Who Beats Who</title>
 
 <style>
@@ -68,9 +71,12 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 
 .duel-options{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 8px 8px}
 .option{border:2px solid #e2e8f0;border-radius:15px;overflow:hidden;background:#f8fafc}
+.option:hover{border-color:#93c5fd}
+
 .option-media{position:relative;width:100%;height:220px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .option-media img{width:100%;height:100%;object-fit:cover;cursor:pointer}
 .option-media video{width:100%;height:100%;object-fit:cover;background:#000}
+
 .option-placeholder{font-size:38px;color:#64748b}
 .video-placeholder{font-size:46px}
 .option-label{padding:10px 7px;text-align:center;font-weight:bold;font-size:14px;word-break:break-word}
@@ -81,8 +87,9 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .results{padding:10px 12px 14px;border-top:1px solid #e2e8f0}
 .result-row{margin:7px 0}
 .result-info{display:flex;justify-content:space-between;gap:8px;font-size:12px;margin-bottom:4px}
+.result-info span{min-width:0;word-break:break-word}
 .progress{height:9px;background:#e2e8f0;border-radius:20px;overflow:hidden}
-.progress-fill{height:100%;min-width:0;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:20px}
+.progress-fill{height:100%;min-width:0;background:linear-gradient(90deg,#2563eb,#60a5fa);border-radius:20px;transition:width .35s ease}
 
 .duel-actions{display:flex;align-items:center;gap:8px;padding:8px 13px 12px;color:#64748b;font-size:12px;flex-wrap:wrap}
 .duel-actions button{border:0;background:0;color:#64748b}
@@ -146,6 +153,14 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .secondary{width:100%;padding:12px;margin-top:8px;border:0;border-radius:12px;background:#f1f5f9;color:#334155}
 .empty{text-align:center;padding:35px 15px;color:#64748b}
 .media-help{font-size:11px;color:#64748b;margin:4px 2px 8px}
+
+@media(max-width:430px){
+.arena-title{font-size:27px}
+.option-media{height:180px}
+.option-label{font-size:13px}
+.vs{width:39px;height:39px}
+.profile-stats{gap:23px}
+}
 </style>
 </head>
 
@@ -204,6 +219,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </header>
 
 <div id="homeScreen" class="screen active">
+
 <div class="arena-top">
 <div id="arenaTitle" class="arena-title"></div>
 <div id="arenaSubtitle" class="arena-subtitle"></div>
@@ -227,6 +243,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="duelsFeed">
 <div class="status" id="duelsStatus"></div>
 </div>
+
 </div>
 
 <div id="topScreen" class="screen">
@@ -250,6 +267,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="profileScreen" class="screen">
 <div class="profile">
 <div class="profile-head">
+
 <div id="profileAvatar" class="profile-big-avatar">⚔️</div>
 <div id="profileName" class="profile-name"></div>
 <div id="profileUsername" class="profile-username">@arena</div>
@@ -272,10 +290,40 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <br>
 <div id="adminContent"></div>
 </div>
+
 </div>
 
 <h3 id="myDuelsTitle" style="margin:18px 0 10px"></h3>
 <div id="myDuels"></div>
+
+</div>
+</div>
+
+<div id="otherProfileScreen" class="screen">
+<div class="profile">
+<div class="profile-head">
+
+<div id="otherAvatar" class="profile-big-avatar">⚔️</div>
+<div id="otherName" class="profile-name"></div>
+<div id="otherUsername" class="profile-username">@arena</div>
+<div id="otherBio" class="profile-bio"></div>
+
+<div class="profile-stats">
+<div class="stat"><span id="otherDuelsCount" class="stat-number">0</span><span class="stat-label">⚔️</span></div>
+<div class="stat"><span id="otherFollowersCount" class="stat-number">0</span><span id="otherFollowersLabel" class="stat-label"></span></div>
+<div class="stat"><span id="otherFollowingCount" class="stat-number">0</span><span id="otherFollowingLabel" class="stat-label"></span></div>
+</div>
+
+<div class="profile-buttons">
+<button id="otherFollowButton" class="follow-button" type="button"></button>
+<button id="otherBackButton" type="button" onclick="showScreen('homeScreen')"></button>
+</div>
+
+</div>
+
+<h3 id="otherDuelsTitle" style="margin:18px 0 10px"></h3>
+<div id="otherDuels"></div>
+
 </div>
 </div>
 
@@ -285,12 +333,16 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button class="add" type="button" onclick="openDuelModal()">＋</button>
 <button type="button" onclick="showProfile()">👤<br><span data-nav="profile"></span></button>
 </nav>
+
 </div>
 
 <div id="duelModal" class="modal">
 <div class="modal-box">
+
 <h2 id="duelModalTitle"></h2>
+
 <input id="duelTitle">
+
 <select id="duelCategory">
 <option value="Фильмы" data-opt="films"></option>
 <option value="Музыка" data-opt="music"></option>
@@ -300,10 +352,12 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <option value="Авто" data-opt="auto"></option>
 <option value="Другое" data-opt="other"></option>
 </select>
+
 <select id="duelType" onchange="toggleDuelType()">
 <option value="photo" data-opt="photoBattle"></option>
 <option value="video" data-opt="videoBattle"></option>
 </select>
+
 <select id="duelDuration">
 <option value="24" data-opt="h24"></option>
 <option value="48" selected data-opt="h48"></option>
@@ -312,27 +366,90 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </select>
 
 <div id="photoFields">
+
 <input id="duelOptionA">
-<label class="photo-button"><span id="photoAText"></span><input id="duelImageA" type="file" accept="image/*" onchange="previewDuelMedia('A',event,'image')"></label>
-<div id="previewA" class="image-preview"><img id="previewAImage" alt="A"></div>
+
+<label class="photo-button">
+<span id="photoAText"></span>
+<input id="duelImageA" type="file" accept="image/*" onchange="previewDuelMedia('A',event,'image')">
+</label>
+
+<div id="previewA" class="image-preview">
+<img id="previewAImage" alt="Preview A">
+</div>
+
 <input id="duelOptionB">
-<label class="photo-button"><span id="photoBText"></span><input id="duelImageB" type="file" accept="image/*" onchange="previewDuelMedia('B',event,'image')"></label>
-<div id="previewB" class="image-preview"><img id="previewBImage" alt="B"></div>
+
+<label class="photo-button">
+<span id="photoBText"></span>
+<input id="duelImageB" type="file" accept="image/*" onchange="previewDuelMedia('B',event,'image')">
+</label>
+
+<div id="previewB" class="image-preview">
+<img id="previewBImage" alt="Preview B">
+</div>
+
 </div>
 
 <div id="videoFields" class="hidden">
+
 <input id="duelVideoOptionA">
-<label class="photo-button"><span id="videoAText"></span><input id="duelVideoA" type="file" accept="video/*" onchange="previewDuelMedia('A',event,'video')"></label>
-<div id="previewVideoA" class="image-preview"><video id="previewVideoAElement" controls playsinline></video></div>
+
+<label class="photo-button">
+<span id="videoAText"></span>
+<input id="duelVideoA" type="file" accept="video/*" onchange="previewDuelMedia('A',event,'video')">
+</label>
+
+<div id="previewVideoA" class="image-preview">
+<video id="previewVideoAElement" controls playsinline></video>
+</div>
+
 <input id="duelVideoOptionB">
-<label class="photo-button"><span id="videoBText"></span><input id="duelVideoB" type="file" accept="video/*" onchange="previewDuelMedia('B',event,'video')"></label>
-<div id="previewVideoB" class="image-preview"><video id="previewVideoBElement" controls playsinline></video></div>
+
+<label class="photo-button">
+<span id="videoBText"></span>
+<input id="duelVideoB" type="file" accept="video/*" onchange="previewDuelMedia('B',event,'video')">
+</label>
+
+<div id="previewVideoB" class="image-preview">
+<video id="previewVideoBElement" controls playsinline></video>
+</div>
+
 <div class="media-help" data-i18n="maxPhotoHelp"></div>
+
 </div>
 
 <button id="duelSubmitButton" class="primary" type="button" onclick="createDuel()"></button>
 <button id="duelCancelButton" class="secondary" type="button" onclick="closeModal('duelModal')"></button>
+
 <div id="duelStatus" class="status"></div>
+
+</div>
+</div>
+
+<div id="editModal" class="modal">
+<div class="modal-box">
+
+<h2 id="editProfileTitle"></h2>
+
+<label class="photo-button">
+<span id="avatarText"></span>
+<input id="avatarInput" type="file" accept="image/*" onchange="previewAvatar(event)">
+</label>
+
+<div id="avatarPreview" class="image-preview">
+<img id="avatarPreviewImage" alt="Avatar Preview">
+</div>
+
+<input id="editName">
+<input id="editUsername">
+<textarea id="editBio"></textarea>
+
+<button id="saveProfileButton" class="primary" type="button" onclick="saveProfile()"></button>
+<button id="editCancelButton" class="secondary" type="button" onclick="closeModal('editModal')"></button>
+
+<div id="profileStatus" class="status"></div>
+
 </div>
 </div>
 
@@ -372,6 +489,9 @@ let selectedImageA=null;
 let selectedImageB=null;
 let selectedVideoA=null;
 let selectedVideoB=null;
+let selectedAvatar=null;
+
+let openedOtherUserId=null;
 
 const $=id=>document.getElementById(id);
 
@@ -449,19 +569,24 @@ adminDeleteConfirm:"Удалить эту дуэль как администра
 created:"Дуэль создана! ⚔️",
 invalid:"Заполни все обязательные поля.",
 wrongLogin:"Неверный email или пароль.",
-emailNotConfirmed:"Email ещё не подтверждён.",
+emailNotConfirmed:"Email ещё не подтверждён. Проверь почту.",
 connection:"Ошибка подключения к серверу.",
 enterCredentials:"Введите email и пароль.",
 passwordLength:"Пароль должен содержать минимум 6 символов.",
 creatingAccount:"Создаём аккаунт...",
-checkingEmail:"Аккаунт создан. Проверь почту 📧",
+checkingEmail:"Аккаунт создан. Проверь почту для подтверждения 📧",
 loggingIn:"Входим...",
 uploading:"Загружаем медиа...",
 creatingDuel:"Создаём дуэль... ⚔️",
+nameRequired:"Укажи имя.",
+saving:"Сохраняем...",
+username:"Имя пользователя",
+avatar:"📷 Изменить аватар",
 maxPhoto:"Максимальный размер файла — 100 MB.",
 maxPhotoHelp:"🎥 Максимальный размер видео — 100 MB.",
 tooLongTitle:"Название дуэли слишком длинное.",
 tooLongOption:"Название варианта слишком длинное.",
+deleteMessage:"Удалить сообщение?",
 share:"Поделиться",
 shareCopied:"🔗 Ссылка скопирована!",
 h24:"⏳ 24 часа",
@@ -546,21 +671,26 @@ blockedAccount:"🚫 Contul tău este blocat.",
 deleteConfirm:"Ștergi acest duel?",
 adminDeleteConfirm:"Ștergi acest duel ca administrator?",
 created:"Duel creat! ⚔️",
-invalid:"Completează toate câmpurile.",
+invalid:"Completează toate câmpurile obligatorii.",
 wrongLogin:"Email sau parolă incorect.",
 emailNotConfirmed:"Emailul nu este confirmat.",
-connection:"Eroare de conectare.",
+connection:"Eroare de conectare la server.",
 enterCredentials:"Introdu emailul și parola.",
-passwordLength:"Parola trebuie să aibă minim 6 caractere.",
+passwordLength:"Parola trebuie să conțină cel puțin 6 caractere.",
 creatingAccount:"Creăm contul...",
 checkingEmail:"Cont creat. Verifică emailul.",
 loggingIn:"Intrăm...",
 uploading:"Încărcăm media...",
 creatingDuel:"Creăm duelul... ⚔️",
+nameRequired:"Introdu numele.",
+saving:"Se salvează...",
+username:"Nume utilizator",
+avatar:"📷 Schimbă avatarul",
 maxPhoto:"Dimensiunea maximă este 100 MB.",
 maxPhotoHelp:"🎥 Dimensiunea maximă video este 100 MB.",
 tooLongTitle:"Numele duelului este prea lung.",
 tooLongOption:"Numele variantei este prea lung.",
+deleteMessage:"Ștergi mesajul?",
 share:"Distribuie",
 shareCopied:"🔗 Link copiat!",
 h24:"⏳ 24 de ore",
@@ -656,10 +786,15 @@ checkingEmail:"Account created. Check your email.",
 loggingIn:"Logging in...",
 uploading:"Uploading media...",
 creatingDuel:"Creating duel... ⚔️",
+nameRequired:"Enter your name.",
+saving:"Saving...",
+username:"Username",
+avatar:"📷 Change avatar",
 maxPhoto:"Maximum size is 100 MB.",
 maxPhotoHelp:"🎥 Maximum video size is 100 MB.",
 tooLongTitle:"Duel title is too long.",
 tooLongOption:"Option name is too long.",
+deleteMessage:"Delete this message?",
 share:"Share",
 shareCopied:"🔗 Link copied!",
 h24:"⏳ 24 hours",
@@ -684,57 +819,202 @@ return d.innerHTML;
 }
 
 function escJS(v){
-return String(v??"").replace(/\\/g,"\\\\").replace(/'/g,"\\'").replace(/"/g,'\\"');
+return String(v??"")
+.replace(/\\/g,"\\\\")
+.replace(/'/g,"\\'")
+.replace(/"/g,'\\"')
+.replace(/\r/g,"\\r")
+.replace(/\n/g,"\\n");
 }
 
 function rnd(){
+if(window.crypto?.getRandomValues){
+const a=new Uint32Array(2);
+crypto.getRandomValues(a);
+return a[0].toString(36)+a[1].toString(36);
+}
 return Math.random().toString(36).slice(2);
 }
 
 function formatCountdown(expiresAt){
 if(!expiresAt)return{text:t("unlimited"),ended:false};
-const diff=new Date(expiresAt).getTime()-Date.now();
-if(diff<=0)return{text:t("battleEnded"),ended:true};
-const h=String(Math.floor(diff/(1000*60*60))).padStart(2,"0");
-const m=String(Math.floor((diff%(1000*60*60))/(1000*60))).padStart(2,"0");
-const s=String(Math.floor((diff%(1000*60))/1000)).padStart(2,"0");
+const end=new Date(expiresAt).getTime();
+const now=Date.now();
+const diff=end-now;
+
+if(diff<=0){
+return{text:t("battleEnded"),ended:true};
+}
+
+const hours=Math.floor(diff/(1000*60*60));
+const minutes=Math.floor((diff%(1000*60*60))/(1000*60));
+const seconds=Math.floor((diff%(1000*60))/1000);
+
+const h=String(hours).padStart(2,"0");
+const m=String(minutes).padStart(2,"0");
+const s=String(seconds).padStart(2,"0");
+
 return{text:`⏳ ${h}:${m}:${s}`,ended:false};
 }
 
 function startCountdownTimers(){
 setInterval(()=>{
 document.querySelectorAll(".duel-time[data-expires]").forEach(el=>{
-const res=formatCountdown(el.dataset.expires);
+const expiresAt=el.dataset.expires;
+const res=formatCountdown(expiresAt);
 el.innerText=res.text;
 if(res.ended){
 el.classList.add("ended");
-el.closest(".duel")?.querySelectorAll(".vote-button").forEach(b=>b.disabled=true);
+const card=el.closest(".duel");
+if(card){
+card.querySelectorAll(".vote-button").forEach(b=>b.disabled=true);
+}
 }
 });
 },1000);
 }
 
+function setText(id,key){
+if($(id))$(id).innerText=t(key);
+}
+
+function setPH(id,key){
+if($(id))$(id).placeholder=t(key);
+}
+
+function safeSearch(v){
+return String(v)
+.replace(/\\/g,"\\\\")
+.replace(/%/g,"\\%")
+.replace(/_/g,"\\_");
+}
+
+function showCustomConfirm(message, onConfirm, okText = "OK") {
+$("customConfirmText").innerText = message;
+$("customConfirmOk").innerText = okText;
+$("customConfirmCancel").innerText = t("cancel");
+
+const modal = $("customConfirmModal");
+modal.classList.add("show");
+
+const okBtn = $("customConfirmOk");
+const cancelBtn = $("customConfirmCancel");
+
+const clean = () => {
+okBtn.onclick = null;
+cancelBtn.onclick = null;
+modal.classList.remove("show");
+};
+
+okBtn.onclick = () => {
+clean();
+onConfirm();
+};
+
+cancelBtn.onclick = () => {
+clean();
+};
+}
+
 function applyLanguage(){
 document.documentElement.lang=language;
 if($("languageSelect"))$("languageSelect").value=language;
+
 const texts={
-authSubtitle:"subtitle",arenaTitle:"who",arenaSubtitle:"arenaSubtitle",
-loginButton:"login",registerButton:"register",registerSwitch:"noAccount",
-loginSwitch:"haveAccount",createDuelButton:"create",topTitle:"topArena",
-myDuelsTitle:"myDuels",myDuelsLabel:"duels",myFollowersLabel:"followers",
-myFollowingLabel:"following",editProfileButton:"edit",logoutButton:"logout",
-adminButton:"admin",adminTitle:"adminTitle",duelModalTitle:"newDuel",
-duelSubmitButton:"createDuel",duelCancelButton:"cancel",photoAText:"photoA",
-photoBText:"photoB",videoAText:"videoA",videoBText:"videoB"
+authSubtitle:"subtitle",
+arenaTitle:"who",
+arenaSubtitle:"arenaSubtitle",
+loginButton:"login",
+registerButton:"register",
+registerSwitch:"noAccount",
+loginSwitch:"haveAccount",
+createDuelButton:"create",
+topTitle:"topArena",
+myDuelsTitle:"myDuels",
+myDuelsLabel:"duels",
+myFollowersLabel:"followers",
+myFollowingLabel:"following",
+editProfileButton:"edit",
+logoutButton:"logout",
+adminButton:"admin",
+adminTitle:"adminTitle",
+duelModalTitle:"newDuel",
+duelSubmitButton:"createDuel",
+duelCancelButton:"cancel",
+photoAText:"photoA",
+photoBText:"photoB",
+videoAText:"videoA",
+videoBText:"videoB",
+editProfileTitle:"editProfile",
+avatarText:"avatar",
+saveProfileButton:"save",
+editCancelButton:"cancel",
+otherBackButton:"back",
+otherDuelsTitle:"duelList"
 };
-Object.entries(texts).forEach(([id,key])=>$(id)&&($(id).innerText=t(key)));
+
+Object.entries(texts).forEach(([id,key])=>setText(id,key));
+
+const ph={
+loginEmail:"email",
+loginPassword:"password",
+regName:"name",
+regEmail:"email",
+regPassword:"password",
+duelTitle:"duelName",
+duelOptionA:"optionA",
+duelOptionB:"optionB",
+duelVideoOptionA:"optionA",
+duelVideoOptionB:"optionB",
+editName:"name",
+editUsername:"username",
+editBio:"about",
+searchInput:"searchPlaceholder"
+};
+
+Object.entries(ph).forEach(([id,key])=>setPH(id,key));
+
+const cat={
+all:"all",
+"Фильмы":"films",
+"Музыка":"music",
+"Игры":"games",
+"Спорт":"sport",
+"Мемы":"memes",
+"Авто":"auto",
+"Другое":"other"
+};
+
+document.querySelectorAll(".category-btn").forEach(b=>{
+b.innerText=t(cat[b.dataset.category]);
+});
+
+document.querySelectorAll("[data-nav]").forEach(e=>{
+e.innerText=t(e.dataset.nav);
+});
+
+document.querySelectorAll("[data-opt]").forEach(opt=>{
+opt.innerText=t(opt.dataset.opt);
+});
+
+document.querySelectorAll("[data-i18n]").forEach(e=>{
+e.innerText=t(e.dataset.i18n);
+});
 }
 
 async function changeLanguage(v){
 language=["ru","ro","en"].includes(v)?v:"ru";
 localStorage.setItem("arena_language",language);
 applyLanguage();
-if(currentUser)await loadDuels();
+
+if(!currentUser)return;
+await loadDuels();
+
+if($("profileScreen").classList.contains("active"))
+await loadMyDuels();
+
+if($("otherProfileScreen").classList.contains("active")&&openedOtherUserId)
+await loadOtherDuels(openedOtherUserId);
 }
 
 function showAuth(){
@@ -766,11 +1046,64 @@ setTimeout(()=>$("startupScreen").style.display="none",220);
 }
 
 function initDB(){
-if(!window.supabase)return false;
+if(!window.supabase || typeof window.supabase.createClient !== 'function'){
+    return false;
+}
+
 try{
-db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true}});
+db=window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY,
+{
+auth:{
+autoRefreshToken:true,
+persistSession:true,
+detectSessionInUrl:true,
+storageKey:"arena-supabase-auth",
+flowType:"pkce"
+}
+}
+);
 return true;
-}catch(e){return false;}
+}catch(e){
+return false;
+}
+}
+
+function authError(e){
+const m=String(e?.message||"").toLowerCase();
+
+if(m.includes("invalid login")||m.includes("invalid credentials"))
+return t("wrongLogin");
+
+if(m.includes("email not confirmed"))
+return t("emailNotConfirmed");
+
+if(m.includes("fetch")||m.includes("network"))
+return t("connection");
+
+return e?.message||"Ошибка";
+}
+
+async function getUniqueFullName(requestedName) {
+    let finalName = requestedName;
+    let counter = 1;
+
+    while (true) {
+        const check = await db.from("profiles")
+            .select("id")
+            .ilike("full_name", finalName)
+            .maybeSingle();
+
+        if (!check.data) {
+            break;
+        }
+
+        finalName = `${requestedName} ${counter}`;
+        counter++;
+    }
+
+    return finalName;
 }
 
 async function register(){
@@ -778,19 +1111,59 @@ const rawName=$("regName").value.trim();
 const email=$("regEmail").value.trim().toLowerCase();
 const pass=$("regPassword").value;
 const status=$("authStatus");
-if(!rawName||!email||!pass){status.innerText=t("invalid");return;}
-if(pass.length<6){status.innerText=t("passwordLength");return;}
+
+if(!rawName||!email||!pass){
+status.innerText=t("invalid");
+return;
+}
+
+if(pass.length<6){
+status.innerText=t("passwordLength");
+return;
+}
+
 $("registerButton").disabled=true;
 status.innerText=t("creatingAccount");
+
 try{
-const r=await db.auth.signUp({email,password:pass,options:{data:{full_name:rawName,username:"arena_"+rnd()}}});
-if(r.error)throw r.error;
-if(r.data.user){
-await db.from("profiles").upsert({id:r.data.user.id,full_name:rawName,username:"arena_"+rnd()},{onConflict:"id"});
+const name = await getUniqueFullName(rawName);
+const username="arena_"+rnd();
+
+const r=await db.auth.signUp({
+email,
+password:pass,
+options:{
+data:{
+full_name:name,
+username
 }
+}
+});
+
+if(r.error)throw r.error;
+
+if(r.data.user){
+const p=await db.from("profiles").upsert({
+id:r.data.user.id,
+full_name:name,
+username
+},{onConflict:"id"});
+
+if(p.error)console.warn("Profile:",p.error);
+}
+
+if(r.data.session){
+currentUser=r.data.user;
+await startApp();
+}else{
 status.innerText=t("checkingEmail");
-setTimeout(()=>location.reload(), 1500);
-}catch(e){status.innerText=e.message;}
+showLogin();
+}
+
+}catch(e){
+status.innerText=authError(e);
+}
+
 $("registerButton").disabled=false;
 }
 
@@ -798,47 +1171,201 @@ async function login(){
 const email=$("loginEmail").value.trim().toLowerCase();
 const pass=$("loginPassword").value;
 const status=$("authStatus");
-if(!email||!pass){status.innerText=t("enterCredentials");return;}
+
+if(!email||!pass){
+status.innerText=t("enterCredentials");
+return;
+}
+
+if(!db){
+status.innerText=t("connection");
+return;
+}
+
 $("loginButton").disabled=true;
 status.innerText=t("loggingIn");
+
 try{
-const r=await db.auth.signInWithPassword({email,password:pass});
+const r=await db.auth.signInWithPassword({
+email,
+password:pass
+});
+
 if(r.error)throw r.error;
-location.reload();
+
+if(!r.data?.session||!r.data?.user)
+throw new Error("Не удалось получить сессию.");
+
+currentUser=r.data.user;
+await startApp();
+
 }catch(e){
-status.innerText=e.message;
+status.innerText=authError(e);
 $("loginButton").disabled=false;
 }
 }
 
 async function logout(){
-try{await db.auth.signOut();}catch(e){}
-localStorage.clear();
-location.reload();
+try{
+await db.auth.signOut();
+}catch(e){}
+
+currentUser=null;
+currentProfile=null;
+
+localStorage.removeItem("arena_last_screen");
+
+showAuth();
+showLogin();
+}
+
+async function startApp(){
+try{
+if(!currentUser){
+const sessionPromise=db.auth.getSession();
+const timeoutPromise=new Promise((_,reject)=>
+setTimeout(()=>reject(new Error("Auth timeout")),10000)
+);
+
+const s=await Promise.race([
+sessionPromise,
+timeoutPromise
+]);
+
+if(!s.data?.session){
+showAuth();
+showLogin();
+return;
+}
+
+currentUser=s.data.session.user;
+}
+
+try{
+await Promise.race([
+loadProfile(),
+new Promise((_,reject)=>
+setTimeout(()=>reject(new Error("Profile timeout")),10000)
+)
+]);
+}catch(e){}
+
+if(currentProfile?.is_blocked){
+alert(t("blockedAccount"));
+await db.auth.signOut();
+currentUser=null;
+currentProfile=null;
+showAuth();
+showLogin();
+return;
+}
+
+$("auth").style.display="none";
+$("app").classList.remove("hidden");
+
+const screen=localStorage.getItem("arena_last_screen")||"homeScreen";
+
+showScreen(screen);
+
+Promise.allSettled([
+loadDuels()
+]);
+
+if(screen==="profileScreen")
+showProfile();
+
+}catch(e){
+try{
+showAuth();
+showLogin();
+}catch(_){}
+}finally{
+hideStartup();
+}
 }
 
 function showScreen(id){
-document.querySelectorAll(".screen").forEach(e=>e.classList.remove("active"));
+document.querySelectorAll(".screen")
+.forEach(e=>e.classList.remove("active"));
+
 if($(id))$(id).classList.add("active");
+
+localStorage.setItem("arena_last_screen",id);
 }
 
 async function loadProfile(){
-if(!currentUser)return;
-let r=await db.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
-currentProfile=r.data||{id:currentUser.id,full_name:t("participant")};
-$("profileName").innerText=currentProfile.full_name;
+if(!currentUser)return null;
+
+let r=await db.from("profiles")
+.select("*")
+.eq("id",currentUser.id)
+.maybeSingle();
+
+if(!r.data){
+const name=currentUser.user_metadata?.full_name||t("participant");
+const username=currentUser.user_metadata?.username||"arena_"+rnd();
+
+const create=await db.from("profiles").upsert({
+id:currentUser.id,
+full_name:name,
+username
+},{onConflict:"id"});
+
+r=await db.from("profiles")
+.select("*")
+.eq("id",currentUser.id)
+.maybeSingle();
+}
+
+currentProfile=r.data||{
+id:currentUser.id,
+full_name:t("participant"),
+username:"arena"
+};
+
+$("profileName").innerText=currentProfile.full_name||t("participant");
 $("profileUsername").innerText="@"+(currentProfile.username||"arena");
 $("profileBio").innerText=currentProfile.bio||"";
-if(currentProfile.avatar_url)$("profileAvatar").innerHTML=`<img src="${esc(currentProfile.avatar_url)}">`;
-$("adminButton").classList.toggle("hidden",currentProfile.is_admin!==true);
-$("myDuelsCount").innerText=await count("duels","user_id",currentUser.id);
-$("myFollowersCount").innerText=await count("follows","following_id",currentUser.id);
-$("myFollowingCount").innerText=await count("follows","follower_id",currentUser.id);
+
+setAvatar("profileAvatar",currentProfile.avatar_url);
+
+$("adminButton").classList.toggle(
+"hidden",
+currentProfile.is_admin!==true
+);
+
+await updateStats();
+return currentProfile;
+}
+
+function setAvatar(id,url){
+const e=$(id);
+if(!e)return;
+
+e.innerHTML=url
+?`<img src="${esc(url)}" alt="avatar">`
+:"⚔️";
 }
 
 async function count(table,column,id){
-const r=await db.from(table).select("*",{count:"exact",head:true}).eq(column,id);
+const r=await db.from(table)
+.select("*",{count:"exact",head:true})
+.eq(column,id);
+
 return r.count||0;
+}
+
+async function updateStats(){
+if(!currentUser)return;
+
+$("myDuelsCount").innerText=
+await count("duels","user_id",currentUser.id);
+
+$("myFollowersCount").innerText=
+await count("follows","following_id",currentUser.id);
+
+$("myFollowingCount").innerText=
+await count("follows","follower_id",currentUser.id);
 }
 
 async function showProfile(){
@@ -847,111 +1374,427 @@ await loadProfile();
 await loadMyDuels();
 }
 
+async function shareDuel(id, button){
+const duelId = String(id);
+const url = window.location.origin + window.location.pathname + "?duel=" + encodeURIComponent(duelId);
+const title = "⚔️ ARENA — Кто победит?";
+const text = "Голосуй в открытом голосовании!";
+
+try {
+  if (navigator.share) {
+    await navigator.share({ title, text, url });
+    return;
+  }
+} catch (e) {
+  if (e?.name === "AbortError") return;
+}
+
+try {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    await navigator.clipboard.writeText(url);
+    if (button) {
+      const origText = button.innerHTML;
+      button.innerText = t("shareCopied");
+      setTimeout(() => button.innerHTML = origText, 1800);
+    }
+    return;
+  }
+} catch (err) {}
+
+const textarea = document.createElement("textarea");
+textarea.value = url;
+textarea.style.position = "fixed";
+textarea.style.opacity = "0";
+document.body.appendChild(textarea);
+textarea.focus();
+textarea.select();
+
+try {
+  const successful = document.execCommand("copy");
+  textarea.remove();
+  if (successful) {
+    if (button) {
+      const origText = button.innerHTML;
+      button.innerText = t("shareCopied");
+      setTimeout(() => button.innerHTML = origText, 1800);
+    }
+    return;
+  }
+} catch (err) {
+  textarea.remove();
+}
+
+prompt("Скопируйте ссылку на дуэль:", url);
+}
+
+async function openSharedDuel(){
+const params=new URLSearchParams(location.search);
+const duelId=params.get("duel");
+
+if(!duelId||!currentUser)return;
+
+try{
+const feed=$("duelsFeed");
+if(!feed)return;
+
+const existingCard=feed.querySelector(`[data-duel-id="${CSS.escape(String(duelId))}"]`);
+
+if(existingCard){
+existingCard.scrollIntoView({
+behavior:"smooth",
+block:"center"
+});
+return;
+}
+
+const r=await db.from("duels")
+.select("*")
+.eq("id",duelId)
+.maybeSingle();
+
+if(r.error||!r.data)return;
+
+showScreen("homeScreen");
+const card=await duelCard(r.data);
+feed.prepend(card);
+
+card.scrollIntoView({
+behavior:"smooth",
+block:"center"
+});
+
+}catch(e){}
+}
+
+function openEditProfile(){
+$("editName").value=currentProfile?.full_name||"";
+$("editUsername").value=currentProfile?.username||"";
+$("editBio").value=currentProfile?.bio||"";
+
+$("avatarInput").value="";
+$("avatarPreview").style.display="none";
+$("profileStatus").innerText="";
+selectedAvatar=null;
+
+$("editModal").classList.add("show");
+}
+
+function previewAvatar(event){
+const file=event.target.files?.[0];
+if(!file)return;
+
+if(file.size>100*1024*1024){
+alert(t("maxPhoto"));
+event.target.value="";
+return;
+}
+
+if(!file.type.startsWith("image/"))return;
+
+selectedAvatar=file;
+const reader=new FileReader();
+
+reader.onload=e=>{
+$("avatarPreviewImage").src=e.target.result;
+$("avatarPreview").style.display="block";
+};
+
+reader.readAsDataURL(file);
+}
+
 async function getVote(id){
 if(!currentUser)return null;
-const r=await db.from("duel_votes").select("choice").eq("duel_id",id).eq("user_id",currentUser.id).maybeSingle();
+
+const r=await db.from("duel_votes")
+.select("id,choice")
+.eq("duel_id",id)
+.eq("user_id",currentUser.id)
+.maybeSingle();
+
+if(r.error)return null;
+
 return r.data?.choice||null;
 }
 
 async function getDuelVoteCounts(id){
-const r=await db.from("duel_votes").select("choice").eq("duel_id",id);
-let a=0,b=0;
-(r.data||[]).forEach(row=>{if(row.choice==="a")a++;if(row.choice==="b")b++;});
+const duelId=String(id);
+
+const r=await db.from("duel_votes")
+.select("choice")
+.eq("duel_id",duelId);
+
+if(r.error)throw r.error;
+
+let a=0;
+let b=0;
+
+for(const row of r.data||[]){
+const choice=String(row.choice||"").toLowerCase();
+if(choice==="a")a++;
+if(choice==="b")b++;
+}
+
 const total=a+b;
-return{a,b,total,pa:total?Math.round((a/total)*100):0,pb:total?100-Math.round((a/total)*100):0};
+let pa=0;
+let pb=0;
+
+if(total>0){
+pa=Math.round((a/total)*100);
+pb=100-pa;
+}
+
+return{a,b,total,pa,pb};
+}
+
+function isVideoDuel(d){
+return !!(
+d.video_a||
+d.video_b||
+d.video_option_a||
+d.video_option_b
+);
 }
 
 async function duelCard(duel){
 const vote=await getVote(duel.id);
-const counts=await getDuelVoteCounts(duel.id);
-const id=String(duel.id);
-const video=!!(duel.video_a||duel.video_b);
-const owner=String(duel.user_id)===String(currentUser?.id);
+let voteCounts;
+
+try{
+voteCounts=await getDuelVoteCounts(duel.id);
+}catch(e){
+voteCounts={a:0,b:0,total:0,pa:0,pb:0};
+}
+
+const owner=String(duel.user_id)===String(currentUser.id);
 const admin=currentProfile?.is_admin===true;
 
-let authorName=t("participant");
-try{
-const ar=await db.from("profiles").select("full_name").eq("id",duel.user_id).maybeSingle();
-if(ar.data?.full_name)authorName=ar.data.full_name;
-}catch(e){}
+const id=String(duel.id);
+const idJS=escJS(id);
 
-const mediaA=video?(duel.video_a?`<video src="${esc(duel.video_a)}" controls playsinline></video>`:`<div class="option-placeholder video-placeholder">🎥</div>`):(duel.image_a?`<img src="${esc(duel.image_a)}">`:`<div class="option-placeholder">A</div>`);
-const mediaB=video?(duel.video_b?`<video src="${esc(duel.video_b)}" controls playsinline></video>`:`<div class="option-placeholder video-placeholder">🎥</div>`):(duel.image_b?`<img src="${esc(duel.image_b)}">`:`<div class="option-placeholder">B</div>`);
+const video=isVideoDuel(duel);
 
-const timer=formatCountdown(duel.expires_at);
+let authorName = t("participant");
+let authorId = duel.user_id;
+if(authorId){
+  try{
+    const authorRes = await db.from("profiles").select("full_name, username").eq("id", authorId).maybeSingle();
+    if(authorRes.data){
+      authorName = authorRes.data.full_name || authorRes.data.username || t("participant");
+    }
+  }catch(err){}
+}
+
+let mediaA="";
+let mediaB="";
+
+if(video){
+mediaA=duel.video_a
+?`<video src="${esc(duel.video_a)}" controls playsinline preload="metadata"></video>`
+:`<div class="option-placeholder video-placeholder">🎥</div>`;
+
+mediaB=duel.video_b
+?`<video src="${esc(duel.video_b)}" controls playsinline preload="metadata"></video>`
+:`<div class="option-placeholder video-placeholder">🎥</div>`;
+
+}else{
+mediaA=duel.image_a
+?`<img src="${esc(duel.image_a)}" alt="A">`
+:`<div class="option-placeholder">A</div>`;
+
+mediaB=duel.image_b
+?`<img src="${esc(duel.image_b)}" alt="B">`
+:`<div class="option-placeholder">B</div>`;
+}
+
+const labelA=video
+?(duel.video_option_a||duel.option_a||"A")
+:(duel.option_a||"A");
+
+const labelB=video
+?(duel.video_option_b||duel.option_b||"B")
+:(duel.option_b||"B");
+
 const card=document.createElement("article");
 card.className="duel";
 card.dataset.duelId=id;
 
+const categoryKey={
+"Фильмы":"films",
+"Музыка":"music",
+"Игры":"games",
+"Спорт":"sport",
+"Мемы":"memes",
+"Авто":"auto",
+"Другое":"other"
+}[duel.category]||"other";
+
+const timerRes=formatCountdown(duel.expires_at);
+
 card.innerHTML=`
 <div class="duel-head">
-<span class="duel-category">${esc(duel.category)}</span>
-<span class="duel-time ${timer.ended?'ended':''}" data-expires="${esc(duel.expires_at||'')}">${timer.text}</span>
+<div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
+<span class="duel-category">
+${t(categoryKey)}
+</span>
+<span class="duel-type">
+${video?t("videoBattle"):t("photoBattle")}
+</span>
 </div>
-<div class="duel-author-row">👤 ${esc(authorName)}</div>
-<div class="duel-title">${esc(duel.title)}</div>
+<span class="duel-time ${timerRes.ended?'ended':''}" data-expires="${esc(duel.expires_at||'')}">
+${timerRes.text}
+</span>
+</div>
+
+<div class="duel-author-row">
+👤 ${esc(authorName)}
+</div>
+
+<div class="duel-title">
+${esc(duel.title||t("winner"))}
+</div>
+
 <div class="duel-options">
 <div class="option">
-<div class="option-media">${mediaA}</div>
-<div class="option-label">${esc(duel.option_a||duel.video_option_a||"A")}</div>
-<button class="vote-button" type="button" ${(vote||timer.ended)?"disabled":""} onclick="voteDuel('${id}','a',this)">${vote?(vote==="a"?t("yourChoice"):"❤️"):t("chooseA")}</button>
+<div class="option-media">
+${mediaA}
 </div>
+<div class="option-label">
+${esc(labelA)}
+</div>
+<button
+class="vote-button"
+type="button"
+${(vote||timerRes.ended)?"disabled":""}
+onclick="voteDuel('${idJS}','a',this)"
+>
+${vote?(vote==="a"?t("yourChoice"):"❤️"):t("chooseA")}
+</button>
+</div>
+
 <div class="option">
-<div class="option-media">${mediaB}</div>
-<div class="option-label">${esc(duel.option_b||duel.video_option_b||"B")}</div>
-<button class="vote-button" type="button" ${(vote||timer.ended)?"disabled":""} onclick="voteDuel('${id}','b',this)">${vote?(vote==="b"?t("yourChoice"):"❤️"):t("chooseB")}</button>
+<div class="option-media">
+${mediaB}
 </div>
+<div class="option-label">
+${esc(labelB)}
+</div>
+<button
+class="vote-button"
+type="button"
+${(vote||timerRes.ended)?"disabled":""}
+onclick="voteDuel('${idJS}','b',this)"
+>
+${vote?(vote==="b"?t("yourChoice"):"❤️"):t("chooseB")}
+</button>
+</div>
+
 <div class="vs">VS</div>
 </div>
+
 <div class="results">
 <div class="result-row">
-<div class="result-info"><span>A · ${counts.a}</span><b>${counts.pa}%</b></div>
-<div class="progress"><div class="progress-fill" style="width:${counts.pa}%"></div></div>
+<div class="result-info">
+<span class="result-a-text">A — ${esc(labelA)} · ${voteCounts.a} ${t("votes")}</span>
+<b class="result-a-percent">${voteCounts.pa}%</b>
 </div>
+<div class="progress">
+<div class="progress-fill result-a-fill" style="width:${voteCounts.pa}%"></div>
+</div>
+</div>
+
 <div class="result-row">
-<div class="result-info"><span>B · ${counts.b}</span><b>${counts.pb}%</b></div>
-<div class="progress"><div class="progress-fill" style="width:${counts.pb}%"></div></div>
+<div class="result-info">
+<span class="result-b-text">B — ${esc(labelB)} · ${voteCounts.b} ${t("votes")}</span>
+<b class="result-b-percent">${voteCounts.pb}%</b>
+</div>
+<div class="progress">
+<div class="progress-fill result-b-fill" style="width:${voteCounts.pb}%"></div>
 </div>
 </div>
+</div>
+
 <div class="duel-actions">
-<span class="duel-total-votes">🗳️ ${counts.total} ${t("votes")}</span>
-${owner?`<button class="owner-delete" type="button" onclick="deleteDuel('${id}')">${t("delete")}</button>`:""}
-${admin?`<button class="admin-delete" type="button" onclick="deleteDuel('${id}',true)">${t("adminDelete")}</button>`:""}
+<span class="duel-total-votes" onclick="openVotersModal('${idJS}')">
+🗳️ ${voteCounts.total} ${t("votes")}
+</span>
+
+<button
+class="duel-share-button"
+type="button"
+onclick="shareDuel('${idJS}',this)"
+>
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+${t("share")}
+</button>
+
+${owner
+?`<button class="owner-delete" type="button" onclick="deleteDuel('${idJS}')">${t("delete")}</button>`
+:""}
+
+${admin
+?`<button class="admin-delete" type="button" onclick="deleteDuel('${idJS}',true)">${t("adminDelete")}</button>`
+:""}
 </div>
-<div style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#f8fafc">
-<div id="comments-${id}" style="margin-bottom:10px;max-height:180px;overflow-y:auto"><div style="font-size:12px;color:#64748b;text-align:center">${t("loading")}</div></div>
+
+<div class="duel-comments-section" style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#f8fafc;border-radius:0 0 20px 20px">
+<div class="comments-list" id="comments-${idJS}" style="margin-bottom:10px;max-height:200px;overflow-y:auto">
+<div style="font-size:12px;color:#64748b;text-align:center">${t("loading")}</div>
+</div>
 <div style="display:flex;gap:6px">
-<input type="text" id="comment-input-${id}" placeholder="${t("commentPlaceholder")}" style="flex:1;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;outline:0;background:#fff" onkeydown="if(event.key==='Enter')addComment('${id}')">
-<button type="button" onclick="addComment('${id}')" style="padding:9px 14px;border:0;background:#2563eb;color:#fff;border-radius:10px;font-weight:bold;font-size:13px">${t("send")}</button>
+<input type="text" id="comment-input-${idJS}" placeholder="${t("commentPlaceholder")}" style="flex:1;padding:9px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;outline:0;background:#fff" onkeydown="if(event.key==='Enter')addComment('${idJS}')">
+<button type="button" onclick="addComment('${idJS}')" style="padding:9px 14px;border:0;background:#2563eb;color:#fff;border-radius:10px;font-weight:bold;font-size:13px">${t("send")}</button>
 </div>
 </div>
 `;
 
-setTimeout(()=>loadComments(id),0);
+setTimeout(()=>loadComments(idJS),0);
 return card;
 }
 
 async function loadComments(duelId){
 const container=$(`comments-${duelId}`);
 if(!container)return;
+
 try{
-const r=await db.from("duel_comments").select("*").eq("duel_id",duelId).order("created_at",{ascending:true});
+const r=await db.from("duel_comments")
+.select("*")
+.eq("duel_id",duelId)
+.order("created_at",{ascending:true});
+
+if(r.error)throw r.error;
+
 const comments=r.data||[];
-if(!comments.length){container.innerHTML=`<div style="font-size:12px;color:#64748b;text-align:center;padding:6px">${t("noComments")}</div>`;return;}
+if(!comments.length){
+container.innerHTML=`<div style="font-size:12px;color:#64748b;text-align:center;padding:6px">${t("noComments")}</div>`;
+return;
+}
 
 const userIds=[...new Set(comments.map(c=>c.user_id))];
-const pr=await db.from("profiles").select("id,full_name,avatar_url").in("id",userIds);
-const pMap={};
-(pr.data||[]).forEach(p=>pMap[p.id]=p);
+const profilesMapData=await profilesMap(userIds);
 
 container.innerHTML=comments.map(c=>{
-const p=pMap[c.user_id]||{};
-const name=p.full_name||t("participant");
+const p=profilesMapData[c.user_id]||{};
+const name=p.full_name||p.username||t("participant");
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:26px;height:26px;border-radius:50%;object-fit:cover">`:`<div style="width:26px;height:26px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:11px">⚔️</div>`;
 const canDelete=currentUser&&(c.user_id===currentUser.id||currentProfile?.is_admin===true);
-return `<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px">${avatar}<div style="flex:1;background:#fff;padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px"><span style="font-weight:bold">${esc(name)}</span>${canDelete?`<button onclick="deleteComment('${c.id}')" style="border:0;background:0;color:#dc2626;cursor:pointer">✕</button>`:""}</div><div>${esc(c.text)}</div></div></div>`;
+
+return `
+<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px">
+${avatar}
+<div style="flex:1;background:#fff;padding:8px 10px;border-radius:10px;border:1px solid #e2e8f0">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
+<span style="font-weight:bold;color:#172033">${esc(name)}</span>
+${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(duelId)}')" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px">✕</button>`:""}
+</div>
+<div style="color:#334155;word-break:break-word">${esc(c.text)}</div>
+</div>
+</div>
+`;
 }).join("");
-}catch(e){container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center">Ошибка чата</div>`;}
+}catch(e){
+console.error("Load comments error:", e);
+container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center;padding:6px">Ошибка загрузки чата</div>`;
+}
 }
 
 async function addComment(duelId){
@@ -959,68 +1802,277 @@ const input=$(`comment-input-${duelId}`);
 if(!input)return;
 const text=input.value.trim();
 if(!text)return;
+
+input.value="";
+
 try{
-const r=await db.from("duel_comments").insert({duel_id:duelId,user_id:currentUser.id,text});
+const r=await db.from("duel_comments").insert({
+duel_id:duelId,
+user_id:currentUser.id,
+text
+});
+
 if(r.error)throw r.error;
-location.reload();
-}catch(e){alert(e.message);}
+await loadComments(duelId);
+}catch(e){
+alert(e.message||t("connection"));
+}
 }
 
-async function deleteComment(id){
+async function deleteComment(commentId,duelId){
 try{
-const r=await db.from("duel_comments").delete().eq("id",id);
+const r=await db.from("duel_comments").delete().eq("id",commentId);
 if(r.error)throw r.error;
-location.reload();
-}catch(e){alert(e.message);}
+await loadComments(duelId);
+}catch(e){
+alert(e.message||t("connection"));
+}
+}
+
+async function openVotersModal(id){
+const duelId=String(id);
+const content=$("votersModalContent");
+content.innerHTML=`<div class="empty">${t("loading")}</div>`;
+$("votersModal").classList.add("show");
+
+try{
+const r=await db.from("duel_votes")
+.select("choice, user_id")
+.eq("duel_id",duelId);
+
+if(r.error)throw r.error;
+const votes=r.data||[];
+
+if(!votes.length){
+content.innerHTML=`<div class="empty">Пока нет голосов</div>`;
+return;
+}
+
+const userIds=[...new Set(votes.map(v=>v.user_id))];
+const profilesMapData=await profilesMap(userIds);
+
+let listA=[];
+let listB=[];
+
+votes.forEach(v=>{
+const p=profilesMapData[v.user_id]||{};
+const name=p.full_name||p.username||t("participant");
+const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px">⚔️</div>`;
+const username=p.username?`@${esc(p.username)}`:"";
+
+const item=`<div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;">${avatar}<div style="flex:1;min-width:0"><div style="font-weight:bold;font-size:13px">${esc(name)}</div><div style="font-size:11px;color:#64748b">${username}</div></div></div>`;
+
+if(v.choice==="a")listA.push(item);
+else if(v.choice==="b")listB.push(item);
+});
+
+content.innerHTML=`
+<div style="margin-bottom:15px">
+<h3 style="color:#2563eb;margin-bottom:8px">Вариант A (${listA.length})</h3>
+${listA.length?listA.join(""):`<div style="color:#64748b;font-size:12px">Никто не голосовал</div>`}
+</div>
+<div>
+<h3 style="color:#2563eb;margin-bottom:8px">Вариант B (${listB.length})</h3>
+${listB.length?listB.join(""):`<div style="color:#64748b;font-size:12px">Никто не голосовал</div>`}
+</div>
+`;
+}catch(e){
+content.innerHTML=`<div class="empty">Ошибка загрузки</div>`;
+}
+}
+
+async function profilesMap(ids){
+if(!ids.length)return{};
+
+const r=await db.from("profiles")
+.select("id,full_name,username,avatar_url")
+.in("id",ids);
+
+if(r.error)return{};
+
+const map={};
+(r.data||[]).forEach(p=>{
+map[p.id]=p;
+});
+
+return map;
 }
 
 async function loadDuels(){
 const box=$("duelsFeed");
 box.innerHTML=`<div class="status">${esc(t("loading"))} ⏳</div>`;
-let q=db.from("duels").select("*").order("created_at",{ascending:false}).limit(50);
-if(currentCategory!=="all")q=q.eq("category",currentCategory);
+
+let q=db.from("duels")
+.select("*")
+.order("created_at",{ascending:false})
+.limit(50);
+
+if(currentCategory!=="all")
+q=q.eq("category",currentCategory);
+
 const r=await q;
-box.innerHTML="";
-if(!r.data?.length){box.innerHTML=`<div class="empty">${esc(t("noDuels"))}</div>`;return;}
-for(const duel of r.data){
-box.appendChild(await duelCard(duel));
-}
+
+if(r.error){
+box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
+return;
 }
 
-function selectCategory(cat,btn){
-currentCategory=cat;
-document.querySelectorAll(".category-btn").forEach(e=>e.classList.remove("active"));
-btn.classList.add("active");
+box.innerHTML="";
+
+if(!r.data?.length){
+box.innerHTML=`<div class="empty">${esc(t("noDuels"))}</div>`;
+return;
+}
+
+for(const duel of r.data){
+try{
+box.appendChild(await duelCard(duel));
+}catch(e){}
+}
+
+await openSharedDuel();
+}
+
+function selectCategory(category,button){
+currentCategory=category;
+document.querySelectorAll(".category-btn")
+.forEach(e=>e.classList.remove("active"));
+
+button.classList.add("active");
 loadDuels();
 }
 
-async function voteDuel(id,choice,btn){
-if(!currentUser)return;
-btn.closest(".duel")?.querySelectorAll(".vote-button").forEach(b=>b.disabled=true);
+async function voteDuel(id,choice,button){
+if(!currentUser||!["a","b"].includes(choice))
+return;
+
+const card=button.closest(".duel");
+if(!card)return;
+
+const buttons=card.querySelectorAll(".vote-button");
+buttons.forEach(b=>b.disabled=true);
+
 try{
-const r=await db.from("duel_votes").insert({duel_id:id,user_id:currentUser.id,choice});
-if(r.error)throw r.error;
-location.reload();
-}catch(e){alert(e.message);location.reload();}
+const duelId=String(id);
+
+const existing=await db.from("duel_votes")
+.select("id,choice")
+.eq("duel_id",duelId)
+.eq("user_id",currentUser.id)
+.maybeSingle();
+
+if(existing.error)throw existing.error;
+
+if(existing.data){
+const existingChoice=existing.data.choice;
+await updateDuelVoteCard(card,duelId,existingChoice);
+return;
+}
+
+const insert=await db.from("duel_votes")
+.insert({
+duel_id:duelId,
+user_id:currentUser.id,
+choice
+})
+.select("id,choice")
+.maybeSingle();
+
+if(insert.error){
+const msg=String(insert.error.message||"").toLowerCase();
+
+if(
+msg.includes("duplicate")||
+msg.includes("unique")||
+msg.includes("already exists")
+){
+await updateDuelVoteCard(card,duelId,await getVote(duelId));
+return;
+}
+throw insert.error;
+}
+
+await updateDuelVoteCard(card,duelId,choice);
+
+}catch(e){
+alert(e.message||t("connection"));
+buttons.forEach(b=>b.disabled=false);
+}
+}
+
+async function updateDuelVoteCard(card,duelId,vote){
+const counts=await getDuelVoteCounts(duelId);
+
+const resultA=card.querySelector(".result-a-text");
+const resultB=card.querySelector(".result-b-text");
+const percentA=card.querySelector(".result-a-percent");
+const percentB=card.querySelector(".result-b-percent");
+const fillA=card.querySelector(".result-a-fill");
+const fillB=card.querySelector(".result-b-fill");
+const total=card.querySelector(".duel-total-votes");
+
+const labels=card.querySelectorAll(".option-label");
+const labelA=labels[0]?.innerText||"A";
+const labelB=labels[1]?.innerText||"B";
+
+if(resultA)
+resultA.innerText=`A — ${labelA} · ${counts.a} ${t("votes")}`;
+
+if(resultB)
+resultB.innerText=`B — ${labelB} · ${counts.b} ${t("votes")}`;
+
+if(percentA)
+percentA.innerText=`${counts.pa}%`;
+
+if(percentB)
+percentB.innerText=`${counts.pb}%`;
+
+if(fillA)
+fillA.style.width=`${counts.pa}%`;
+
+if(fillB)
+fillB.style.width=`${counts.pb}%`;
+
+if(total)
+total.innerHTML=`🗳️ ${counts.total} ${t("votes")}`;
+
+const buttons=card.querySelectorAll(".vote-button");
+
+buttons.forEach((btn,index)=>{
+btn.disabled=true;
+
+if(vote==="a"&&index===0)
+btn.innerText=t("yourChoice");
+else if(vote==="b"&&index===1)
+btn.innerText=t("yourChoice");
+else
+btn.innerText="❤️";
+});
 }
 
 async function deleteDuel(id,admin=false){
-showCustomConfirm(t(admin?"adminDeleteConfirm":"deleteConfirm"),async()=>{
-let q=db.from("duels").delete().eq("id",id);
-if(!admin)q=q.eq("user_id",currentUser.id);
-await q;
-location.reload();
-},t("delete"));
-}
+if(!currentUser)return;
 
-function showCustomConfirm(msg,onOk,okText="OK"){
-$("customConfirmText").innerText=msg;
-$("customConfirmOk").innerText=okText;
-$("customConfirmCancel").innerText=t("cancel");
-const modal=$("customConfirmModal");
-modal.classList.add("show");
-$("customConfirmOk").onclick=()=>{modal.classList.remove("show");onOk();};
-$("customConfirmCancel").onclick=()=>modal.classList.remove("show");
+showCustomConfirm(t(admin?"adminDeleteConfirm":"deleteConfirm"), async () => {
+try{
+let q=db.from("duels").delete().eq("id",String(id));
+
+if(!admin)
+q=q.eq("user_id",currentUser.id);
+
+const r=await q;
+if(r.error)throw r.error;
+
+await loadDuels();
+await updateStats();
+
+if($("profileScreen")?.classList.contains("active"))
+await loadMyDuels();
+
+}catch(e){
+alert(e.message||t("connection"));
+}
+}, t("delete"));
 }
 
 function toggleDuelType(){
@@ -1030,34 +2082,118 @@ $("videoFields").classList.toggle("hidden",type!=="video");
 }
 
 function openDuelModal(){
-if(!currentUser){showAuth();return;}
+if(!currentUser){
+showAuth();
+return;
+}
+
+[
+"duelTitle",
+"duelOptionA",
+"duelOptionB",
+"duelVideoOptionA",
+"duelVideoOptionB"
+].forEach(id=>{
+if($(id))$(id).value="";
+});
+
+[
+"duelImageA",
+"duelImageB",
+"duelVideoA",
+"duelVideoB"
+].forEach(id=>{
+if($(id))$(id).value="";
+});
+
+[
+"previewA",
+"previewB",
+"previewVideoA",
+"previewVideoB"
+].forEach(id=>{
+if($(id))$(id).style.display="none";
+});
+
+selectedImageA=null;
+selectedImageB=null;
+selectedVideoA=null;
+selectedVideoB=null;
+
+$("duelType").value="photo";
+$("duelDuration").value="48";
+
+toggleDuelType();
+$("duelStatus").innerText="";
 $("duelModal").classList.add("show");
 }
 
-function closeModal(id){$(id).classList.remove("show");}
-
-function previewDuelMedia(side,e,type){
-const file=e.target.files?.[0];
+function previewDuelMedia(side,event,type){
+const file=event.target.files?.[0];
 if(!file)return;
+
+if(file.size>100*1024*1024){
+alert(t("maxPhoto"));
+event.target.value="";
+return;
+}
+
+if(type==="image"&&!file.type.startsWith("image/"))return;
+if(type==="video"&&!file.type.startsWith("video/"))return;
+
 const reader=new FileReader();
-reader.onload=ev=>{
+
+reader.onload=e=>{
 if(type==="image"){
-if(side==="A"){selectedImageA=file;$("previewAImage").src=ev.target.result;$("previewA").style.display="block";}
-else{selectedImageB=file;$("previewBImage").src=ev.target.result;$("previewB").style.display="block";}
+if(side==="A"){
+selectedImageA=file;
+$("previewAImage").src=e.target.result;
+$("previewA").style.display="block";
 }else{
-if(side==="A"){selectedVideoA=file;$("previewVideoAElement").src=ev.target.result;$("previewVideoA").style.display="block";}
-else{selectedVideoB=file;$("previewVideoBElement").src=ev.target.result;$("previewVideoB").style.display="block";}
+selectedImageB=file;
+$("previewBImage").src=e.target.result;
+$("previewB").style.display="block";
+}
+}else{
+if(side==="A"){
+selectedVideoA=file;
+$("previewVideoAElement").src=e.target.result;
+$("previewVideoA").style.display="block";
+}else{
+selectedVideoB=file;
+$("previewVideoBElement").src=e.target.result;
+$("previewVideoB").style.display="block";
+}
 }
 };
+
 reader.readAsDataURL(file);
 }
 
-async function upload(file,folder){
+async function upload(file, folder){
 if(!file)return"";
-const path=`${folder}/${currentUser.id}-${Date.now()}-${rnd()}.${file.name.split(".").pop()||"bin"}`;
-const r=await db.storage.from("Photos").upload(path,file,{upsert:true});
+
+const ext=(file.name.split(".").pop()||"bin")
+.replace(/[^a-z0-9]/gi,"")||"bin";
+
+const path=
+`${folder}/${currentUser.id}-${Date.now()}-${rnd()}.${ext}`;
+
+const bucketName = "Photos";
+
+const r=await db.storage
+.from(bucketName)
+.upload(path,file,{
+upsert:true,
+contentType: file.type || "application/octet-stream"
+});
+
 if(r.error)throw r.error;
-return db.storage.from("Photos").getPublicUrl(path).data.publicUrl;
+
+return db.storage
+.from(bucketName)
+.getPublicUrl(path)
+.data.publicUrl;
 }
 
 async function createDuel(){
@@ -1065,105 +2201,574 @@ const title=$("duelTitle").value.trim();
 const type=$("duelType").value;
 const category=$("duelCategory").value;
 const duration=parseInt($("duelDuration").value,10);
-const optionA=type==="video"?$("duelVideoOptionA").value.trim():$("duelOptionA").value.trim();
-const optionB=type==="video"?$("duelVideoOptionB").value.trim():$("duelOptionB").value.trim();
+const status=$("duelStatus");
 
-if(!title||!optionA||!optionB){$("duelStatus").innerText=t("invalid");return;}
+let optionA="";
+let optionB="";
+
+if(type==="video"){
+optionA=$("duelVideoOptionA").value.trim();
+optionB=$("duelVideoOptionB").value.trim();
+}else{
+optionA=$("duelOptionA").value.trim();
+optionB=$("duelOptionB").value.trim();
+}
+
+if(!title||!optionA||!optionB){
+status.innerText=t("invalid");
+return;
+}
+
+if(type==="video"&&!selectedVideoA&&!selectedVideoB){
+status.innerText=t("videoRequired");
+return;
+}
+
+if(title.length>300){
+status.innerText=t("tooLongTitle");
+return;
+}
+
+if(optionA.length>200||optionB.length>200){
+status.innerText=t("tooLongOption");
+return;
+}
+
 $("duelSubmitButton").disabled=true;
-$("duelStatus").innerText=t("uploading");
 
 try{
-const imageA=type==="photo"&&selectedImageA?await upload(selectedImageA,"duels"):"";
-const imageB=type==="photo"&&selectedImageB?await upload(selectedImageB,"duels"):"";
-const videoA=type==="video"&&selectedVideoA?await upload(selectedVideoA,"videos"):"";
-const videoB=type==="video"&&selectedVideoB?await upload(selectedVideoB,"videos"):"";
+status.innerText=t("uploading");
+
+let imageA="";
+let imageB="";
+let videoA="";
+let videoB="";
+
+if(type==="video"){
+if(selectedVideoA)
+videoA=await upload(selectedVideoA,"videos");
+
+if(selectedVideoB)
+videoB=await upload(selectedVideoB,"videos");
+}else{
+if(selectedImageA)
+imageA=await upload(selectedImageA,"duels");
+
+if(selectedImageB)
+imageB=await upload(selectedImageB,"duels");
+}
+
+status.innerText=t("creatingDuel");
 
 const expiresAt=duration>0?new Date(Date.now()+duration*3600*1000).toISOString():null;
-await db.from("duels").insert({
-user_id:currentUser.id,title,category,duration_hours:duration,expires_at:expiresAt,
-option_a:type==="photo"?optionA:"",option_b:type==="photo"?optionB:"",
-image_a:imageA,image_b:imageB,
-video_option_a:type==="video"?optionA:"",video_option_b:type==="video"?optionB:"",
-video_a:videoA,video_b:videoB
-});
-location.reload();
+
+const payload={
+user_id:currentUser.id,
+title,
+category,
+duration_hours:duration,
+expires_at:expiresAt,
+option_a:type==="photo"?optionA:"",
+option_b:type==="photo"?optionB:"",
+image_a:imageA,
+image_b:imageB,
+video_option_a:type==="video"?optionA:"",
+video_option_b:type==="video"?optionB:"",
+video_a:videoA,
+video_b:videoB,
+votes_a:0,
+votes_b:0
+};
+
+const r=await db.from("duels").insert(payload);
+if(r.error)throw r.error;
+
+closeModal("duelModal");
+await loadDuels();
+await updateStats();
+
+if($("profileScreen").classList.contains("active"))
+await loadMyDuels();
+
+alert(t("created"));
+
 }catch(e){
-$("duelStatus").innerText=e.message;
+status.innerText=e.message||t("connection");
+}
+
 $("duelSubmitButton").disabled=false;
+}
+
+async function loadTop(category="all",button){
+showScreen("topScreen");
+
+if(button){
+document.querySelectorAll(".top-tab")
+.forEach(e=>e.classList.remove("active"));
+button.classList.add("active");
+}
+
+const box=$("topList");
+box.innerHTML=`<div class="status">${esc(t("loading"))}</div>`;
+
+let q=db.from("duels")
+.select("*")
+.limit(50);
+
+if(category!=="all")
+q=q.eq("category",category);
+
+const r=await q;
+
+if(r.error){
+box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
+return;
+}
+
+const scored=[];
+
+for(const d of r.data||[]){
+try{
+const counts=await getDuelVoteCounts(d.id);
+scored.push({duel:d,counts});
+}catch(e){
+scored.push({duel:d,counts:{a:0,b:0,total:0,pa:0,pb:0}});
 }
 }
 
-async function loadTop(cat="all",btn){
-showScreen("topScreen");
-if(btn){document.querySelectorAll(".top-tab").forEach(e=>e.classList.remove("active"));btn.classList.add("active");}
-const box=$("topList");
-box.innerHTML=`<div class="status">${esc(t("loading"))}</div>`;
-let q=db.from("duels").select("*").limit(50);
-if(cat!=="all")q=q.eq("category",cat);
-const r=await q;
-const scored=[];
-for(const d of r.data||[]){
-const counts=await getDuelVoteCounts(d.id);
-scored.push({duel:d,counts});
-}
 scored.sort((x,y)=>y.counts.total-x.counts.total);
-box.innerHTML=scored.length?scored.map((item,i)=>`
+const data=scored.slice(0,20);
+
+const categoryKey={
+"Фильмы":"films",
+"Музыка":"music",
+"Игры":"games",
+"Спорт":"sport",
+"Мемы":"memes",
+"Авто":"auto",
+"Другое":"other"
+};
+
+box.innerHTML=data.length
+?data.map((item,i)=>{
+const d=item.duel;
+const counts=item.counts;
+const video=isVideoDuel(d);
+
+return`
 <div class="rank-item">
 <div class="rank-number">${i+1}</div>
-<div class="rank-main"><div class="rank-title">${esc(item.duel.title)}</div><div class="rank-category">${esc(item.duel.category)}</div></div>
-<div class="rank-score">${item.counts.total}<br><small>${t("votes")}</small></div>
+<div class="rank-main">
+<div class="rank-title">${esc(d.title)}</div>
+<div class="rank-category">
+${video?"🎥 ":"🖼️ "}
+${t(categoryKey[d.category]||"other")}
 </div>
-`).join(""):`<div class="empty">${esc(t("noDuels"))}</div>`;
+</div>
+<div class="rank-score">
+${counts.total}<br><small>${t("votes")}</small>
+</div>
+</div>
+`;
+}).join("")
+:`<div class="empty">${esc(t("noDuels"))}</div>`;
+}
+
+async function searchUsers(){
+const value=$("searchInput").value.trim();
+const box=$("searchResults");
+
+if(!value){
+box.innerHTML=`<div class="empty">${esc(t("searchStart"))}</div>`;
+return;
+}
+
+const safe=safeSearch(value);
+
+const r=await db.from("profiles")
+.select("*")
+.or(`full_name.ilike.%${safe}%,username.ilike.%${safe}%`)
+.limit(20);
+
+if(r.error){
+box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
+return;
+}
+
+box.innerHTML=r.data?.length
+?r.data.map(p=>`
+<div class="search-result" onclick="openUserProfile('${escJS(p.id)}')">
+<div class="profile-big-avatar" style="width:48px;height:48px;font-size:22px">
+${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
+</div>
+<div class="search-result-main">
+<b>${esc(p.full_name||t("participant"))}</b>
+<div style="font-size:12px;color:#64748b">@${esc(p.username||"arena")}</div>
+</div>
+</div>
+`).join("")
+:`<div class="empty">${esc(t("noResults"))}</div>`;
+}
+
+async function openUserProfile(id){
+if(String(id)===String(currentUser.id)){
+await showProfile();
+return;
+}
+
+openedOtherUserId=String(id);
+showScreen("otherProfileScreen");
+
+const r=await db.from("profiles")
+.select("*")
+.eq("id",String(id))
+.maybeSingle();
+
+if(!r.data){
+alert("Профиль не найден.");
+return;
+}
+
+const p=r.data;
+$("otherName").innerText=p.full_name||t("participant");
+$("otherUsername").innerText="@"+(p.username||"arena");
+$("otherBio").innerText=p.bio||"";
+
+setAvatar("otherAvatar",p.avatar_url);
+
+$("otherDuelsCount").innerText=await count("duels","user_id",String(id));
+$("otherFollowersCount").innerText=await count("follows","following_id",String(id));
+$("otherFollowingCount").innerText=await count("follows","follower_id",String(id));
+
+$("otherFollowersLabel").innerText=t("followers");
+$("otherFollowingLabel").innerText=t("following");
+
+await updateFollowButton(String(id));
+await loadOtherDuels(String(id));
+}
+
+async function loadOtherDuels(id){
+const box=$("otherDuels");
+
+const r=await db.from("duels")
+.select("*")
+.eq("user_id",String(id))
+.order("created_at",{ascending:false});
+
+box.innerHTML="";
+
+if(r.error){
+box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
+return;
+}
+
+if(!r.data?.length){
+box.innerHTML=`<div class="empty">${esc(t("noDuels"))}</div>`;
+return;
+}
+
+for(const duel of r.data)
+box.appendChild(await duelCard(duel));
+}
+
+async function updateFollowButton(id){
+const button=$("otherFollowButton");
+
+const r=await db.from("follows")
+.select("id")
+.eq("follower_id",currentUser.id)
+.eq("following_id",String(id))
+.maybeSingle();
+
+button.innerText=r.data?t("followed"):t("follow");
+button.onclick=()=>toggleFollow(String(id));
+}
+
+async function toggleFollow(id){
+const r=await db.from("follows")
+.select("id")
+.eq("follower_id",currentUser.id)
+.eq("following_id",String(id))
+.maybeSingle();
+
+let op;
+if(r.data){
+op=await db.from("follows").delete().eq("id",r.data.id);
+}else{
+op=await db.from("follows").insert({
+follower_id:currentUser.id,
+following_id:String(id)
+});
+}
+
+if(op.error){
+alert(op.error.message);
+return;
+}
+
+await updateFollowButton(String(id));
+$("otherFollowersCount").innerText=await count("follows","following_id",String(id));
+}
+
+async function saveProfile(){
+const rawName=$("editName").value.trim();
+const username=$("editUsername").value.trim();
+const bio=$("editBio").value.trim();
+const status=$("profileStatus");
+
+if(!rawName){
+status.innerText=t("nameRequired");
+return;
+}
+
+status.innerText=t("saving");
+
+try{
+let name = rawName;
+if(rawName.toLowerCase() !== (currentProfile?.full_name || "").toLowerCase()){
+    name = await getUniqueFullName(rawName);
+}
+
+let avatar=currentProfile?.avatar_url||"";
+
+if(selectedAvatar)
+avatar=await upload(selectedAvatar,"avatars");
+
+const r=await db.from("profiles")
+.update({
+full_name:name,
+username:username||null,
+bio,
+avatar_url:avatar
+})
+.eq("id",currentUser.id)
+.select()
+.single();
+
+if(r.error)throw r.error;
+
+currentProfile=r.data;
+
+await db.auth.updateUser({
+data:{
+full_name:name,
+username:username||null
+}
+});
+
+await loadProfile();
+closeModal("editModal");
+
+}catch(e){
+status.innerText=e.message||t("connection");
+}
 }
 
 async function loadMyDuels(){
 const box=$("myDuels");
-const r=await db.from("duels").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false});
+
+const r=await db.from("duels")
+.select("*")
+.eq("user_id",currentUser.id)
+.order("created_at",{ascending:false});
+
 box.innerHTML="";
-if(!r.data?.length){box.innerHTML=`<div class="empty">${esc(t("noMyDuels"))}</div>`;return;}
-for(const duel of r.data)box.appendChild(await duelCard(duel));
+
+if(r.error){
+box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
+return;
+}
+
+if(!r.data?.length){
+box.innerHTML=`<div class="empty">${esc(t("noMyDuels"))}</div>`;
+return;
+}
+
+for(const duel of r.data)
+box.appendChild(await duelCard(duel));
 }
 
 async function openAdminPanel(){
-if(currentProfile?.is_admin!==true)return;
+if(currentProfile?.is_admin!==true){
+alert("Нет прав администратора");
+return;
+}
+
 $("adminPanel").classList.toggle("hidden");
-if(!$("adminPanel").classList.contains("hidden")){
-const r=await db.from("profiles").select("id,full_name,username,is_admin,is_blocked").limit(100);
-$("adminContent").innerHTML=(r.data||[]).map(u=>`
+
+if(!$("adminPanel").classList.contains("hidden"))
+await loadAdminUsers();
+}
+
+async function loadAdminUsers(){
+const box=$("adminContent");
+box.innerHTML=`<div class="empty">${esc(t("loading"))}</div>`;
+
+const usersRes=await db.from("profiles")
+.select("id,full_name,username,is_admin,is_blocked")
+.order("full_name")
+.limit(100);
+
+const countRes=await db.from("profiles")
+.select("id",{count:"exact",head:true});
+
+const totalUsers=countRes.count||0;
+
+if(usersRes.error){
+box.innerText=usersRes.error.message;
+return;
+}
+
+const statsHtml=`<div style="margin-bottom:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;font-weight:bold;color:#2563eb;text-align:center;">👥 Всего пользователей на сайте: ${totalUsers}</div>`;
+
+const rows=(usersRes.data||[]).map(u=>`
 <div class="admin-user-row">
-<div class="admin-user-main"><b>${esc(u.full_name)}</b><div style="font-size:11px;color:#64748b">@${esc(u.username)}</div></div>
-${u.id!==currentUser.id?`<button class="admin-action ${u.is_blocked?"admin-unblock-button":"admin-block-button"}" onclick="adminBlock('${u.id}',${!!u.is_blocked})">${u.is_blocked?t("unblock"):t("block")}</button>`:""}
+<div class="admin-user-main">
+<div class="admin-user-name">${esc(u.full_name||t("participant"))}</div>
+<div style="font-size:11px;color:#64748b">@${esc(u.username||"arena")}</div>
+<div class="${u.is_blocked?"admin-blocked":"admin-active"}">
+${u.is_blocked?t("blocked"):t("active")}
+</div>
+</div>
+${u.is_admin?"👑":""}
+${u.id!==currentUser.id
+?`<button class="admin-action ${u.is_blocked?"admin-unblock-button":"admin-block-button"}" type="button" onclick="adminBlock('${escJS(u.id)}',${!!u.is_blocked})">
+${u.is_blocked?t("unblock"):t("block")}
+</button>`
+:""}
 </div>
 `).join("");
-}
+
+box.innerHTML=statsHtml+rows;
 }
 
 async function adminBlock(id,blocked){
-showCustomConfirm("Изменить статус блокировки?",async()=>{
-await db.rpc("admin_set_blocked",{target_user_id:id,blocked_value:!blocked});
-location.reload();
-},"OK");
-}
+const question=blocked
+?(language==="ru"?"Разблокировать пользователя?":language==="ro"?"Deblochezi utilizatorul?":"Unblock user?")
+:(language==="ru"?"Заблокировать пользователя?":language==="ro"?"Blochezi utilizatorul?":"Block user?");
 
-document.addEventListener("DOMContentLoaded",async()=>{
-if(!["ru","ro","en"].includes(language))language="ru";
-applyLanguage();
-startCountdownTimers();
-if(!initDB()){hideStartup();showAuth();showLogin();return;}
+const actionButtonText = blocked ? t("unblockAction") : t("blockAction");
 
-const s=await db.auth.getSession();
-if(s.data?.session){
-currentUser=s.data.session.user;
-try{await loadProfile();}catch(e){}
-$("app").classList.remove("hidden");
-showScreen("homeScreen");
-await loadDuels();
-}else{
-showAuth();
-showLogin();
-}
-hideStartup();
+showCustomConfirm(question, async () => {
+const r=await db.rpc("admin_set_blocked",{
+target_user_id:id,
+blocked_value:!blocked
 });
+
+if(r.error){
+alert(r.error.message);
+return;
+}
+
+await loadAdminUsers();
+}, actionButtonText);
+}
+
+function closeModal(id){
+const modal=$(id);
+if(modal)modal.classList.remove("show");
+}
+
+document.addEventListener("click",event=>{
+if(event.target.classList.contains("modal")&&event.target.id!=="customConfirmModal")
+event.target.classList.remove("show");
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
+try{
+    let attempts = 0;
+    while (!window.supabase && attempts < 20) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+    }
+
+    if(!["ru","ro","en"].includes(language))
+    language="ru";
+
+    applyLanguage();
+    startCountdownTimers();
+
+    $("searchInput")?.addEventListener("input",searchUsers);
+
+    if(!initDB()){
+        hideStartup();
+        showAuth();
+        showLogin();
+        return;
+    }
+
+    const sessionResult=await db.auth.getSession();
+    const session=sessionResult.data?.session;
+
+    if(session){
+        currentUser=session.user;
+        await startApp();
+    }else{
+        showAuth();
+        showLogin();
+        hideStartup();
+    }
+
+    db.auth.onAuthStateChange(async(event,session)=>{
+        if(event==="SIGNED_OUT"){
+            currentUser=null;
+            currentProfile=null;
+            showAuth();
+            showLogin();
+            hideStartup();
+            return;
+        }
+
+        if(event==="TOKEN_REFRESHED"&&session){
+            currentUser=session.user;
+            return;
+        }
+
+        if(event==="SIGNED_IN"&&session){
+            currentUser=session.user;
+            if($("app").classList.contains("hidden")){
+                try{
+                    await startApp();
+                }catch(e){}
+            }
+        }
+    });
+
+}catch(e){
+    showAuth();
+    $("authStatus").innerText=t("connection");
+    hideStartup();
+}
+});
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;cursor:pointer;';
+        
+        const fullImg = document.createElement('img');
+        fullImg.style.cssText = 'max-width:95%;max-height:95%;object-fit:contain;transition:transform 0.3s ease;';
+        overlay.appendChild(fullImg);
+        document.body.appendChild(overlay);
+
+        document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview')) {
+                e.stopPropagation();
+                fullImg.src = e.target.src;
+                overlay.style.visibility = 'visible';
+                overlay.style.opacity = '1';
+            }
+        });
+
+        overlay.addEventListener('click', function() {
+            overlay.style.opacity = '0';
+            setTimeout(() => {
+                overlay.style.visibility = 'hidden';
+                fullImg.src = '';
+            }, 300);
+        });
+    });
 </script>
 
 </body>
