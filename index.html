@@ -75,14 +75,23 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 
 .option-media{position:relative;width:100%;height:220px;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .option-media img{width:100%;height:100%;object-fit:cover;cursor:pointer}
-.option-media video{width:100%;height:100%;object-fit:cover;background:#000;cursor:pointer}
+.option-media video{width:100%;height:100%;object-fit:cover;background:#000}
+
+/* Прозрачный кликабельный слой поверх видео для APK */
+.video-overlay-trigger {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    background: transparent;
+    cursor: pointer;
+}
 
 .option-placeholder{font-size:38px;color:#64748b}
 .video-placeholder{font-size:46px}
 .option-label{padding:10px 7px;text-align:center;font-weight:bold;font-size:14px;word-break:break-word}
 .vote-button{width:calc(100% - 16px);margin:0 8px 8px;border:0;border-radius:12px;padding:12px;background:#2563eb;color:#fff;font-weight:bold;font-size:16px}
 .vote-button:disabled{opacity:.55;cursor:not-allowed}
-.vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#172033;color:#fff;font-size:13px;font-weight:900;box-shadow:0 4px 15px #0003}
+.vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#172033;color:#fff;font-size:13px;font-weight:900;box-shadow:0 4px 15px #0003}
 
 .results{padding:10px 12px 14px;border-top:1px solid #e2e8f0}
 .result-row{margin:7px 0}
@@ -1626,11 +1635,11 @@ let mediaB="";
 
 if(video){
 mediaA=duel.video_a
-?`<video src="${esc(duel.video_a)}" controls playsinline webkit-playsinline x5-playsinline preload="metadata"></video>`
+?`<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_a)}" playsinline webkit-playsinline preload="metadata"></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_a)}"></div></div>`
 :`<div class="option-placeholder video-placeholder">🎥</div>`;
 
 mediaB=duel.video_b
-?`<video src="${esc(duel.video_b)}" controls playsinline webkit-playsinline x5-playsinline preload="metadata"></video>`
+?`<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_b)}" playsinline webkit-playsinline preload="metadata"></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_b)}"></div></div>`
 :`<div class="option-placeholder video-placeholder">🎥</div>`;
 
 }else{
@@ -2970,7 +2979,7 @@ try{
         overlay.appendChild(fullImg);
         document.body.appendChild(overlay);
 
-        // Полноэкранный модальный видеоплеер (гарантированно работает в APK / Android WebView)
+        // Полноэкранный плеер для видео
         const videoOverlay = document.createElement('div');
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;';
         
@@ -2992,6 +3001,7 @@ try{
         videoOverlay.appendChild(closeVideoBtn);
         document.body.appendChild(videoOverlay);
 
+        // Обработчик кликов по фото и специальному слою видео
         document.addEventListener('click', function(e) {
             // Клик по фото
             if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview')) {
@@ -3001,16 +3011,16 @@ try{
                 overlay.style.opacity = '1';
             }
 
-            // Клик по видео (поддержка APK / Android WebView)
-            if (e.target.tagName === 'VIDEO' && e.target.closest('.option-media, .image-preview')) {
+            // Клик по невидимому слою поверх видео в APK / WebView
+            if (e.target.classList.contains('video-overlay-trigger')) {
                 e.stopPropagation();
-                const vid = e.target;
-
-                // Передаем текущую ссылку видео в универсальный модальный плеер поверх всех элементов
-                fullVideo.src = vid.currentSrc || vid.src;
-                videoOverlay.style.visibility = 'visible';
-                videoOverlay.style.opacity = '1';
-                fullVideo.play().catch(err => {});
+                const videoSrc = e.target.dataset.videoSrc;
+                if (videoSrc) {
+                    fullVideo.src = videoSrc;
+                    videoOverlay.style.visibility = 'visible';
+                    videoOverlay.style.opacity = '1';
+                    fullVideo.play().catch(err => {});
+                }
             }
         });
 
