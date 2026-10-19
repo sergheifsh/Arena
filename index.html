@@ -95,36 +95,18 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .duel-actions button{border:0;background:0;color:#64748b}
 .owner-delete{color:#dc2626!important;font-weight:bold}
 .admin-delete{color:#991b1b!important;font-weight:bold}
-.duel-chat-button{border:0!important;background:#eff6ff!important;color:#2563eb!important;padding:7px 10px!important;border-radius:9px!important;font-weight:bold}
 .duel-share-button{border:0!important;background:#f1f5f9!important;color:#2563eb!important;padding:7px 10px!important;border-radius:9px!important;font-weight:bold;display:flex;align-items:center;gap:5px}
 .duel-total-votes{cursor:pointer;font-weight:bold;color:#2563eb}
-
-.duel-chat{border-top:1px solid #dbe4f0;background:#f8fafc;padding:10px}
-.duel-chat-messages{max-height:280px;overflow:auto;padding:5px 2px 8px}
-.duel-chat-form{display:flex;gap:6px}
-.duel-chat-input{flex:1;min-width:0;border:1px solid #cbd5e1;border-radius:10px;padding:10px;resize:none;height:42px;outline:0;background:#fff}
-.duel-chat-send{width:44px;border:0;border-radius:10px;background:#2563eb;color:#fff;font-weight:bold}
-.duel-message{display:flex;margin:7px 0}
-.duel-message.mine{justify-content:flex-end}
-.duel-message-content{max-width:82%;padding:8px 10px;border-radius:13px;background:#fff;border:1px solid #dbe4f0}
-.duel-message.mine .duel-message-content{background:#2563eb;color:#fff;border-color:#2563eb}
-.duel-message-author{font-size:10px;color:#2563eb;font-weight:bold;margin-bottom:3px}
-.duel-message.mine .duel-message-author{color:#dbeafe}
-.duel-message-text{font-size:13px;white-space:pre-wrap;word-break:break-word}
-.duel-message-time{font-size:8px;color:#94a3b8;text-align:right;margin-top:3px}
-.duel-message.mine .duel-message-time{color:#dbeafe}
-.duel-chat-tools{text-align:right}
-.duel-chat-tools button{border:0;background:0;font-size:9px;color:#64748b}
 
 .section-title{padding:20px 15px 8px;font-size:23px;font-weight:900}
 .top-tabs{display:flex;gap:7px;padding:8px 14px}
 .top-tab{flex:1;border-radius:10px;padding:9px;text-align:center}
 
-.rank-item,.search-result,.chat-user{margin:8px 14px;padding:13px;border:1px solid #dbe4f0;border-radius:15px;display:flex;align-items:center;gap:12px}
+.rank-item,.search-result{margin:8px 14px;padding:13px;border:1px solid #dbe4f0;border-radius:15px;display:flex;align-items:center;gap:12px}
 .rank-number{width:34px;height:34px;border-radius:50%;background:#eff6ff;color:#2563eb;display:flex;align-items:center;justify-content:center;font-weight:bold}
-.rank-main,.chat-user-main,.search-result-main{flex:1;min-width:0}
+.rank-main,.search-result-main{flex:1;min-width:0}
 .rank-title{font-weight:bold}
-.rank-category,.chat-user-last{color:#64748b;font-size:11px;margin-top:3px}
+.rank-category{color:#64748b;font-size:11px;margin-top:3px}
 .rank-score{font-weight:bold;color:#2563eb;text-align:right}
 .search-result{cursor:pointer}
 
@@ -142,7 +124,6 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .profile-buttons{display:flex;gap:8px;flex-wrap:wrap}
 .profile-buttons button{flex:1;min-width:120px;border:0;border-radius:10px;padding:11px;background:#eff6ff;color:#1d4ed8}
 .follow-button{background:#2563eb!important;color:#fff!important}
-.message-button{background:#172033!important;color:#fff!important}
 .admin-button{width:100%!important;flex-basis:100%;background:#172033!important;color:#fff!important}
 
 .admin-panel{margin-top:15px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff}
@@ -155,31 +136,10 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .admin-block-button{background:#fee2e2;color:#b91c1c}
 .admin-unblock-button{background:#dcfce7;color:#166534}
 
-.chat-box{margin:0 12px;border:1px solid #dbe4f0;border-radius:18px;overflow:hidden}
-.chat-messages{height:55vh;min-height:350px;max-height:600px;overflow:auto;padding:12px;background:#f8fafc}
-.message{display:flex;margin:8px 0}
-.message.mine{justify-content:flex-end}
-.message-content{max-width:78%;padding:9px 12px;border-radius:15px;background:#fff;border:1px solid #dbe4f0}
-.message.mine .message-content{background:#2563eb;color:#fff;border-color:#2563eb}
-.message-author{font-size:11px;font-weight:bold;color:#2563eb;margin-bottom:4px}
-.message-text{font-size:14px;white-space:pre-wrap;word-break:break-word}
-.message-time{font-size:9px;color:#94a3b8;margin-top:4px;text-align:right}
-.message-tools{text-align:right}
-.message-tools button{border:0;background:0;color:#64748b;font-size:10px}
-.chat-input-area{display:flex;gap:7px;padding:10px;border-top:1px solid #dbe4f0}
-.chat-input{flex:1;min-width:0;border:1px solid #cbd5e1;border-radius:12px;padding:11px;resize:none;height:45px;outline:0}
-.chat-send{width:48px;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:20px}
-
-.unread-badge{min-width:22px;height:22px;padding:0 6px;border-radius:20px;display:flex;align-items:center;justify-content:center;background:#dc2626;color:#fff;font-size:10px;font-weight:bold}
-.chat-back,.new-message-button{border:0;background:#eff6ff;color:#2563eb;padding:9px 12px;border-radius:10px;font-weight:bold;margin:10px 14px}
-.new-message-button{width:calc(100% - 28px);padding:12px}
-.chat-person-title{display:flex;align-items:center;gap:10px;margin:0 14px 10px}
-
 nav{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(650px,calc(100% - 24px));height:68px;background:#fff;border:1px solid #dbe4f0;border-radius:20px;display:flex;align-items:center;justify-content:space-around;z-index:50;box-shadow:0 10px 25px #0f172a15}
 nav button{position:relative;flex:1;height:100%;border:0;background:transparent;color:#64748b;font-size:16px}
 nav button span{font-size:10px}
 nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radius:50%;background:#2563eb;color:#fff;font-size:30px;box-shadow:0 6px 18px #2563eb55}
-.nav-unread{position:absolute;top:5px;right:25%;min-width:18px;height:18px;padding:0 5px;border-radius:20px;background:#dc2626;color:#fff;font-size:9px!important;display:none;align-items:center;justify-content:center}
 
 .modal{display:none;position:fixed;inset:0;background:#0f172a99;z-index:100;align-items:flex-end;justify-content:center}
 .modal.show{display:flex}
@@ -200,8 +160,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .option-label{font-size:13px}
 .vs{width:39px;height:39px}
 .profile-stats{gap:23px}
-.message-content{max-width:86%}
-.duel-message-content{max-width:88%}
 }
 </style>
 </head>
@@ -306,45 +264,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="searchResults"></div>
 </div>
 
-<div id="notificationsScreen" class="screen">
-<div id="notificationsTitle" class="section-title"></div>
-<div id="notificationsText" class="empty"></div>
-</div>
-
-<div id="chatScreen" class="screen">
-
-<div class="section-title">
-✉️ <span data-i18n="privateMessages"></span>
-</div>
-
-<div id="privateChatList">
-<button id="newMessageButton" class="new-message-button" type="button" onclick="openNewMessageModal()"></button>
-<div id="conversationList"></div>
-</div>
-
-<div id="privateChat" class="hidden">
-
-<button id="privateBackButton" class="chat-back" type="button" onclick="showConversationList()"></button>
-
-<div class="chat-person-title">
-<div id="privatePersonAvatar" class="profile-big-avatar" style="width:45px;height:45px;font-size:22px">⚔️</div>
-<div class="chat-user-main">
-<div id="privatePersonName"></div>
-<div id="privatePersonUsername" class="chat-user-last">@arena</div>
-</div>
-</div>
-
-<div class="chat-box">
-<div id="privateMessages" class="chat-messages"></div>
-<div class="chat-input-area">
-<textarea id="privateMessageInput" class="chat-input" maxlength="2000"></textarea>
-<button class="chat-send" type="button" onclick="sendPrivateMessage()">➤</button>
-</div>
-</div>
-
-</div>
-</div>
-
 <div id="profileScreen" class="screen">
 <div class="profile">
 <div class="profile-head">
@@ -396,7 +315,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 
 <div class="profile-buttons">
-<button id="otherMessageButton" class="message-button" type="button" onclick="messageCurrentOtherUser()"></button>
 <button id="otherFollowButton" class="follow-button" type="button"></button>
 <button id="otherBackButton" type="button" onclick="showScreen('homeScreen')"></button>
 </div>
@@ -413,7 +331,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button type="button" onclick="showScreen('homeScreen')">⚔️<br><span data-nav="arena"></span></button>
 <button type="button" onclick="showScreen('searchScreen')">🔍<br><span data-nav="search"></span></button>
 <button class="add" type="button" onclick="openDuelModal()">＋</button>
-<button type="button" onclick="openChatTab()">💬<span id="chatUnreadBadge" class="nav-unread">0</span><br><span data-nav="chat"></span></button>
 <button type="button" onclick="showProfile()">👤<br><span data-nav="profile"></span></button>
 </nav>
 
@@ -536,17 +453,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<div id="newMessageModal" class="modal">
-<div class="modal-box">
-
-<h2 id="newMessageTitle"></h2>
-<input id="messageUserSearch">
-<div id="messageUserResults"></div>
-<button id="messageCancelButton" class="secondary" type="button" onclick="closeModal('newMessageModal')"></button>
-
-</div>
-</div>
-
 <div id="votersModal" class="modal">
 <div class="modal-box">
 <h2>👥 Кто за кого голосовал</h2>
@@ -585,9 +491,6 @@ let selectedVideoA=null;
 let selectedVideoB=null;
 let selectedAvatar=null;
 
-let privateChatUser=null;
-let privateChannel=null;
-let duelMessagesChannel=null;
 let openedOtherUserId=null;
 
 const $=id=>document.getElementById(id);
@@ -608,7 +511,6 @@ participant:"Участник",
 arena:"Арена",
 search:"Поиск",
 profile:"Профиль",
-chat:"Сообщения",
 all:"🔥 Все",
 topAll:"Все",
 films:"🎬 Фильмы",
@@ -633,8 +535,6 @@ duels:"Дуэли",
 myDuels:"⚔️ Мои дуэли",
 followers:"Подписчики",
 following:"Подписки",
-notifications:"🔔 Уведомления",
-notificationsText:"Здесь будут уведомления о твоих дуэлях и голосах.",
 topArena:"🏆 Топ арены",
 searchPlaceholder:"🔍 Найти участника...",
 editProfile:"👤 Мой профиль",
@@ -686,24 +586,7 @@ maxPhoto:"Максимальный размер файла — 100 MB.",
 maxPhotoHelp:"🎥 Максимальный размер видео — 100 MB.",
 tooLongTitle:"Название дуэли слишком длинное.",
 tooLongOption:"Название варианта слишком длинное.",
-privateMessages:"Личные сообщения",
-newMessage:"✉️ Новое сообщение",
-writeMessage:"Написать сообщение...",
-noMessages:"Здесь пока нет сообщений.",
-noConversations:"Здесь пока нет диалогов.",
-sendError:"Не удалось отправить сообщение.",
-reportReason:"Причина жалобы",
-reported:"Жалоба отправлена.",
-messageDeleted:"Сообщение удалено.",
-writeTo:"✉️ Написать",
-duelList:"⚔️ Дуэли",
-duelChat:"💬 Чат",
-writeComment:"Написать в чат...",
-videoBattle:"🎥 Видео-батл",
-photoBattle:"🖼️ Фото-батл",
-noDuelMessages:"Пока никто ничего не написал. Будь первым!",
 deleteMessage:"Удалить сообщение?",
-videoRequired:"Добавь хотя бы одно видео.",
 share:"Поделиться",
 shareCopied:"🔗 Ссылка скопирована!",
 h24:"⏳ 24 часа",
@@ -729,7 +612,6 @@ participant:"Participant",
 arena:"Arena",
 search:"Căutare",
 profile:"Profil",
-chat:"Mesaje",
 all:"🔥 Toate",
 topAll:"Toate",
 films:"🎬 Filme",
@@ -754,8 +636,6 @@ duels:"Dueluri",
 myDuels:"⚔️ Duelurile mele",
 followers:"Urmăritori",
 following:"Urmărești",
-notifications:"🔔 Notificări",
-notificationsText:"Aici vor apărea notificările despre dueluri și voturi.",
 topArena:"🏆 Top Arena",
 searchPlaceholder:"🔍 Caută un participant...",
 editProfile:"👤 Profilul meu",
@@ -807,24 +687,7 @@ maxPhoto:"Dimensiunea maximă este 100 MB.",
 maxPhotoHelp:"🎥 Dimensiunea maximă video este 100 MB.",
 tooLongTitle:"Numele duelului este prea lung.",
 tooLongOption:"Numele variantei este prea lung.",
-privateMessages:"Mesaje private",
-newMessage:"✉️ Mesaj nou",
-writeMessage:"Scrie un mesaj...",
-noMessages:"Nu există încă mesaje.",
-noConversations:"Nu există încă conversații.",
-sendError:"Mesajul nu a putut fi trimis.",
-reportReason:"Motivul raportării",
-reported:"Raportul a fost trimis.",
-messageDeleted:"Mesaj șters.",
-writeTo:"✉️ Scrie",
-duelList:"⚔️ Dueluri",
-duelChat:"💬 Chat",
-writeComment:"Scrie în chat...",
-videoBattle:"🎥 Duel video",
-photoBattle:"🖼️ Duel foto",
-noDuelMessages:"Nimeni nu a scris încă. Fii primul!",
 deleteMessage:"Ștergi mesajul?",
-videoRequired:"Adaugă cel puțin un video.",
 share:"Distribuie",
 shareCopied:"🔗 Link copiat!",
 h24:"⏳ 24 de ore",
@@ -850,7 +713,6 @@ participant:"Participant",
 arena:"Arena",
 search:"Search",
 profile:"Profile",
-chat:"Messages",
 all:"🔥 All",
 topAll:"All",
 films:"🎬 Movies",
@@ -875,8 +737,6 @@ duels:"Duels",
 myDuels:"⚔️ My duels",
 followers:"Followers",
 following:"Following",
-notifications:"🔔 Notifications",
-notificationsText:"Notifications about your duels and votes will appear here.",
 topArena:"🏆 Arena Top",
 searchPlaceholder:"🔍 Find a participant...",
 editProfile:"👤 My profile",
@@ -928,24 +788,7 @@ maxPhoto:"Maximum size is 100 MB.",
 maxPhotoHelp:"🎥 Maximum video size is 100 MB.",
 tooLongTitle:"Duel title is too long.",
 tooLongOption:"Option name is too long.",
-privateMessages:"Private messages",
-newMessage:"✉️ New message",
-writeMessage:"Write a message...",
-noMessages:"There are no messages yet.",
-noConversations:"There are no conversations yet.",
-sendError:"Message could not be sent.",
-reportReason:"Report reason",
-reported:"Report sent.",
-messageDeleted:"Message deleted.",
-writeTo:"✉️ Message",
-duelList:"⚔️ Duels",
-duelChat:"💬 Chat",
-writeComment:"Write in chat...",
-videoBattle:"🎥 Video battle",
-photoBattle:"🖼️ Photo battle",
-noDuelMessages:"Nobody has written yet. Be the first!",
 deleteMessage:"Delete this message?",
-videoRequired:"Add at least one video.",
 share:"Share",
 shareCopied:"🔗 Link copied!",
 h24:"⏳ 24 hours",
@@ -982,16 +825,6 @@ crypto.getRandomValues(a);
 return a[0].toString(36)+a[1].toString(36);
 }
 return Math.random().toString(36).slice(2);
-}
-
-function date(v){
-if(!v)return"";
-const d=new Date(v);
-if(isNaN(d.getTime()))return"";
-return d.toLocaleString(
-language==="en"?"en-US":language==="ro"?"ro-RO":"ru-RU",
-{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}
-);
 }
 
 function formatCountdown(expiresAt){
@@ -1088,8 +921,6 @@ registerSwitch:"noAccount",
 loginSwitch:"haveAccount",
 createDuelButton:"create",
 topTitle:"topArena",
-notificationsTitle:"notifications",
-notificationsText:"notificationsText",
 myDuelsTitle:"myDuels",
 myDuelsLabel:"duels",
 myFollowersLabel:"followers",
@@ -1109,11 +940,6 @@ editProfileTitle:"editProfile",
 avatarText:"avatar",
 saveProfileButton:"save",
 editCancelButton:"cancel",
-newMessageTitle:"newMessage",
-newMessageButton:"newMessage",
-messageCancelButton:"cancel",
-privateBackButton:"back",
-otherMessageButton:"writeTo",
 otherBackButton:"back",
 otherDuelsTitle:"duelList"
 };
@@ -1134,9 +960,7 @@ duelVideoOptionB:"optionB",
 editName:"name",
 editUsername:"username",
 editBio:"about",
-searchInput:"searchPlaceholder",
-privateMessageInput:"writeMessage",
-messageUserSearch:"searchPlaceholder"
+searchInput:"searchPlaceholder"
 };
 
 Object.entries(ph).forEach(([id,key])=>setPH(id,key));
@@ -1182,11 +1006,6 @@ await loadMyDuels();
 
 if($("otherProfileScreen").classList.contains("active")&&openedOtherUserId)
 await loadOtherDuels(openedOtherUserId);
-
-if($("chatScreen").classList.contains("active")){
-if(privateChatUser)await loadPrivateMessages(privateChatUser.id);
-else await loadConversations();
-}
 }
 
 function showAuth(){
@@ -1379,16 +1198,11 @@ $("loginButton").disabled=false;
 
 async function logout(){
 try{
-if(privateChannel)await db.removeChannel(privateChannel);
-if(duelMessagesChannel)await db.removeChannel(duelMessagesChannel);
 await db.auth.signOut();
 }catch(e){}
 
-privateChannel=null;
-duelMessagesChannel=null;
 currentUser=null;
 currentProfile=null;
-privateChatUser=null;
 
 localStorage.removeItem("arena_last_screen");
 
@@ -1445,16 +1259,11 @@ const screen=localStorage.getItem("arena_last_screen")||"homeScreen";
 showScreen(screen);
 
 Promise.allSettled([
-loadDuels(),
-setupPrivateRealtime(),
-setupDuelMessagesRealtime(),
-updateUnreadBadge()
+loadDuels()
 ]);
 
 if(screen==="profileScreen")
 showProfile();
-else if(screen==="chatScreen")
-openChatTab();
 
 }catch(e){
 try{
@@ -1726,16 +1535,6 @@ pb=100-pa;
 return{a,b,total,pa,pb};
 }
 
-async function getDuelMessageCount(id){
-const r=await db.from("duel_messages")
-.select("id",{count:"exact",head:true})
-.eq("duel_id",id);
-
-if(r.error)return 0;
-
-return r.count||0;
-}
-
 function isVideoDuel(d){
 return !!(
 d.video_a||
@@ -1761,7 +1560,6 @@ const admin=currentProfile?.is_admin===true;
 const id=String(duel.id);
 const idJS=escJS(id);
 
-const messageCount=await getDuelMessageCount(id);
 const video=isVideoDuel(duel);
 
 let authorName = t("participant");
@@ -1910,15 +1708,6 @@ ${vote?(vote==="b"?t("yourChoice"):"❤️"):t("chooseB")}
 </span>
 
 <button
-class="duel-chat-button"
-type="button"
-data-duel-chat="${esc(id)}"
-onclick="toggleDuelChat(this.dataset.duelChat)"
->
-${t("duelChat")} · ${messageCount}
-</button>
-
-<button
 class="duel-share-button"
 type="button"
 onclick="shareDuel('${idJS}',this)"
@@ -1935,47 +1724,7 @@ ${admin
 ?`<button class="admin-delete" type="button" onclick="deleteDuel('${idJS}',true)">${t("adminDelete")}</button>`
 :""}
 </div>
-
-<div
-id="duelChat-${esc(id)}"
-class="duel-chat hidden"
-data-duel-id="${esc(id)}"
->
-<div
-id="duelMessages-${esc(id)}"
-class="duel-chat-messages"
->
-<div class="empty">${t("loading")}</div>
-</div>
-
-<div class="duel-chat-form">
-<textarea
-id="duelInput-${esc(id)}"
-class="duel-chat-input"
-maxlength="2000"
-placeholder="${esc(t("writeComment"))}"
-></textarea>
-<button
-class="duel-chat-send"
-type="button"
-data-send-duel="${esc(id)}"
-onclick="sendDuelMessage(this.dataset.sendDuel)"
->
-➤
-</button>
-</div>
-</div>
 `;
-
-const input=card.querySelector(".duel-chat-input");
-if(input){
-input.addEventListener("keydown",event=>{
-if(event.key==="Enter"&&!event.shiftKey){
-event.preventDefault();
-sendDuelMessage(id);
-}
-});
-}
 
 return card;
 }
@@ -2030,6 +1779,23 @@ ${listB.length?listB.join(""):`<div style="color:#64748b;font-size:12px">Ник�
 }catch(e){
 content.innerHTML=`<div class="empty">Ошибка загрузки</div>`;
 }
+}
+
+async function profilesMap(ids){
+if(!ids.length)return{};
+
+const r=await db.from("profiles")
+.select("id,full_name,username,avatar_url")
+.in("id",ids);
+
+if(r.error)return{};
+
+const map={};
+(r.data||[]).forEach(p=>{
+map[p.id]=p;
+});
+
+return map;
 }
 
 async function loadDuels(){
@@ -2433,223 +2199,6 @@ status.innerText=e.message||t("connection");
 $("duelSubmitButton").disabled=false;
 }
 
-async function toggleDuelChat(id){
-const duelId = String(id);
-const box = document.querySelector(`[data-duel-id="${CSS.escape(duelId)}"]`);
-
-if(!box) return;
-
-const opening = box.classList.contains("hidden");
-box.classList.toggle("hidden", !opening);
-
-if(opening){
-await loadDuelMessages(duelId);
-const input = box.querySelector(".duel-chat-input");
-if(input){
-setTimeout(()=>{
-input.focus();
-},50);
-}
-}
-}
-
-async function profilesMap(ids){
-if(!ids.length)return{};
-
-const r=await db.from("profiles")
-.select("id,full_name,username,avatar_url")
-.in("id",ids);
-
-if(r.error)return{};
-
-const map={};
-(r.data||[]).forEach(p=>{
-map[p.id]=p;
-});
-
-return map;
-}
-
-function appendDuelMessage(box,row,profile){
-const mine=String(row.user_id)===String(currentUser.id);
-
-const name=
-profile?.full_name||
-profile?.username||
-t("participant");
-
-let tools="";
-
-if(mine){
-tools=
-`<button type="button" onclick="deleteDuelMessage('${escJS(row.id)}','${escJS(row.duel_id)}')">🗑️</button>`;
-}
-
-const element=document.createElement("div");
-element.className="duel-message"+(mine?" mine":"");
-
-element.innerHTML=`
-<div class="duel-message-content">
-${!mine?`<div class="duel-message-author">${esc(name)}</div>`:""}
-<div class="duel-message-text">
-${esc(row.message||"")}
-</div>
-<div class="duel-message-time">
-${date(row.created_at)}
-</div>
-<div class="duel-chat-tools">
-${tools}
-</div>
-</div>
-`;
-
-box.appendChild(element);
-}
-
-async function loadDuelMessages(id){
-const duelId=String(id);
-const box=$(`duelMessages-${duelId}`);
-if(!box)return;
-
-const r=await db.from("duel_messages")
-.select("id,duel_id,user_id,message,created_at")
-.eq("duel_id",duelId)
-.order("created_at",{ascending:true})
-.limit(200);
-
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
-
-if(!r.data?.length){
-box.innerHTML=`<div class="empty">${esc(t("noDuelMessages"))}</div>`;
-return;
-}
-
-const ids=[
-...new Set(
-r.data
-.map(x=>x.user_id)
-.filter(Boolean)
-)
-];
-
-const map=await profilesMap(ids);
-box.innerHTML="";
-
-r.data.forEach(row=>{
-appendDuelMessage(box,row,map[row.user_id]);
-});
-
-box.scrollTop=box.scrollHeight;
-}
-
-async function sendDuelMessage(id){
-const duelId=String(id);
-const input=$(`duelInput-${duelId}`);
-
-if(!input||!currentUser)return;
-
-const text=input.value.trim();
-if(!text)return;
-
-input.disabled=true;
-
-try{
-const r=await db.from("duel_messages")
-.insert({
-duel_id:duelId,
-user_id:currentUser.id,
-message:text
-});
-
-if(r.error)throw r.error;
-
-input.value="";
-await loadDuelMessages(duelId);
-
-const button=document.querySelector(
-`.duel-chat-button[data-duel-chat="${CSS.escape(duelId)}"]`
-);
-
-if(button){
-const count=await getDuelMessageCount(duelId);
-button.innerText=`${t("duelChat")} · ${count}`;
-}
-
-}catch(e){
-alert(e.message||t("connection"));
-}finally{
-input.disabled=false;
-input.focus();
-}
-}
-
-async function deleteDuelMessage(id,duelId){
-showCustomConfirm(t("deleteMessage"), async () => {
-const r=await db.from("duel_messages")
-.delete()
-.eq("id",String(id))
-.eq("user_id",currentUser.id);
-
-if(r.error){
-alert(r.error.message);
-return;
-}
-
-await loadDuelMessages(String(duelId));
-
-const button=document.querySelector(
-`.duel-chat-button[data-duel-chat="${CSS.escape(String(duelId))}"]`
-);
-
-if(button){
-const count=await getDuelMessageCount(String(duelId));
-button.innerText=`${t("duelChat")} · ${count}`;
-}
-}, t("delete"));
-}
-
-async function setupDuelMessagesRealtime(){
-try{
-if(duelMessagesChannel)
-await db.removeChannel(duelMessagesChannel);
-
-duelMessagesChannel=
-db.channel("arena-duel-messages-realtime")
-.on(
-"postgres_changes",
-{
-event:"*",
-schema:"public",
-table:"duel_messages"
-},
-async payload=>{
-const row=payload.new||payload.old;
-if(!row||row.duel_id===undefined||row.duel_id===null)return;
-
-const duelId=String(row.duel_id);
-const chat=$(`duelChat-${duelId}`);
-
-if(chat&&!chat.classList.contains("hidden"))
-await loadDuelMessages(duelId);
-
-const button=document.querySelector(
-`.duel-chat-button[data-duel-chat="${CSS.escape(duelId)}"]`
-);
-
-if(button){
-const count=await getDuelMessageCount(duelId);
-button.innerText=`${t("duelChat")} · ${count}`;
-}
-}
-)
-.subscribe();
-
-}catch(e){}
-}
-
 async function loadTop(category="all",button){
 showScreen("topScreen");
 
@@ -3015,369 +2564,6 @@ await loadAdminUsers();
 }, actionButtonText);
 }
 
-async function openChatTab(){
-if(!currentUser){
-showAuth();
-return;
-}
-
-showScreen("chatScreen");
-privateChatUser=null;
-
-$("privateChat").classList.add("hidden");
-$("privateChatList").classList.remove("hidden");
-
-await loadConversations();
-await updateUnreadBadge();
-}
-
-function appendMessage(box,message,profile){
-const mine=String(message.sender_id)===String(currentUser.id);
-const name=profile?.full_name||profile?.username||t("participant");
-const text=message.is_deleted?t("messageDeleted"):(message.text||"");
-
-const tools=message.is_deleted
-?""
-:(mine
-?`<button type="button" onclick="deleteMessage('${escJS(message.id)}')">🗑️</button>`
-:`<button type="button" onclick="reportMessage('${escJS(message.id)}')">⚠️</button>`);
-
-const element=document.createElement("div");
-element.className="message"+(mine?" mine":"");
-
-element.innerHTML=`
-<div class="message-content">
-${!mine?`<div class="message-author">${esc(name)}</div>`:""}
-<div class="message-text">${esc(text)}</div>
-<div class="message-time">${date(message.created_at)}</div>
-<div class="message-tools">${tools}</div>
-</div>
-`;
-
-box.appendChild(element);
-}
-
-async function loadConversations(){
-const box=$("conversationList");
-if(!box)return;
-
-const r=await db.from("messages")
-.select("*")
-.or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-.not("receiver_id","is",null)
-.order("created_at",{ascending:false})
-.limit(500);
-
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
-
-const conversations={};
-
-(r.data||[]).forEach(m=>{
-const id=String(m.sender_id)===String(currentUser.id)?m.receiver_id:m.sender_id;
-if(!id)return;
-
-if(!conversations[id])
-conversations[id]={last:m,unread:0};
-
-if(String(m.receiver_id)===String(currentUser.id)&&!m.is_read)
-conversations[id].unread++;
-});
-
-const ids=Object.keys(conversations);
-
-if(!ids.length){
-box.innerHTML=`<div class="empty">${esc(t("noConversations"))}</div>`;
-return;
-}
-
-const map=await profilesMap(ids);
-box.innerHTML="";
-
-ids.forEach(id=>{
-const p=map[id]||{};
-const c=conversations[id];
-
-const element=document.createElement("div");
-element.className="chat-user";
-element.onclick=()=>openPrivateChat(String(id));
-
-element.innerHTML=`
-<div class="profile-big-avatar" style="width:48px;height:48px;font-size:22px">
-${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
-</div>
-<div class="chat-user-main">
-<div>${esc(p.full_name||t("participant"))}</div>
-<div class="chat-user-last">${c.last.is_deleted?t("messageDeleted"):(c.last.text||"")}</div>
-</div>
-${c.unread?`<div class="unread-badge">${c.unread>99?"99+":c.unread}</div>`:""}
-`;
-
-box.appendChild(element);
-});
-}
-
-function openNewMessageModal(){
-$("messageUserSearch").value="";
-$("messageUserResults").innerHTML=`<div class="empty">${esc(t("searchStart"))}</div>`;
-$("newMessageModal").classList.add("show");
-}
-
-async function searchMessageUsers(){
-const value=$("messageUserSearch").value.trim();
-const box=$("messageUserResults");
-
-if(!value){
-box.innerHTML=`<div class="empty">${esc(t("searchStart"))}</div>`;
-return;
-}
-
-const safe=safeSearch(value);
-
-const r=await db.from("profiles")
-.select("id,full_name,username,avatar_url")
-.or(`full_name.ilike.%${safe}%,username.ilike.%${safe}%`)
-.neq("id",currentUser.id)
-.limit(20);
-
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
-
-box.innerHTML="";
-
-(r.data||[]).forEach(p=>{
-const element=document.createElement("div");
-element.className="chat-user";
-element.onclick=()=>{
-closeModal("newMessageModal");
-openPrivateChat(String(p.id));
-};
-
-element.innerHTML=`
-<div class="profile-big-avatar" style="width:48px;height:48px;font-size:22px">
-${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
-</div>
-<div class="chat-user-main">
-<div>${esc(p.full_name||t("participant"))}</div>
-<div class="chat-user-last">@${esc(p.username||"arena")}</div>
-</div>
-`;
-
-box.appendChild(element);
-});
-}
-
-async function openPrivateChat(id){
-if(!id||String(id)===String(currentUser.id))
-return;
-
-const userId=String(id);
-
-const r=await db.from("profiles")
-.select("*")
-.eq("id",userId)
-.maybeSingle();
-
-if(r.error||!r.data){
-alert("Профиль не найден.");
-return;
-}
-
-privateChatUser=r.data;
-showScreen("chatScreen");
-
-$("privateChatList").classList.add("hidden");
-$("privateChat").classList.remove("hidden");
-
-$("privatePersonName").innerText=r.data.full_name||t("participant");
-$("privatePersonUsername").innerText="@"+(r.data.username||"arena");
-
-setAvatar("privatePersonAvatar",r.data.avatar_url);
-
-await markRead(userId);
-await loadPrivateMessages(userId);
-await updateUnreadBadge();
-
-setTimeout(()=>{
-$("privateMessageInput")?.focus();
-},50);
-}
-
-async function showConversationList(){
-privateChatUser=null;
-$("privateChat").classList.add("hidden");
-$("privateChatList").classList.remove("hidden");
-await loadConversations();
-await updateUnreadBadge();
-}
-
-async function loadPrivateMessages(id){
-const userId=String(id);
-const box=$("privateMessages");
-if(!box)return;
-
-const r=await db.from("messages")
-.select("*")
-.or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`)
-.order("created_at")
-.limit(300);
-
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
-
-box.innerHTML="";
-
-if(!r.data?.length){
-box.innerHTML=`<div class="empty">${esc(t("noMessages"))}</div>`;
-return;
-}
-
-r.data.forEach(m=>
-appendMessage(
-box,
-m,
-String(m.sender_id)===String(currentUser.id)?currentProfile:privateChatUser
-)
-);
-
-box.scrollTop=box.scrollHeight;
-}
-
-async function sendPrivateMessage(){
-if(!privateChatUser)return;
-
-const input=$("privateMessageInput");
-const text=input.value.trim();
-
-if(!text)return;
-
-input.disabled=true;
-
-try{
-const r=await db.from("messages").insert({
-sender_id: currentUser.id,
-receiver_id: privateChatUser.id,
-text: text
-});
-
-if(r.error)throw r.error;
-
-input.value="";
-await loadPrivateMessages(privateChatUser.id);
-
-}catch(e){
-alert(e.message||t("sendError"));
-}finally{
-input.disabled=false;
-input.focus();
-}
-}
-
-async function markRead(id){
-await db.from("messages")
-.update({is_read:true})
-.eq("receiver_id",currentUser.id)
-.eq("sender_id",String(id))
-.eq("is_read",false);
-}
-
-async function updateUnreadBadge(){
-if(!currentUser)return;
-
-const badge=$("chatUnreadBadge");
-if(!badge)return;
-
-const r=await db.from("messages")
-.select("id",{count:"exact",head:true})
-.eq("receiver_id",currentUser.id)
-.eq("is_read",false);
-
-const n=r.count||0;
-badge.innerText=n>99?"99+":n;
-badge.style.display=n?"flex":"none";
-}
-
-function handleChatEnter(event){
-if(event.key==="Enter"&&!event.shiftKey){
-event.preventDefault();
-sendPrivateMessage();
-}
-}
-
-async function deleteMessage(id){
-showCustomConfirm(t("deleteMessage"), async () => {
-const r=await db.from("messages")
-.update({is_deleted:true})
-.eq("id",String(id))
-.eq("sender_id",currentUser.id);
-
-if(r.error){
-alert(r.error.message);
-return;
-}
-
-if(privateChatUser)
-await loadPrivateMessages(privateChatUser.id);
-else
-await loadConversations();
-}, t("delete"));
-}
-
-async function reportMessage(id){
-const reason=prompt(t("reportReason"));
-if(reason===null)return;
-
-const r=await db.from("message_reports").insert({
-message_id:Number(id),
-reporter_id:currentUser.id,
-reason:reason.trim()||"No reason"
-});
-
-if(r.error){
-alert(r.error.message);
-return;
-}
-
-alert(t("reported"));
-}
-
-async function setupPrivateRealtime(){
-try{
-if(privateChannel)
-await db.removeChannel(privateChannel);
-
-privateChannel=db.channel("arena-private-messages")
-.on("postgres_changes",{event:"*",schema:"public",table:"messages"},async payload=>{
-const m=payload.new||payload.old;
-if(!m)return;
-
-if(String(m.sender_id)!==String(currentUser.id)&&String(m.receiver_id)!==String(currentUser.id))
-return;
-
-if(privateChatUser&&(String(m.sender_id)===String(privateChatUser.id)||String(m.receiver_id)===String(privateChatUser.id))){
-await loadPrivateMessages(privateChatUser.id);
-}else if($("chatScreen").classList.contains("active")){
-await loadConversations();
-}
-
-await updateUnreadBadge();
-})
-.subscribe();
-
-}catch(e){}
-}
-
-function messageCurrentOtherUser(){
-if(openedOtherUserId)
-openPrivateChat(openedOtherUserId);
-}
-
 function closeModal(id){
 const modal=$(id);
 if(modal)modal.classList.remove("show");
@@ -3402,9 +2588,7 @@ try{
     applyLanguage();
     startCountdownTimers();
 
-    $("privateMessageInput")?.addEventListener("keydown",handleChatEnter);
     $("searchInput")?.addEventListener("input",searchUsers);
-    $("messageUserSearch")?.addEventListener("input",searchMessageUsers);
 
     if(!initDB()){
         hideStartup();
@@ -3429,7 +2613,6 @@ try{
         if(event==="SIGNED_OUT"){
             currentUser=null;
             currentProfile=null;
-            privateChatUser=null;
             showAuth();
             showLogin();
             hideStartup();
