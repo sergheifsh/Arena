@@ -77,7 +77,6 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .option-media img{width:100%;height:100%;object-fit:cover;cursor:pointer}
 .option-media video{width:100%;height:100%;object-fit:cover;background:#000}
 
-/* Прозрачный кликабельный слой поверх видео для APK */
 .video-overlay-trigger {
     position: absolute;
     inset: 0;
@@ -2984,26 +2983,29 @@ try{
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;';
         
         const fullVideo = document.createElement('video');
-        fullVideo.style.cssText = 'width:100%;max-height:100%;object-fit:contain;';
-        fullVideo.controls = true;
+        fullVideo.style.cssText = 'width:100%;height:100%;object-fit:contain;';
+        fullVideo.controls = true; // Возвращаем controls, чтобы работал родной плеер с квадратиком
         fullVideo.playsInline = true;
         videoOverlay.appendChild(fullVideo);
 
+        // Крестик строго в правом нижнем углу прямо над квадратиком
         const closeVideoBtn = document.createElement('button');
         closeVideoBtn.innerHTML = '✕';
-        closeVideoBtn.style.cssText = 'position:absolute;top:20px;right:20px;background:#fff;color:#000;border:0;width:40px;height:40px;border-radius:50%;font-size:20px;font-weight:bold;cursor:pointer;z-index:100000;';
-        closeVideoBtn.onclick = function() {
+        closeVideoBtn.style.cssText = 'position:absolute;bottom:20px;right:15px;background:#fff;color:#000;border:0;width:40px;height:40px;border-radius:50%;font-size:20px;font-weight:bold;cursor:pointer;z-index:100000;box-shadow:0 4px 12px rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;';
+        
+        closeVideoBtn.onclick = function(e) {
+            e.stopPropagation();
             fullVideo.pause();
             fullVideo.src = '';
             videoOverlay.style.opacity = '0';
             setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
         };
         videoOverlay.appendChild(closeVideoBtn);
+
         document.body.appendChild(videoOverlay);
 
-        // Обработчик кликов по фото и специальному слою видео
+        // Обработчик кликов по фото и специальному слою видео в ленте
         document.addEventListener('click', function(e) {
-            // Клик по фото
             if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview')) {
                 e.stopPropagation();
                 fullImg.src = e.target.src;
@@ -3011,7 +3013,6 @@ try{
                 overlay.style.opacity = '1';
             }
 
-            // Клик по невидимому слою поверх видео в APK / WebView
             if (e.target.classList.contains('video-overlay-trigger')) {
                 e.stopPropagation();
                 const videoSrc = e.target.dataset.videoSrc;
