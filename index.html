@@ -1774,7 +1774,7 @@ ${admin
 </div>
 
 <div style="padding: 0 14px 12px;">
-<button type="button" onclick="toggleDuelChat('${idJS}')" style="width:100%;padding:10px;border:1px solid #dbe4f0;background:#f8fafc;color:#2563eb;border-radius:12px;font-weight:bold;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px">
+<button type="button" onclick="toggleDuelChat(this, '${idJS}')" style="width:100%;padding:10px;border:1px solid #dbe4f0;background:#f8fafc;color:#2563eb;border-radius:12px;font-weight:bold;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px">
 ${t("chatButton")}
 </button>
 </div>
@@ -1793,9 +1793,21 @@ ${t("chatButton")}
 return card;
 }
 
-function toggleDuelChat(duelId){
-const sId = String(duelId);
-const box=document.getElementById(`duel-chat-box-${sId}`);
+function toggleDuelChat(btnOrId, duelId){
+let sId = duelId ? String(duelId) : String(btnOrId);
+let box = document.getElementById(`duel-chat-box-${sId}`);
+
+if (!box && btnOrId instanceof HTMLElement) {
+const card = btnOrId.closest('.duel');
+if (card) {
+box = card.querySelector(`[id^="duel-chat-box-"]`);
+if (box) {
+const match = box.id.match(/duel-chat-box-(.+)$/);
+if (match) sId = match[1];
+}
+}
+}
+
 if(!box)return;
 const isHidden=box.classList.contains("hidden");
 if(isHidden){
