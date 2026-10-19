@@ -2978,46 +2978,15 @@ try{
         overlay.appendChild(fullImg);
         document.body.appendChild(overlay);
 
-        // Полноэкранный плеер для видео (без квадратика в углу)
+        // Полноэкранный плеер для видео без кастомных кнопок Play/Pause
         const videoOverlay = document.createElement('div');
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;';
         
         const fullVideo = document.createElement('video');
         fullVideo.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-        fullVideo.controls = true; // Стандартные контролы браузера (шкала, громкость)
+        fullVideo.controls = true; // Стандартные элементы управления браузера
         fullVideo.playsInline = true;
         videoOverlay.appendChild(fullVideo);
-
-        // Кнопка Play / Pause по центру для удобства
-        const centerPlayBtn = document.createElement('button');
-        centerPlayBtn.innerHTML = '▶';
-        centerPlayBtn.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(37,99,235,0.8);color:#fff;border:0;width:70px;height:70px;border-radius:50%;font-size:28px;cursor:pointer;z-index:100000;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,0,0,0.5);transition:opacity 0.2s;';
-        
-        centerPlayBtn.onclick = function(e) {
-            e.stopPropagation();
-            if (fullVideo.paused) {
-                fullVideo.play();
-                centerPlayBtn.innerHTML = '❚❚';
-                setTimeout(() => { if(!fullVideo.paused) centerPlayBtn.style.opacity = '0'; }, 1000);
-            } else {
-                fullVideo.pause();
-                centerPlayBtn.innerHTML = '▶';
-                centerPlayBtn.style.opacity = '1';
-            }
-        };
-        videoOverlay.appendChild(centerPlayBtn);
-
-        fullVideo.onclick = function() {
-            if (fullVideo.paused) {
-                fullVideo.play();
-                centerPlayBtn.innerHTML = '❚❚';
-                centerPlayBtn.style.opacity = '0';
-            } else {
-                fullVideo.pause();
-                centerPlayBtn.innerHTML = '▶';
-                centerPlayBtn.style.opacity = '1';
-            }
-        };
 
         document.body.appendChild(videoOverlay);
 
@@ -3055,8 +3024,6 @@ try{
                     fullVideo.src = videoSrc;
                     videoOverlay.style.visibility = 'visible';
                     videoOverlay.style.opacity = '1';
-                    centerPlayBtn.innerHTML = '❚❚';
-                    centerPlayBtn.style.opacity = '0';
 
                     // Блокируем прокрутку ленты на фоне
                     document.body.style.overflow = 'hidden';
@@ -3065,10 +3032,7 @@ try{
                     // Добавляем запись в историю браузера, чтобы кнопка «Назад» закрывала плеер
                     history.pushState({ videoOpen: true }, "");
 
-                    fullVideo.play().catch(err => {
-                        centerPlayBtn.innerHTML = '▶';
-                        centerPlayBtn.style.opacity = '1';
-                    });
+                    fullVideo.play().catch(err => {});
                 }
             }
         });
