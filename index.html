@@ -2978,13 +2978,13 @@ try{
         overlay.appendChild(fullImg);
         document.body.appendChild(overlay);
 
-        // Полноэкранный плеер для видео (чистый, без системного квадратика и точек)
+        // Полноэкранный плеер для видео (без квадратика в углу)
         const videoOverlay = document.createElement('div');
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;';
         
         const fullVideo = document.createElement('video');
         fullVideo.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-        fullVideo.controls = false; // Отключаем стандартные элементы управления (убираем системный квадратик и три точки)
+        fullVideo.controls = true; // Стандартные контролы браузера (шкала, громкость)
         fullVideo.playsInline = true;
         videoOverlay.appendChild(fullVideo);
 
@@ -3007,30 +3007,6 @@ try{
         };
         videoOverlay.appendChild(centerPlayBtn);
 
-        // РАБОЧИЙ КВАДРИК в правом нижнем углу — кнопка разворота во весь экран телефона (Fullscreen API)
-        const fullscreenBtn = document.createElement('button');
-        fullscreenBtn.innerHTML = '⛶'; // Иконка полноэкранного режима
-        fullscreenBtn.style.cssText = 'position:absolute;bottom:20px;right:20px;background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);width:45px;height:45px;border-radius:10px;font-size:22px;cursor:pointer;z-index:100000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(5px);';
-        
-        fullscreenBtn.onclick = function(e) {
-            e.stopPropagation();
-            if (!document.fullscreenElement) {
-                if (fullVideo.requestFullscreen) {
-                    fullVideo.requestFullscreen();
-                } else if (fullVideo.webkitRequestFullscreen) {
-                    fullVideo.webkitRequestFullscreen();
-                }
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-            }
-        };
-        videoOverlay.appendChild(fullscreenBtn);
-
-        // Показ кнопки Play при паузе или касании видео
         fullVideo.onclick = function() {
             if (fullVideo.paused) {
                 fullVideo.play();
@@ -3101,7 +3077,7 @@ try{
             overlay.style.opacity = '0';
             setTimeout(() => {
                 overlay.style.visibility = 'hidden';
-                    fullImg.src = '';
+                fullImg.src = '';
             }, 300);
         });
     });
