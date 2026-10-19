@@ -522,6 +522,7 @@ let openedOtherUserId=null;
 let activeChatUserId=null;
 
 let realtimeChannel=null;
+let backgroundSyncInterval=null;
 
 const $=id=>document.getElementById(id);
 
@@ -1003,6 +1004,29 @@ realtimeChannel = db.channel("arena_realtime_channel")
     }
 })
 .subscribe();
+
+if(backgroundSyncInterval) clearInterval(backgroundSyncInterval);
+backgroundSyncInterval = setInterval(async () => {
+    if(!currentUser) return;
+    if($("homeScreen").classList.contains("active")){
+        document.querySelectorAll(".duel[data-duel-id]").forEach(async card => {
+            const duelId = card.dataset.duelId;
+            if(duelId){
+                const userVote = await getVote(duelId);
+                await updateDuelVoteCard(card, duelId, userVote);
+            }
+        });
+    }
+    if(activeChatUserId && $("messagesScreen").classList.contains("active")){
+        await loadDirectMessages();
+    }
+    document.querySelectorAll(".duel-chat-box:not(.hidden)").forEach(box => {
+        const card = box.closest(".duel");
+        if(card && card.dataset.duelId){
+            loadComments(box, card.dataset.duelId);
+        }
+    });
+}, 3000);
 }
 
 function applyLanguage(){
@@ -1302,6 +1326,7 @@ $("loginButton").disabled=false;
 async function logout(){
 try{
 if(realtimeChannel) db.removeChannel(realtimeChannel);
+if(backgroundSyncInterval) clearInterval(backgroundSyncInterval);
 await db.auth.signOut();
 }catch(e){}
 
