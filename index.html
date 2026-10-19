@@ -1434,6 +1434,17 @@ const duelId=params.get("duel");
 if(!duelId||!currentUser)return;
 
 try{
+const feed=$("duelsFeed");
+const existingCard=feed.querySelector(`[data-duel-id="${CSS.escape(String(duelId))}"]`);
+
+if(existingCard){
+existingCard.scrollIntoView({
+behavior:"smooth",
+block:"center"
+});
+return;
+}
+
 const r=await db.from("duels")
 .select("*")
 .eq("id",duelId)
@@ -1442,17 +1453,6 @@ const r=await db.from("duels")
 if(r.error||!r.data)return;
 
 showScreen("homeScreen");
-const feed=$("duelsFeed");
-const old=feed.querySelector(`[data-duel-id="${CSS.escape(String(duelId))}"]`);
-
-if(old){
-old.scrollIntoView({
-behavior:"smooth",
-block:"center"
-});
-return;
-}
-
 const card=await duelCard(r.data);
 feed.prepend(card);
 
@@ -1745,7 +1745,7 @@ ${admin
 </div>
 `;
 
-loadComments(duel.id);
+loadComments(idJS);
 return card;
 }
 
