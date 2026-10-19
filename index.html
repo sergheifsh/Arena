@@ -1792,6 +1792,7 @@ ${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(duelId)}')" style
 `;
 }).join("");
 }catch(e){
+console.error("Load comments error:", e);
 container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center;padding:6px">Ошибка загрузки чата</div>`;
 }
 }
@@ -1802,8 +1803,6 @@ if(!input)return;
 const text=input.value.trim();
 if(!text)return;
 
-input.value="";
-
 try{
 const r=await db.from("duel_comments").insert({
 duel_id:duelId,
@@ -1812,6 +1811,7 @@ text
 });
 
 if(r.error)throw r.error;
+input.value="";
 await loadComments(duelId);
 }catch(e){
 alert(e.message||t("connection"));
@@ -1923,7 +1923,6 @@ box.innerHTML=`<div class="empty">${esc(t("noDuels"))}</div>`;
 return;
 }
 
-// Устранение дублирования элементов по уникальному идентификатору дуэли (id)
 const seenIds = new Set();
 for(const duel of r.data){
 if(seenIds.has(duel.id)) continue;
