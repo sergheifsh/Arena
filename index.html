@@ -2978,13 +2978,13 @@ try{
         overlay.appendChild(fullImg);
         document.body.appendChild(overlay);
 
-        // Полноэкранный плеер для видео (без крестика, закрытие по кнопке «Назад» телефона)
+        // Полноэкранный плеер для видео
         const videoOverlay = document.createElement('div');
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;';
         
         const fullVideo = document.createElement('video');
         fullVideo.style.cssText = 'width:100%;height:100%;object-fit:contain;';
-        fullVideo.controls = true; // Родной плеер с элементами управления
+        fullVideo.controls = true;
         fullVideo.playsInline = true;
         videoOverlay.appendChild(fullVideo);
 
@@ -2995,6 +2995,10 @@ try{
             fullVideo.src = '';
             videoOverlay.style.opacity = '0';
             setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
+
+            // Возвращаем прокрутку ленты
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
         }
 
         // Отслеживание нажатия кнопки «Назад» на телефоне
@@ -3020,6 +3024,10 @@ try{
                     fullVideo.src = videoSrc;
                     videoOverlay.style.visibility = 'visible';
                     videoOverlay.style.opacity = '1';
+
+                    // Блокируем прокрутку ленты на фоне
+                    document.body.style.overflow = 'hidden';
+                    document.documentElement.style.overflow = 'hidden';
                     
                     // Добавляем запись в историю браузера, чтобы кнопка «Назад» закрывала плеер
                     history.pushState({ videoOpen: true }, "");
