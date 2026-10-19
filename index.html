@@ -3102,7 +3102,7 @@ const c=conversations[id];
 
 const element=document.createElement("div");
 element.className="chat-user";
-element.onclick=()=>openPrivateChat(id);
+element.onclick=()=>openPrivateChat(String(id));
 
 element.innerHTML=`
 <div class="profile-big-avatar" style="width:48px;height:48px;font-size:22px">
