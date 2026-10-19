@@ -277,11 +277,11 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <h2 id="messagesTitle" style="color:#2563eb;margin-bottom:15px"></h2>
 <div id="conversationsList" style="margin-bottom:15px"></div>
 <div id="chatBox" class="hidden">
-<button class="secondary" onclick="$('chatBox').classList.add('hidden');$('conversationsList').classList.remove('hidden')" style="margin-bottom:10px">← Назад к списку</button>
+<button class="secondary" onclick="$('chatBox').classList.add('hidden');$('conversationsList').classList.remove('hidden');activeChatUserId=null;" style="margin-bottom:10px">← Назад к списку</button>
 <h3 id="activeChatUser" style="margin-bottom:10px"></h3>
 <div id="chatMessages" style="height:300px;overflow-y:auto;background:#f8fafc;padding:10px;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:10px"></div>
 <div style="display:flex;gap:6px">
-<input type="text" id="directMessageInput" placeholder="Введите сообщение..." style="flex:1;padding:10px;border:1px solid #cbd5e1;border-radius:10px;outline:0">
+<input type="text" id="directMessageInput" placeholder="Введите сообщение..." style="flex:1;padding:10px;border:1px solid #cbd5e1;border-radius:10px;outline:0" onkeydown="if(event.key==='Enter')sendDirectMessage()">
 <button type="button" onclick="sendDirectMessage()" class="primary" style="width:auto;margin-top:0">Отправить</button>
 </div>
 </div>
@@ -520,6 +520,8 @@ let selectedAvatar=null;
 
 let openedOtherUserId=null;
 let activeChatUserId=null;
+
+let realtimeChannel=null;
 
 const $=id=>document.getElementById(id);
 
@@ -962,6 +964,47 @@ clean();
 };
 }
 
+function setupRealtimeSubscriptions(){
+if(!db) return;
+if(realtimeChannel) db.removeChannel(realtimeChannel);
+
+realtimeChannel = db.channel("arena_realtime_channel")
+.on("postgres_changes", { event: "*", schema: "public", table: "duel_votes" }, async (payload) => {
+    const duelId = payload.new?.duel_id || payload.old?.duel_id;
+    if(!duelId) return;
+    const cards = document.querySelectorAll(`[data-duel-id="${CSS.escape(String(duelId))}"]`);
+    for(const card of cards){
+        const userVote = await getVote(duelId);
+        await updateDuelVoteCard(card, duelId, userVote);
+    }
+})
+.on("postgres_changes", { event: "*", schema: "public", table: "duel_comments" }, async (payload) => {
+    const duelId = payload.new?.duel_id || payload.old?.duel_id;
+    if(!duelId) return;
+    const cards = document.querySelectorAll(`[data-duel-id="${CSS.escape(String(duelId))}"]`);
+    for(const card of cards){
+        const box = card.querySelector(".duel-chat-box");
+        if(box && !box.classList.contains("hidden")){
+            await loadComments(box, duelId);
+        }
+    }
+})
+.on("postgres_changes", { event: "*", schema: "public", table: "direct_messages" }, async (payload) => {
+    const m = payload.new;
+    if(!m || !currentUser) return;
+    
+    if(m.sender_id === currentUser.id || m.receiver_id === currentUser.id){
+        if(activeChatUserId && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
+            await loadDirectMessages();
+        }
+        if($("messagesScreen").classList.contains("active") && !activeChatUserId){
+            await showMessagesScreen();
+        }
+    }
+})
+.subscribe();
+}
+
 function applyLanguage(){
 document.documentElement.lang=language;
 if($("languageSelect"))$("languageSelect").value=language;
@@ -1258,6 +1301,7 @@ $("loginButton").disabled=false;
 
 async function logout(){
 try{
+if(realtimeChannel) db.removeChannel(realtimeChannel);
 await db.auth.signOut();
 }catch(e){}
 
@@ -1313,6 +1357,8 @@ return;
 
 $("auth").style.display="none";
 $("app").classList.remove("hidden");
+
+setupRealtimeSubscriptions();
 
 const screen=localStorage.getItem("arena_last_screen")||"homeScreen";
 
@@ -1862,6 +1908,7 @@ ${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}', this)" st
 </div>
 `;
 }).join("");
+container.scrollTop = container.scrollHeight;
 }catch(e){
 container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center">Ошибка загрузки</div>`;
 }
@@ -1915,6 +1962,7 @@ async function showMessagesScreen(){
 showScreen("messagesScreen");
 $("chatBox").classList.add("hidden");
 $("conversationsList").classList.remove("hidden");
+activeChatUserId=null;
 
 const box=$("conversationsList");
 box.innerHTML=`<div class="status">${t("loading")}</div>`;
@@ -2233,14 +2281,15 @@ total.innerHTML=`🗳️ ${counts.total} ${t("votes")}`;
 const buttons=card.querySelectorAll(".vote-button");
 
 buttons.forEach((btn,index)=>{
+if(vote){
 btn.disabled=true;
-
-if(vote==="a"&&index===0)
-btn.innerText=t("yourChoice");
-else if(vote==="b"&&index===1)
-btn.innerText=t("yourChoice");
-else
-btn.innerText="❤️";
+if(vote==="a"&&index===0) btn.innerText=t("yourChoice");
+else if(vote==="b"&&index===1) btn.innerText=t("yourChoice");
+else btn.innerText="❤️";
+}else{
+btn.disabled=false;
+btn.innerText=index===0?t("chooseA"):t("chooseB");
+}
 });
 }
 
@@ -2969,7 +3018,6 @@ try{
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Оверлей для фото
         const overlay = document.createElement('div');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;cursor:pointer;';
         
@@ -2987,7 +3035,6 @@ try{
             document.body.style.overflow = '';
         }
 
-        // Оверлей для видео
         const videoOverlay = document.createElement('div');
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;overflow:hidden;';
         
@@ -2997,7 +3044,6 @@ try{
         fullVideo.webkitPlaysinline = true;
         videoOverlay.appendChild(fullVideo);
 
-        // Панель управления БЕЗ КОНТЕЙНЕРА (квадрата), тоньше и ниже (45px от низа)
         const customControls = document.createElement('div');
         customControls.style.cssText = 'position:absolute;bottom:45px;left:20px;right:20px;background:transparent;padding:6px 0;display:flex;align-items:center;gap:14px;z-index:100000;';
 
@@ -3060,7 +3106,6 @@ try{
             document.body.style.overflow = '';
         }
 
-        // Перехват кнопки «Назад» в истории браузера, чтобы не выходить из приложения
         window.addEventListener('popstate', function(e) {
             let closedSomething = false;
             if (videoOverlay.style.visibility === 'visible') {
@@ -3078,7 +3123,6 @@ try{
 
         history.pushState(null, "", window.location.href);
 
-        // Клик по фото и видео в ленте
         document.addEventListener('click', function(e) {
             const videoTrig = e.target.closest('.video-overlay-trigger') || (e.target.tagName === 'VIDEO' && !e.target.closest('div[style*="position:fixed"]'));
             if (videoTrig) {
@@ -3087,7 +3131,6 @@ try{
                 const videoSrc = videoTrig.dataset.videoSrc || videoEl?.src;
                 
                 if (videoSrc) {
-                    // Очищаем хэш времени превью для воспроизведения с начала
                     fullVideo.src = videoSrc.replace('#t=0.001', '');
                     videoOverlay.style.visibility = 'visible';
                     videoOverlay.style.opacity = '1';
