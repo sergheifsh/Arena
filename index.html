@@ -826,7 +826,7 @@ h48:"⏳ 48 hours",
 h72:"⏳ 72 hours",
 unlimited:"♾️ Unlimited",
 videoA:"🎥 Participant A video",
-videoB:"🎥 Participant B video",
+videoB:"🎥 Participant A video",
 battleEnded:"🔴 Ended",
 commentPlaceholder:"Write in duel chat...",
 chatButton:"💬 Duel Chat",
@@ -1761,14 +1761,12 @@ ${admin
 :""}
 </div>
 
-<!-- Кнопка переключения чата дуэли -->
 <div style="padding: 0 14px 12px;">
 <button type="button" onclick="toggleDuelChat('${idJS}')" style="width:100%;padding:10px;border:1px solid #dbe4f0;background:#f8fafc;color:#2563eb;border-radius:12px;font-weight:bold;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px">
 ${t("chatButton")}
 </button>
 </div>
 
-<!-- Раскрывающийся блок чата дуэли -->
 <div id="duel-chat-box-${idJS}" class="hidden" style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#f8fafc;border-radius:0 0 20px 20px">
 <div class="comments-list" id="comments-${idJS}" style="margin-bottom:8px;max-height:200px;overflow-y:auto">
 <div style="font-size:12px;color:#64748b;text-align:center">${t("loading")}</div>
