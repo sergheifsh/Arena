@@ -976,7 +976,6 @@ clean();
 };
 }
 
-// ==================== НОВАЯ ФУНКЦИЯ УВЕДОМЛЕНИЙ ====================
 function showInAppNotification(title, body) {
   if ("Notification" in window && Notification.permission === "granted") {
     try {
@@ -1006,7 +1005,33 @@ function requestNotificationPermission() {
     });
   }
 }
-// ===================================================================
+
+// ==================== ФУНКЦИЯ СВЯЗКИ ONESIGNAL С SUPABASE ====================
+async function linkOneSignalWithSupabase(userId) {
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    try {
+      await OneSignal.Notifications.requestPermission();
+      const onesignalId = OneSignal.User.PushSubscription.id;
+      
+      if (onesignalId && userId) {
+        const { error } = await db
+          .from('profiles')
+          .update({ onesignal_id: onesignalId })
+          .eq('id', userId);
+
+        if (error) {
+          console.error('Ошибка сохранения OneSignal ID:', error);
+        } else {
+          console.log('OneSignal ID успешно привязан:', onesignalId);
+        }
+      }
+    } catch(err) {
+      console.warn('Ошибка привязки OneSignal:', err);
+    }
+  });
+}
+// ============================================================================
 
 function setupRealtimeSubscriptions(){
 if(!db) return;
@@ -1437,6 +1462,11 @@ $("app").classList.remove("hidden");
 
 setupRealtimeSubscriptions();
 requestNotificationPermission();
+
+// Привязываем OneSignal ID при запуске
+if(currentUser && currentUser.id) {
+  linkOneSignalWithSupabase(currentUser.id);
+}
 
 const screen=localStorage.getItem("arena_last_screen")||"homeScreen";
 
