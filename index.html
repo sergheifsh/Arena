@@ -8,6 +8,17 @@
 <meta http-equiv="Expires" content="0">
 <title>ARENA — Who Beats Who</title>
 
+<!-- OneSignal SDK -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "61e09f87-71e8-4d08-97c5-b9ed4330951f",
+    });
+  });
+</script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%;width:100%;overflow-x:hidden}
