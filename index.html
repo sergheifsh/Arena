@@ -8,17 +8,6 @@
 <meta http-equiv="Expires" content="0">
 <title>ARENA — Who Beats Who</title>
 
-<!-- OneSignal SDK -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "61e09f87-71e8-4d08-97c5-b9ed4330951f",
-    });
-  });
-</script>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%;width:100%;overflow-x:hidden}
@@ -976,63 +965,6 @@ clean();
 };
 }
 
-function showInAppNotification(title, body) {
-  if ("Notification" in window && Notification.permission === "granted") {
-    try {
-      const n = new Notification(title, {
-        body: body,
-        icon: "https://wwlhsveslabnackqlgxd.supabase.co/storage/v1/object/public/Photos/avatars/favicon.ico",
-        badge: "https://wwlhsveslabnackqlgxd.supabase.co/storage/v1/object/public/Photos/avatars/favicon.ico"
-      });
-
-      n.onclick = function() {
-        window.focus();
-        if (typeof showMessagesScreen === "function") {
-          showMessagesScreen();
-        }
-        n.close();
-      };
-    } catch(e) {
-      console.warn("Ошибка показа уведомления:", e);
-    }
-  }
-}
-
-function requestNotificationPermission() {
-  if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission().then(permission => {
-      console.log("Статус разрешения на уведомления:", permission);
-    });
-  }
-}
-
-// ==================== ФУНКЦИЯ СВЯЗКИ ONESIGNAL С SUPABASE ====================
-async function linkOneSignalWithSupabase(userId) {
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    try {
-      await OneSignal.Notifications.requestPermission();
-      const onesignalId = OneSignal.User.PushSubscription.id;
-      
-      if (onesignalId && userId) {
-        const { error } = await db
-          .from('profiles')
-          .update({ onesignal_id: onesignalId })
-          .eq('id', userId);
-
-        if (error) {
-          console.error('Ошибка сохранения OneSignal ID:', error);
-        } else {
-          console.log('OneSignal ID успешно привязан:', onesignalId);
-        }
-      }
-    } catch(err) {
-      console.warn('Ошибка привязки OneSignal:', err);
-    }
-  });
-}
-// ============================================================================
-
 function setupRealtimeSubscriptions(){
 if(!db) return;
 if(realtimeChannel) db.removeChannel(realtimeChannel);
@@ -1071,8 +1003,6 @@ realtimeChannel = db.channel("arena_realtime_channel")
                 const res = await db.from("profiles").select("full_name, username").eq("id", m.sender_id).maybeSingle();
                 if(res.data) senderName = res.data.full_name || res.data.username || senderName;
             } catch(err){}
-
-            showInAppNotification(`💬 Сообщение от ${senderName}`, m.text);
 
             if($("messagesScreen").classList.contains("active") && !activeChatUserId){
                 await showMessagesScreen();
@@ -1461,12 +1391,6 @@ $("auth").style.display="none";
 $("app").classList.remove("hidden");
 
 setupRealtimeSubscriptions();
-requestNotificationPermission();
-
-// Привязываем OneSignal ID при запуске
-if(currentUser && currentUser.id) {
-  linkOneSignalWithSupabase(currentUser.id);
-}
 
 const screen=localStorage.getItem("arena_last_screen")||"homeScreen";
 
