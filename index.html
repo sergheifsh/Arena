@@ -965,6 +965,38 @@ clean();
 };
 }
 
+// ==================== НОВАЯ ФУНКЦИЯ УВЕДОМЛЕНИЙ ====================
+function showInAppNotification(title, body) {
+  if ("Notification" in window && Notification.permission === "granted") {
+    try {
+      const n = new Notification(title, {
+        body: body,
+        icon: "https://wwlhsveslabnackqlgxd.supabase.co/storage/v1/object/public/Photos/avatars/favicon.ico",
+        badge: "https://wwlhsveslabnackqlgxd.supabase.co/storage/v1/object/public/Photos/avatars/favicon.ico"
+      });
+
+      n.onclick = function() {
+        window.focus();
+        if (typeof showMessagesScreen === "function") {
+          showMessagesScreen();
+        }
+        n.close();
+      };
+    } catch(e) {
+      console.warn("Ошибка показа уведомления:", e);
+    }
+  }
+}
+
+function requestNotificationPermission() {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission().then(permission => {
+      console.log("Статус разрешения на уведомления:", permission);
+    });
+  }
+}
+// ===================================================================
+
 function setupRealtimeSubscriptions(){
 if(!db) return;
 if(realtimeChannel) db.removeChannel(realtimeChannel);
@@ -990,16 +1022,25 @@ realtimeChannel = db.channel("arena_realtime_channel")
         }
     }
 })
-.on("postgres_changes", { event: "*", schema: "public", table: "direct_messages" }, async (payload) => {
+.on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, async (payload) => {
     const m = payload.new;
     if(!m || !currentUser) return;
     
-    if(m.sender_id === currentUser.id || m.receiver_id === currentUser.id){
-        if(activeChatUserId && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
+    if(m.receiver_id === currentUser.id){
+        if(activeChatUserId && m.sender_id === activeChatUserId){
             await loadDirectMessages();
-        }
-        if($("messagesScreen").classList.contains("active") && !activeChatUserId){
-            await showMessagesScreen();
+        } else {
+            let senderName = "Пользователь";
+            try {
+                const res = await db.from("profiles").select("full_name, username").eq("id", m.sender_id).maybeSingle();
+                if(res.data) senderName = res.data.full_name || res.data.username || senderName;
+            } catch(err){}
+
+            showInAppNotification(`💬 Сообщение от ${senderName}`, m.text);
+
+            if($("messagesScreen").classList.contains("active") && !activeChatUserId){
+                await showMessagesScreen();
+            }
         }
     }
 })
@@ -1384,6 +1425,7 @@ $("auth").style.display="none";
 $("app").classList.remove("hidden");
 
 setupRealtimeSubscriptions();
+requestNotificationPermission();
 
 const screen=localStorage.getItem("arena_last_screen")||"homeScreen";
 
