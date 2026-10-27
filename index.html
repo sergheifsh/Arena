@@ -1368,6 +1368,11 @@ return;
 currentUser=s.data.session.user;
 }
 
+// 🌐 Интеграция OneSignal для мобильного приложения (Android WebView)
+if (window.AndroidBridge && window.AndroidBridge.loginOneSignal && currentUser && currentUser.id) {
+    window.AndroidBridge.loginOneSignal(currentUser.id);
+}
+
 try{
 await Promise.race([
 loadProfile(),
