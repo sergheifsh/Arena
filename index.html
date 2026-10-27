@@ -990,7 +990,6 @@ realtimeChannel = db.channel("arena_realtime_channel")
         }
     }
 })
--- УСПЕШНО ДОБАВЛЕННЫЙ БЛОК РЕАЛЬНОГО ВРЕМЕНИ ДЛЯ ДУЭЛЕЙ --
 .on("postgres_changes", { event: "DELETE", schema: "public", table: "duels" }, (payload) => {
     const deletedId = payload.old?.id;
     if(!deletedId) return;
@@ -1007,7 +1006,6 @@ realtimeChannel = db.channel("arena_realtime_channel")
         }
     }
 })
--------------------------------------------------------------
 .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, async (payload) => {
     const m = payload.new;
     if(!m || !currentUser) return;
@@ -1367,37 +1365,30 @@ showLogin();
 async function startApp(){
 try{
 if(!currentUser){
-const sessionPromise=db.auth.getSession();
-const timeoutPromise=new Promise((_,reject)=>
-setTimeout(()=>reject(new Error("Auth timeout")),10000)
-);
-
-const s=await Promise.race([
-sessionPromise,
-timeoutPromise
-]);
-
-if(!s.data?.session){
-showAuth();
-showLogin();
-return;
+    // Мгновенно считываем сохраненную сессию из localStorage без зависаний
+    const rawStorage = localStorage.getItem("arena-supabase-auth");
+    if(rawStorage){
+        try{
+            const parsed = JSON.parse(rawStorage);
+            if(parsed?.user){
+                currentUser = parsed.user;
+            }
+        }catch(err){}
+    }
 }
 
-currentUser=s.data.session.user;
+if(!currentUser){
+    showAuth();
+    showLogin();
+    return;
 }
 
-// 🌐 Интеграция OneSignal для мобильного приложения (Android WebView)
 if (window.AndroidBridge && window.AndroidBridge.loginOneSignal && currentUser && currentUser.id) {
     window.AndroidBridge.loginOneSignal(currentUser.id);
 }
 
 try{
-await Promise.race([
-loadProfile(),
-new Promise((_,reject)=>
-setTimeout(()=>reject(new Error("Profile timeout")),10000)
-)
-]);
+await loadProfile();
 }catch(e){}
 
 if(currentProfile?.is_blocked){
@@ -3025,11 +3016,20 @@ try{
         return;
     }
 
-    const sessionResult=await db.auth.getSession();
-    const session=sessionResult.data?.session;
+    // Мгновенная проверка сессии без сетевых зависаний
+    let hasSession = false;
+    const rawStorage = localStorage.getItem("arena-supabase-auth");
+    if(rawStorage){
+        try{
+            const parsed = JSON.parse(rawStorage);
+            if(parsed?.user){
+                currentUser = parsed.user;
+                hasSession = true;
+            }
+        }catch(err){}
+    }
 
-    if(session){
-        currentUser=session.user;
+    if(hasSession){
         await startApp();
     }else{
         showAuth();
@@ -3113,8 +3113,20 @@ try{
         progressBar.value = '0';
         progressBar.style.cssText = 'flex:1;accent-color:#2563eb;cursor:pointer;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.6);';
 
+        const timeDisplay = document.createElement('span');
+        timeDisplay.style.cssText = 'color:#fff;font-size:12px;font-family:Arial,sans-serif;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,0.8);';
+        timeDisplay.innerHTML = '0:00 / 0:00';
+
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
         customControls.appendChild(playBtn);
         customControls.appendChild(progressBar);
+        customControls.appendChild(timeDisplay);
         videoOverlay.appendChild(customControls);
 
         playBtn.onclick = (e) => {
@@ -3133,7 +3145,12 @@ try{
             if (fullVideo.duration) {
                 const percent = (fullVideo.currentTime / fullVideo.duration) * 100;
                 progressBar.value = percent;
+                timeDisplay.innerHTML = `${formatTime(fullVideo.currentTime)} / ${formatTime(fullVideo.duration)}`;
             }
+        };
+
+        fullVideo.onloadedmetadata = () => {
+            timeDisplay.innerHTML = `0:00 / ${formatTime(fullVideo.duration)}`;
         };
 
         progressBar.oninput = (e) => {
