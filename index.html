@@ -25,7 +25,6 @@ button{cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 #startupScreen.hide{opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
 
-/* Pull to Refresh Indicator */
 #ptrIndicator{position:absolute;top:-50px;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;color:#2563eb;font-weight:bold;font-size:13px;transition:transform 0.2s;z-index:30}
 
 .app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:calc(100px + env(safe-area-inset-bottom));box-shadow:0 0 25px #1e40af1a;position:relative}
@@ -199,7 +198,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button type="button" class="password-toggle" onclick="togglePassword('loginPassword',this)">👁️</button>
 </div>
 <button id="loginButton" type="button" onclick="login()"></button>
-<div style="text-align:right;margin-top:6px"><span style="font-size:12px;color:#2563eb;cursor:pointer" onclick="forgotPassword()" data-i18n="forgotPassword">Забыли пароль?</span></div>
+<div style="text-align:right;margin-top:6px"><span style="font-size:12px;color:#2563eb;cursor:pointer" onclick="openForgotPasswordModal()" data-i18n="forgotPassword">Забыли пароль?</span></div>
 <div id="registerSwitch" class="auth-switch" onclick="showRegister()"></div>
 </div>
 
@@ -215,6 +214,28 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 
 <div id="authStatus" class="status"></div>
+</div>
+</div>
+
+<!-- Модальное окно восстановления пароля по коду -->
+<div id="forgotPasswordModal" class="modal">
+<div class="modal-box">
+<h2 data-i18n="forgotPasswordTitle">Восстановление пароля</h2>
+<div id="forgotStep1">
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш email, и мы отправим вам инструкции / токен для сброса.</p>
+<input id="forgotEmail" type="email" placeholder="Email">
+<button class="primary" type="button" onclick="sendPasswordResetCode()" data-i18n="sendCode">Отправить</button>
+</div>
+<div id="forgotStep2" class="hidden" style="margin-top:10px">
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc2">Введите токен/код из письма и новый пароль.</p>
+<input id="resetToken" type="text" placeholder="Код / Токен из письма">
+<div class="password-box">
+<input id="newPasswordInput" type="password" placeholder="Новый пароль">
+</div>
+<button class="primary" type="button" onclick="confirmPasswordReset()" data-i18n="saveNewPassword">Сохранить новый пароль</button>
+</div>
+<button class="secondary" type="button" onclick="closeModal('forgotPasswordModal')" style="margin-top:10px" data-i18n="cancel">Отмена</button>
+<div id="forgotStatus" class="status"></div>
 </div>
 </div>
 
@@ -313,7 +334,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button id="editProfileButton" type="button" onclick="openEditProfile()"></button>
 <button id="logoutButton" type="button" onclick="logout()"></button>
 <button id="adminButton" class="admin-button hidden" type="button" onclick="openAdminPanel()"></button>
-<button id="deleteAccountButton" class="delete-account-button" type="button" onclick="deleteAccount()" data-i18n="deleteAccount">🗑️ Удалить аккаунт</button>
+<button id="deleteAccountButton" class="delete-account-button" type="button" onclick="deleteAccount()" data-i18n="deleteAccount">Удалить аккаунт</button>
 </div>
 
 <div id="adminPanel" class="admin-panel hidden">
@@ -644,8 +665,14 @@ videoBattle:"Видео батл",
 privateMessages:"💬 Личные сообщения",
 noActiveDialogs:"Нет активных диалогов",
 forgotPassword:"Забыли пароль?",
-resetPasswordSent:"Ссылка для восстановления отправлена на email 📧",
-deleteAccount:"🗑️ Удалить аккаунт",
+forgotPasswordTitle:"Восстановление пароля",
+forgotDesc:"Введите ваш email, и мы отправим код/инструкцию для сброса.",
+forgotDesc2:"Введите код из письма и новый пароль.",
+sendCode:"Отправить код",
+saveNewPassword:"Сохранить пароль",
+resetPasswordSent:"Инструкция/код отправлены на email 📧",
+passwordResetSuccess:"Пароль успешно изменен! Войдите с новым паролем.",
+deleteAccount:"Удалить аккаунт",
 deleteAccountConfirm:"Вы уверены, что хотите навсегда удалить свой аккаунт?",
 ptrRelease:"Отпустите, чтобы обновить 🔄",
 ptrPull:"Потяните, чтобы обновить..."
@@ -760,8 +787,14 @@ videoBattle:"Duel Video",
 privateMessages:"💬 Mesaje private",
 noActiveDialogs:"Nu există dialoguri active",
 forgotPassword:"Ai uitat parola?",
-resetPasswordSent:"Linkul de resetare a fost trimis pe email 📧",
-deleteAccount:"🗑️ Șterge contul",
+forgotPasswordTitle:"Resetarea parolei",
+forgotDesc:"Introdu adresa de email pentru a primi codul.",
+forgotDesc2:"Introdu codul primit și noua parolă.",
+sendCode:"Trimite codul",
+saveNewPassword:"Salvează noua parolă",
+resetPasswordSent:"Instrucțiunile au fost trimise pe email 📧",
+passwordResetSuccess:"Parolă schimbată cu succes!",
+deleteAccount:"Șterge contul",
 deleteAccountConfirm:"Ești sigur că vrei să îți ștergi contul definitiv?",
 ptrRelease:"Eliberează pentru a actualiza 🔄",
 ptrPull:"Trage în jos pentru a actualiza..."
@@ -876,8 +909,14 @@ videoBattle:"Video battle",
 privateMessages:"💬 Direct Messages",
 noActiveDialogs:"No active conversations",
 forgotPassword:"Forgot password?",
-resetPasswordSent:"Password reset link sent to email 📧",
-deleteAccount:"🗑️ Delete account",
+forgotPasswordTitle:"Password Recovery",
+forgotDesc:"Enter your email to receive recovery instructions.",
+forgotDesc2:"Enter the code from the email and your new password.",
+sendCode:"Send code",
+saveNewPassword:"Save new password",
+resetPasswordSent:"Instructions sent to your email 📧",
+passwordResetSuccess:"Password changed successfully!",
+deleteAccount:"Delete account",
 deleteAccountConfirm:"Are you sure you want to permanently delete your account?",
 ptrRelease:"Release to refresh 🔄",
 ptrPull:"Pull down to refresh..."
@@ -1179,7 +1218,10 @@ editName:"name",
 editUsername:"username",
 editBio:"about",
 searchInput:"searchPlaceholder",
-directMessageInput:"commentPlaceholder"
+directMessageInput:"commentPlaceholder",
+forgotEmail:"email",
+resetToken:"Token",
+newPasswordInput:"password"
 };
 
 Object.entries(ph).forEach(([id,key])=>setPH(id,key));
@@ -1298,21 +1340,61 @@ return t("connection");
 return e?.message||"Ошибка";
 }
 
-async function forgotPassword(){
-const email=$("loginEmail").value.trim().toLowerCase();
-const status=$("authStatus");
+function openForgotPasswordModal(){
+$("forgotEmail").value=$("loginEmail").value.trim();
+$("forgotStep1").classList.remove("hidden");
+$("forgotStep2").classList.add("hidden");
+$("forgotStatus").innerText="";
+$("forgotPasswordModal").classList.add("show");
+}
 
+async function sendPasswordResetCode(){
+const email=$("forgotEmail").value.trim().toLowerCase();
+const status=$("forgotStatus");
 if(!email){
 status.innerText=t("enterCredentials");
 return;
 }
-
 try{
+status.innerText=t("loading");
 const { error } = await db.auth.resetPasswordForEmail(email, {
 redirectTo: window.location.origin + window.location.pathname
 });
 if(error) throw error;
 status.innerText=t("resetPasswordSent");
+$("forgotStep1").classList.add("hidden");
+$("forgotStep2").classList.remove("hidden");
+}catch(e){
+status.innerText=authError(e);
+}
+}
+
+async function confirmPasswordReset(){
+const token=$("resetToken").value.trim();
+const newPass=$("newPasswordInput").value;
+const status=$("forgotStatus");
+if(!token||!newPass){
+status.innerText=t("invalid");
+return;
+}
+try{
+status.innerText=t("loading");
+// Проверяем токен (OTP) и обновляем пароль
+const { error: verifyError } = await db.auth.verifyOtp({
+email: $("forgotEmail").value.trim().toLowerCase(),
+token: token,
+type: 'recovery'
+});
+if(verifyError) throw verifyError;
+
+const { error: updateError } = await db.auth.updateUser({ password: newPass });
+if(updateError) throw updateError;
+
+status.innerText=t("passwordResetSuccess");
+setTimeout(()=>{
+closeModal("forgotPasswordModal");
+showLogin();
+}, 2000);
 }catch(e){
 status.innerText=authError(e);
 }
@@ -1510,7 +1592,6 @@ $("app").classList.remove("hidden");
 
 setupRealtimeSubscriptions();
 
-// При входе принудительно кидаем в ленту (homeScreen)
 showScreen("homeScreen");
 localStorage.setItem("arena_last_screen", "homeScreen");
 
@@ -2034,13 +2115,14 @@ return;
 const userIds=[...new Set(comments.map(c=>c.user_id))];
 const profilesMapData=await profilesMap(userIds);
 
-const isAdminUser=(currentProfile?.is_admin===true)||(currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
+const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
 
 container.innerHTML=comments.map(c=>{
 const p=profilesMapData[c.user_id]||{};
 const name=p.full_name||p.username||t("participant");
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:24px;height:24px;border-radius:50%;object-fit:cover">`:`<div style="width:24px;height:24px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:10px">⚔️</div>`;
-const canDelete=currentUser&&(c.user_id===currentUser.id||isAdminUser);
+
+const canDelete = currentUser && (String(c.user_id) === String(currentUser.id) || isAdminUser);
 
 return `
 <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;font-size:12px">
@@ -2048,7 +2130,7 @@ ${avatar}
 <div style="flex:1;background:#fff;padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
 <span style="font-weight:bold;color:#172033">${esc(name)}</span>
-${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}', this)" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px">✕</button>`:""}
+${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}', this)" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px;font-weight:bold;">✕</button>`:""}
 </div>
 <div style="color:#334155;word-break:break-word">${esc(c.text)}</div>
 </div>
