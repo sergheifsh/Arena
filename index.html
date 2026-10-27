@@ -25,7 +25,10 @@ button{cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 #startupScreen.hide{opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
 
-.app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:calc(100px + env(safe-area-inset-bottom));box-shadow:0 0 25px #1e40af1a}
+/* Pull to Refresh Indicator */
+#ptrIndicator{position:absolute;top:-50px;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;color:#2563eb;font-weight:bold;font-size:13px;transition:transform 0.2s;z-index:30}
+
+.app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:calc(100px + env(safe-area-inset-bottom));box-shadow:0 0 25px #1e40af1a;position:relative}
 
 header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-top));background:#fff;border-bottom:1px solid #dbe4f0;padding:calc(8px + env(safe-area-inset-top)) 12px 8px}
 .top-row{height:100%;display:flex;align-items:center;justify-content:center;position:relative}
@@ -133,6 +136,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .profile-buttons button{flex:1;min-width:120px;border:0;border-radius:10px;padding:11px;background:#eff6ff;color:#1d4ed8}
 .follow-button{background:#2563eb!important;color:#fff!important}
 .admin-button{width:100%!important;flex-basis:100%!important;background:#172033!important;color:#fff!important}
+.delete-account-button{width:100%!important;flex-basis:100%!important;background:#fee2e2!important;color:#dc2626!important;margin-top:8px}
 
 .admin-panel{margin-top:15px;padding:15px;border:1px solid #bfdbfe;border-radius:15px;background:#eff6ff}
 .admin-user-row{display:flex;align-items:center;gap:8px;padding:10px;margin-bottom:8px;background:#fff;border-radius:10px;border:1px solid #dbe4f0}
@@ -195,6 +199,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button type="button" class="password-toggle" onclick="togglePassword('loginPassword',this)">👁️</button>
 </div>
 <button id="loginButton" type="button" onclick="login()"></button>
+<div style="text-align:right;margin-top:6px"><span style="font-size:12px;color:#2563eb;cursor:pointer" onclick="forgotPassword()" data-i18n="forgotPassword">Забыли пароль?</span></div>
 <div id="registerSwitch" class="auth-switch" onclick="showRegister()"></div>
 </div>
 
@@ -214,6 +219,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 
 <div id="app" class="app hidden">
+<div id="ptrIndicator">🔄 Потяните, чтобы обновить...</div>
 
 <header>
 <div class="top-row">
@@ -307,6 +313,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button id="editProfileButton" type="button" onclick="openEditProfile()"></button>
 <button id="logoutButton" type="button" onclick="logout()"></button>
 <button id="adminButton" class="admin-button hidden" type="button" onclick="openAdminPanel()"></button>
+<button id="deleteAccountButton" class="delete-account-button" type="button" onclick="deleteAccount()" data-i18n="deleteAccount">🗑️ Удалить аккаунт</button>
 </div>
 
 <div id="adminPanel" class="admin-panel hidden">
@@ -635,7 +642,13 @@ noComments:"Пока нет сообщений в чате. Будь первы�
 photoBattle:"Фото батл",
 videoBattle:"Видео батл",
 privateMessages:"💬 Личные сообщения",
-noActiveDialogs:"Нет активных диалогов"
+noActiveDialogs:"Нет активных диалогов",
+forgotPassword:"Забыли пароль?",
+resetPasswordSent:"Ссылка для восстановления отправлена на email 📧",
+deleteAccount:"🗑️ Удалить аккаунт",
+deleteAccountConfirm:"Вы уверены, что хотите навсегда удалить свой аккаунт?",
+ptrRelease:"Отпустите, чтобы обновить 🔄",
+ptrPull:"Потяните, чтобы обновить..."
 },
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
@@ -745,7 +758,13 @@ noComments:"Niciun mesaj în chat. Fii primul!",
 photoBattle:"Duel Foto",
 videoBattle:"Duel Video",
 privateMessages:"💬 Mesaje private",
-noActiveDialogs:"Nu există dialoguri active"
+noActiveDialogs:"Nu există dialoguri active",
+forgotPassword:"Ai uitat parola?",
+resetPasswordSent:"Linkul de resetare a fost trimis pe email 📧",
+deleteAccount:"🗑️ Șterge contul",
+deleteAccountConfirm:"Ești sigur că vrei să îți ștergi contul definitiv?",
+ptrRelease:"Eliberează pentru a actualiza 🔄",
+ptrPull:"Trage în jos pentru a actualiza..."
 },
 en:{
 subtitle:"Who wins? You decide.",
@@ -855,7 +874,13 @@ noComments:"No messages in chat yet. Be the first!",
 photoBattle:"Photo battle",
 videoBattle:"Video battle",
 privateMessages:"💬 Direct Messages",
-noActiveDialogs:"No active conversations"
+noActiveDialogs:"No active conversations",
+forgotPassword:"Forgot password?",
+resetPasswordSent:"Password reset link sent to email 📧",
+deleteAccount:"🗑️ Delete account",
+deleteAccountConfirm:"Are you sure you want to permanently delete your account?",
+ptrRelease:"Release to refresh 🔄",
+ptrPull:"Pull down to refresh..."
 }
 };
 
@@ -964,6 +989,52 @@ cancelBtn.onclick = () => {
 clean();
 };
 }
+
+// Pull to Refresh Implementation
+let touchStartY = 0;
+let isRefreshing = false;
+
+document.addEventListener('touchstart', e => {
+if(window.scrollY === 0 && $("homeScreen").classList.contains("active")){
+touchStartY = e.touches[0].clientY;
+}
+}, {passive: true});
+
+document.addEventListener('touchmove', e => {
+if(!touchStartY) return;
+const touchY = e.touches[0].clientY;
+const diff = touchY - touchStartY;
+if(diff > 0 && diff < 120 && window.scrollY === 0){
+const ptr = $("ptrIndicator");
+if(ptr){
+ptr.style.transform = `translateY(${diff}px)`;
+ptr.innerText = diff > 80 ? t("ptrRelease") : t("ptrPull");
+}
+}
+}, {passive: true});
+
+document.addEventListener('touchend', async e => {
+if(!touchStartY) return;
+const ptr = $("ptrIndicator");
+const touchEndY = e.changedTouches[0].clientY;
+const diff = touchEndY - touchStartY;
+touchStartY = 0;
+
+if(diff > 80 && window.scrollY === 0 && $("homeScreen").classList.contains("active") && !isRefreshing){
+isRefreshing = true;
+if(ptr) {
+ptr.style.transform = `translateY(50px)`;
+ptr.innerText = t("loading");
+}
+await loadDuels();
+if(ptr) {
+ptr.style.transform = `translateY(0)`;
+}
+isRefreshing = false;
+} else if(ptr) {
+ptr.style.transform = `translateY(0)`;
+}
+});
 
 function setupRealtimeSubscriptions(){
 if(!db) return;
@@ -1087,7 +1158,8 @@ saveProfileButton:"save",
 editCancelButton:"cancel",
 otherBackButton:"back",
 otherDuelsTitle:"duelList",
-messagesTitle:"privateMessages"
+messagesTitle:"privateMessages",
+deleteAccountButton:"deleteAccount"
 };
 
 Object.entries(texts).forEach(([id,key])=>setText(id,key));
@@ -1224,6 +1296,39 @@ if(m.includes("fetch")||m.includes("network"))
 return t("connection");
 
 return e?.message||"Ошибка";
+}
+
+async function forgotPassword(){
+const email=$("loginEmail").value.trim().toLowerCase();
+const status=$("authStatus");
+
+if(!email){
+status.innerText=t("enterCredentials");
+return;
+}
+
+try{
+const { error } = await db.auth.resetPasswordForEmail(email, {
+redirectTo: window.location.origin + window.location.pathname
+});
+if(error) throw error;
+status.innerText=t("resetPasswordSent");
+}catch(e){
+status.innerText=authError(e);
+}
+}
+
+async function deleteAccount(){
+showCustomConfirm(t("deleteAccountConfirm"), async () => {
+try{
+const { error } = await db.from("profiles").delete().eq("id", currentUser.id);
+if(error) console.warn(error);
+await logout();
+alert("Аккаунт удален.");
+}catch(e){
+alert(e.message || t("connection"));
+}
+}, t("delete"));
 }
 
 async function getUniqueFullName(requestedName) {
@@ -1365,7 +1470,6 @@ showLogin();
 async function startApp(){
 try{
 if(!currentUser){
-    // Мгновенно считываем сохраненную сессию из localStorage без зависаний
     const rawStorage = localStorage.getItem("arena-supabase-auth");
     if(rawStorage){
         try{
@@ -1406,16 +1510,13 @@ $("app").classList.remove("hidden");
 
 setupRealtimeSubscriptions();
 
-const screen=localStorage.getItem("arena_last_screen")||"homeScreen";
-
-showScreen(screen);
+// При входе принудительно кидаем в ленту (homeScreen)
+showScreen("homeScreen");
+localStorage.setItem("arena_last_screen", "homeScreen");
 
 Promise.allSettled([
 loadDuels()
 ]);
-
-if(screen==="profileScreen")
-showProfile();
 
 }catch(e){
 try{
@@ -3016,7 +3117,6 @@ try{
         return;
     }
 
-    // Мгновенная проверка сессии без сетевых зависаний
     let hasSession = false;
     const rawStorage = localStorage.getItem("arena-supabase-auth");
     if(rawStorage){
