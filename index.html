@@ -222,17 +222,17 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div class="modal-box">
 <h2 data-i18n="forgotPasswordTitle">Восстановление пароля</h2>
 <div id="forgotStep1">
-<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш email, и мы отправим вам инструкции / токен для сброса.</p>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш имейл и туда нужно отправлять временный код потом человек создаст себе новый пароль.</p>
 <input id="forgotEmail" type="email" placeholder="Email">
-<button class="primary" type="button" onclick="sendPasswordResetCode()" data-i18n="sendCode">Отправить</button>
+<button class="primary" type="button" onclick="sendPasswordResetCode()" data-i18n="sendCode">Отправить временный код</button>
 </div>
 <div id="forgotStep2" class="hidden" style="margin-top:10px">
-<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc2">Введите токен/код из письма и новый пароль.</p>
-<input id="resetToken" type="text" placeholder="Код / Токен из письма">
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc2">Введите код из письма и новый пароль.</p>
+<input id="resetToken" type="text" placeholder="Код подтверждения">
 <div class="password-box">
 <input id="newPasswordInput" type="password" placeholder="Новый пароль">
 </div>
-<button class="primary" type="button" onclick="confirmPasswordReset()" data-i18n="saveNewPassword">Сохранить новый пароль</button>
+<button class="primary" type="button" onclick="confirmPasswordReset()" data-i18n="saveNewPassword">Создать новый пароль</button>
 </div>
 <button class="secondary" type="button" onclick="closeModal('forgotPasswordModal')" style="margin-top:10px" data-i18n="cancel">Отмена</button>
 <div id="forgotStatus" class="status"></div>
@@ -666,11 +666,11 @@ privateMessages:"💬 Личные сообщения",
 noActiveDialogs:"Нет активных диалогов",
 forgotPassword:"Забыли пароль?",
 forgotPasswordTitle:"Восстановление пароля",
-forgotDesc:"Введите ваш email, и мы отправим код/инструкцию для сброса.",
+forgotDesc:"Введите ваш имейл и туда нужно отправлять временный код потом человек создаст себе новый пароль.",
 forgotDesc2:"Введите код из письма и новый пароль.",
-sendCode:"Отправить код",
-saveNewPassword:"Сохранить пароль",
-resetPasswordSent:"Инструкция/код отправлены на email 📧",
+sendCode:"Отправить временный код",
+saveNewPassword:"Создать новый пароль",
+resetPasswordSent:"Временный код отправлен на email 📧",
 passwordResetSuccess:"Пароль успешно изменен! Войдите с новым паролем.",
 deleteAccount:"Удалить аккаунт",
 deleteAccountConfirm:"Вы уверены, что хотите навсегда удалить свой аккаунт?",
@@ -788,11 +788,11 @@ privateMessages:"💬 Mesaje private",
 noActiveDialogs:"Nu există dialoguri active",
 forgotPassword:"Ai uitat parola?",
 forgotPasswordTitle:"Resetarea parolei",
-forgotDesc:"Introdu adresa de email pentru a primi codul.",
-forgotDesc2:"Introdu codul primit și noua parolă.",
+forgotDesc:"Introdu emailul pentru a primi codul de resetare.",
+forgotDesc2:"Introdu codul și noua parolă.",
 sendCode:"Trimite codul",
 saveNewPassword:"Salvează noua parolă",
-resetPasswordSent:"Instrucțiunile au fost trimise pe email 📧",
+resetPasswordSent:"Codul a fost trimis pe email 📧",
 passwordResetSuccess:"Parolă schimbată cu succes!",
 deleteAccount:"Șterge contul",
 deleteAccountConfirm:"Ești sigur că vrei să îți ștergi contul definitiv?",
@@ -878,7 +878,7 @@ connection:"Connection error.",
 enterCredentials:"Enter email and password.",
 passwordLength:"Password must contain at least 6 characters.",
 creatingAccount:"Creating account...",
-checkingEmail:"Account created. Check your email.",
+checkingAccount:"Account created. Check your email.",
 loggingIn:"Logging in...",
 uploading:"Uploading media...",
 creatingDuel:"Creating duel... ⚔️",
@@ -910,11 +910,11 @@ privateMessages:"💬 Direct Messages",
 noActiveDialogs:"No active conversations",
 forgotPassword:"Forgot password?",
 forgotPasswordTitle:"Password Recovery",
-forgotDesc:"Enter your email to receive recovery instructions.",
+forgotDesc:"Enter your email to receive a temporary recovery code.",
 forgotDesc2:"Enter the code from the email and your new password.",
 sendCode:"Send code",
 saveNewPassword:"Save new password",
-resetPasswordSent:"Instructions sent to your email 📧",
+resetPasswordSent:"Temporary code sent to your email 📧",
 passwordResetSuccess:"Password changed successfully!",
 deleteAccount:"Delete account",
 deleteAccountConfirm:"Are you sure you want to permanently delete your account?",
@@ -1379,7 +1379,6 @@ return;
 }
 try{
 status.innerText=t("loading");
-// Проверяем токен (OTP) и обновляем пароль
 const { error: verifyError } = await db.auth.verifyOtp({
 email: $("forgotEmail").value.trim().toLowerCase(),
 token: token,
@@ -2130,7 +2129,7 @@ ${avatar}
 <div style="flex:1;background:#fff;padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
 <span style="font-weight:bold;color:#172033">${esc(name)}</span>
-${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}', this)" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px;font-weight:bold;">✕</button>`:""}
+${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}', this)" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:12px;font-weight:bold;padding:2px 4px;">✕</button>`:""}
 </div>
 <div style="color:#334155;word-break:break-word">${esc(c.text)}</div>
 </div>
@@ -2177,13 +2176,13 @@ async function deleteComment(commentId, duelId, button){
 const sId = String(duelId);
 const card = button.closest(".duel");
 try{
-const r=await db.from("duel_comments").delete().eq("id",commentId);
-if(r.error)throw r.error;
+const r = await db.from("duel_comments").delete().eq("id", commentId);
+if(r.error) throw r.error;
 if(card){
 loadComments(card.querySelector(".duel-chat-box"), sId);
 }
 }catch(e){
-alert(e.message||t("connection"));
+alert(e.message || t("connection"));
 }
 }
 
