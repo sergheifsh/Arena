@@ -990,6 +990,24 @@ realtimeChannel = db.channel("arena_realtime_channel")
         }
     }
 })
+-- УСПЕШНО ДОБАВЛЕННЫЙ БЛОК РЕАЛЬНОГО ВРЕМЕНИ ДЛЯ ДУЭЛЕЙ --
+.on("postgres_changes", { event: "DELETE", schema: "public", table: "duels" }, (payload) => {
+    const deletedId = payload.old?.id;
+    if(!deletedId) return;
+    document.querySelectorAll(`[data-duel-id="${CSS.escape(String(deletedId))}"]`).forEach(el => el.remove());
+})
+.on("postgres_changes", { event: "INSERT", schema: "public", table: "duels" }, async (payload) => {
+    const newDuel = payload.new;
+    if(!newDuel) return;
+    if($("homeScreen").classList.contains("active") && (currentCategory === "all" || currentCategory === newDuel.category)) {
+        const feed = $("duelsFeed");
+        if(feed) {
+            const card = await duelCard(newDuel);
+            feed.prepend(card);
+        }
+    }
+})
+-------------------------------------------------------------
 .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, async (payload) => {
     const m = payload.new;
     if(!m || !currentUser) return;
