@@ -25,7 +25,9 @@ button{cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 #startupScreen.hide{opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
 
-#ptrIndicator{position:absolute;top:-50px;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;color:#2563eb;font-weight:bold;font-size:13px;transition:transform 0.2s;z-index:30}
+/* Спиннер для Pull-to-Refresh */
+#ptrIndicator{position:absolute;top:-50px;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;z-index:30}
+.ptr-spinner{width:24px;height:24px;border:3px solid #dbeafe;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite}
 
 .app{max-width:650px;margin:auto;min-height:100vh;background:#fff;padding-bottom:calc(100px + env(safe-area-inset-bottom));box-shadow:0 0 25px #1e40af1a;position:relative}
 
@@ -128,7 +130,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .profile-username{color:#64748b;margin-top:3px}
 .profile-bio{margin:8px 0;color:#475569;white-space:pre-wrap}
 .profile-stats{display:flex;justify-content:center;gap:35px;margin:18px 0}
-.stat{text-align:center}
+.stat{text-align:center;cursor:pointer}
 .stat-number{display:block;font-size:19px;font-weight:bold;color:#2563eb}
 .stat-label{font-size:12px;color:#64748b}
 .profile-buttons{display:flex;gap:8px;flex-wrap:wrap}
@@ -217,12 +219,11 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно восстановления пароля по коду -->
 <div id="forgotPasswordModal" class="modal">
 <div class="modal-box">
 <h2 data-i18n="forgotPasswordTitle">Восстановление пароля</h2>
 <div id="forgotStep1">
-<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш имейл и туда нужно отправлять временный код потом человек создаст себе новый пароль.</p>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш имейл, и туда нужно отправлять временный код потом человек создаст себе новый пароль.</p>
 <input id="forgotEmail" type="email" placeholder="Email">
 <button class="primary" type="button" onclick="sendPasswordResetCode()" data-i18n="sendCode">Отправить временный код</button>
 </div>
@@ -240,7 +241,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 
 <div id="app" class="app hidden">
-<div id="ptrIndicator">🔄 Потяните, чтобы обновить...</div>
+<div id="ptrIndicator"><div class="ptr-spinner"></div></div>
 
 <header>
 <div class="top-row">
@@ -326,8 +327,8 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <div class="profile-stats">
 <div class="stat"><span id="myDuelsCount" class="stat-number">0</span><span id="myDuelsLabel" class="stat-label"></span></div>
-<div class="stat"><span id="myFollowersCount" class="stat-number">0</span><span id="myFollowersLabel" class="stat-label"></span></div>
-<div class="stat"><span id="myFollowingCount" class="stat-number">0</span><span id="myFollowingLabel" class="stat-label"></span></div>
+<div class="stat" onclick="openFollowersModal(currentUser.id, 'followers')"><span id="myFollowersCount" class="stat-number">0</span><span id="myFollowersLabel" class="stat-label"></span></div>
+<div class="stat" onclick="openFollowersModal(currentUser.id, 'following')"><span id="myFollowingCount" class="stat-number">0</span><span id="myFollowingLabel" class="stat-label"></span></div>
 </div>
 
 <div class="profile-buttons">
@@ -362,8 +363,8 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <div class="profile-stats">
 <div class="stat"><span id="otherDuelsCount" class="stat-number">0</span><span class="stat-label">⚔️</span></div>
-<div class="stat"><span id="otherFollowersCount" class="stat-number">0</span><span id="otherFollowersLabel" class="stat-label"></span></div>
-<div class="stat"><span id="otherFollowingCount" class="stat-number">0</span><span id="otherFollowingLabel" class="stat-label"></span></div>
+<div class="stat" onclick="openFollowersModal(openedOtherUserId, 'followers')"><span id="otherFollowersCount" class="stat-number">0</span><span id="otherFollowersLabel" class="stat-label"></span></div>
+<div class="stat" onclick="openFollowersModal(openedOtherUserId, 'following')"><span id="otherFollowingCount" class="stat-number">0</span><span id="otherFollowingLabel" class="stat-label"></span></div>
 </div>
 
 <div class="profile-buttons">
@@ -374,7 +375,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 </div>
 
-<h3 id="otherDuelsTitle" style="margin:18px 0 10px"></h3>
+<h3 id="otherDuelsTitle" style="margin:18px 0 10px" data-i18n="duelList"></h3>
 <div id="otherDuels"></div>
 
 </div>
@@ -512,6 +513,15 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <h2>👥 Кто за кого голосовал</h2>
 <div id="votersModalContent" style="max-height:50vh;overflow-y:auto;margin-bottom:15px"></div>
 <button class="secondary" type="button" onclick="closeModal('votersModal')">Закрыть</button>
+</div>
+</div>
+
+<!-- Модальное окно для списка подписчиков / подписок -->
+<div id="followersModal" class="modal">
+<div class="modal-box">
+<h2 id="followersModalTitle" style="color:#2563eb;margin-bottom:12px"></h2>
+<div id="followersModalContent" style="max-height:50vh;overflow-y:auto;margin-bottom:15px"></div>
+<button class="secondary" type="button" onclick="closeModal('followersModal')">Закрыть</button>
 </div>
 </div>
 
@@ -666,7 +676,7 @@ privateMessages:"💬 Личные сообщения",
 noActiveDialogs:"Нет активных диалогов",
 forgotPassword:"Забыли пароль?",
 forgotPasswordTitle:"Восстановление пароля",
-forgotDesc:"Введите ваш имейл и туда нужно отправлять временный код потом человек создаст себе новый пароль.",
+forgotDesc:"Введите ваш имейл, и туда нужно отправлять временный код потом человек создаст себе новый пароль.",
 forgotDesc2:"Введите код из письма и новый пароль.",
 sendCode:"Отправить временный код",
 saveNewPassword:"Создать новый пароль",
@@ -674,8 +684,7 @@ resetPasswordSent:"Временный код отправлен на email 📧"
 passwordResetSuccess:"Пароль успешно изменен! Войдите с новым паролем.",
 deleteAccount:"Удалить аккаунт",
 deleteAccountConfirm:"Вы уверены, что хотите навсегда удалить свой аккаунт?",
-ptrRelease:"Отпустите, чтобы обновить 🔄",
-ptrPull:"Потяните, чтобы обновить..."
+duelList:"Duel List"
 },
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
@@ -796,8 +805,7 @@ resetPasswordSent:"Codul a fost trimis pe email 📧",
 passwordResetSuccess:"Parolă schimbată cu succes!",
 deleteAccount:"Șterge contul",
 deleteAccountConfirm:"Ești sigur că vrei să îți ștergi contul definitiv?",
-ptrRelease:"Eliberează pentru a actualiza 🔄",
-ptrPull:"Trage în jos pentru a actualiza..."
+duelList:"Duel List"
 },
 en:{
 subtitle:"Who wins? You decide.",
@@ -918,8 +926,7 @@ resetPasswordSent:"Temporary code sent to your email 📧",
 passwordResetSuccess:"Password changed successfully!",
 deleteAccount:"Delete account",
 deleteAccountConfirm:"Are you sure you want to permanently delete your account?",
-ptrRelease:"Release to refresh 🔄",
-ptrPull:"Pull down to refresh..."
+duelList:"Duel List"
 }
 };
 
@@ -1029,7 +1036,7 @@ clean();
 };
 }
 
-// Pull to Refresh Implementation
+// Pull to Refresh Implementation (только крутящийся кружок)
 let touchStartY = 0;
 let isRefreshing = false;
 
@@ -1047,7 +1054,6 @@ if(diff > 0 && diff < 120 && window.scrollY === 0){
 const ptr = $("ptrIndicator");
 if(ptr){
 ptr.style.transform = `translateY(${diff}px)`;
-ptr.innerText = diff > 80 ? t("ptrRelease") : t("ptrPull");
 }
 }
 }, {passive: true});
@@ -1063,7 +1069,6 @@ if(diff > 80 && window.scrollY === 0 && $("homeScreen").classList.contains("acti
 isRefreshing = true;
 if(ptr) {
 ptr.style.transform = `translateY(50px)`;
-ptr.innerText = t("loading");
 }
 await loadDuels();
 if(ptr) {
@@ -1176,7 +1181,7 @@ registerSwitch:"noAccount",
 loginSwitch:"haveAccount",
 createDuelButton:"create",
 topTitle:"topArena",
-myDuelsTitle:"myDuels",
+myDuelsTitle:"duelList",
 myDuelsLabel:"duels",
 myFollowersLabel:"followers",
 myFollowingLabel:"following",
@@ -1701,6 +1706,54 @@ async function showProfile(){
 showScreen("profileScreen");
 await loadProfile();
 await loadMyDuels();
+}
+
+async function openFollowersModal(userId, type) {
+const modal = $("followersModal");
+const titleEl = $("followersModalTitle");
+const contentEl = $("followersModalContent");
+
+titleEl.innerText = type === 'followers' ? t("followers") : t("following");
+contentEl.innerHTML = `<div class="status">${t("loading")}</div>`;
+modal.classList.add("show");
+
+try {
+let queryCol = type === 'followers' ? 'following_id' : 'follower_id';
+let targetCol = type === 'followers' ? 'follower_id' : 'following_id';
+
+const r = await db.from("follows")
+.select(targetCol)
+.eq(queryCol, userId);
+
+if(r.error) throw r.error;
+
+const ids = (r.data || []).map(item => item[targetCol]);
+if(!ids.length){
+contentEl.innerHTML = `<div class="empty">${t("noResults")}</div>`;
+return;
+}
+
+const profilesMapData = await profilesMap(ids);
+
+contentEl.innerHTML = ids.map(uid => {
+const p = profilesMapData[uid] || {};
+const name = p.full_name || p.username || t("participant");
+const avatar = p.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
+const uname = p.username ? `@${esc(p.username)}` : "";
+
+return `
+<div onclick="closeModal('followersModal'); openUserProfile('${escJS(uid)}')" style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;cursor:pointer;">
+${avatar}
+<div style="flex:1;min-width:0">
+<div style="font-weight:bold;font-size:13px">${esc(name)}</div>
+<div style="font-size:11px;color:#64748b">${uname}</div>
+</div>
+</div>`;
+}).join("");
+
+} catch(e) {
+contentEl.innerHTML = `<div class="empty">Ошибка загрузки</div>`;
+}
 }
 
 async function shareDuel(id, button){
