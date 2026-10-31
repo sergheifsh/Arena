@@ -312,23 +312,27 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div class="profile" style="padding:15px">
 <h2 id="messagesTitle" style="color:#2563eb;margin-bottom:15px"></h2>
 <div id="conversationsList" style="margin-bottom:15px"></div>
-<div id="chatBox" class="hidden">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-<button class="secondary" onclick="$('chatBox').classList.add('hidden');$('conversationsList').classList.remove('hidden');activeChatUserId=null;" style="margin-top:0;width:auto">← Назад</button>
+</div>
+</div>
+
+<div id="chatBox" class="hidden" style="position:fixed;inset:0;background:#fff;z-index:90;display:flex;flex-direction:column;padding:15px;max-width:650px;margin:auto;">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-top:env(safe-area-inset-top);">
+<button class="secondary" onclick="$('chatBox').classList.add('hidden');activeChatUserId=null;" style="margin-top:0;width:auto">← Назад</button>
+<h3 id="activeChatUser" style="margin:0;font-size:16px;color:#172033;flex:1;text-align:center;padding:0 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></h3>
 <button class="secondary" onclick="deleteCurrentChat()" style="margin-top:0;width:auto;color:#dc2626;background:#fee2e2;" data-i18n="deleteChat">Удалить чат</button>
 </div>
-<h3 id="activeChatUser" style="margin-bottom:10px"></h3>
-<div id="chatMessages" style="height:300px;overflow-y:auto;background:#f8fafc;padding:10px;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:10px"></div>
+
+<div id="chatMessages" style="flex:1;overflow-y:auto;background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:10px"></div>
+
 <div id="editBanner" class="hidden" style="background:#eff6ff;border:1px solid #bfdbfe;padding:8px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:12px">
 <span id="editBannerText" style="color:#2563eb;font-weight:bold;">Редактирование сообщения...</span>
 <button onclick="cancelEditMessage()" style="border:0;background:0;color:#dc2626;font-weight:bold;cursor:pointer">✕ Отмена</button>
 </div>
-<div style="display:flex;gap:6px;align-items:center">
-<label style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:16px" title="Прикрепить медиа">📎<input id="chatMediaInput" type="file" accept="image/*,video/*,image/gif" onchange="sendDirectMedia(event)"></label>
-<input type="text" id="directMessageInput" placeholder="Введите сообщение..." style="flex:1;padding:10px;border:1px solid #cbd5e1;border-radius:10px;outline:0" onkeydown="if(event.key==='Enter')sendDirectMessage()">
-<button type="button" onclick="sendDirectMessage()" class="primary" style="width:auto;margin-top:0">Отправить</button>
-</div>
-</div>
+
+<div style="display:flex;gap:6px;align-items:center;padding-bottom:calc(10px + env(safe-area-inset-bottom));">
+<label style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:10px;cursor:pointer;font-size:16px" title="Прикрепить медиа">📎<input id="chatMediaInput" type="file" accept="image/*,video/*,image/gif" onchange="sendDirectMedia(event)"></label>
+<input type="text" id="directMessageInput" placeholder="Введите сообщение..." style="flex:1;padding:12px;border:1px solid #cbd5e1;border-radius:10px;outline:0;font-size:14px;" onkeydown="if(event.key==='Enter')sendDirectMessage()">
+<button type="button" onclick="sendDirectMessage()" class="primary" style="width:auto;margin-top:0;padding:12px 18px;">Отправить</button>
 </div>
 </div>
 
@@ -1214,7 +1218,7 @@ backgroundSyncInterval = setInterval(async () => {
             }
         });
     }
-    if(activeChatUserId && $("messagesScreen").classList.contains("active")){
+    if(activeChatUserId && !$("chatBox").classList.contains("hidden")){
         await loadDirectMessages();
     }
     document.querySelectorAll(".duel-chat-box:not(.hidden)").forEach(box => {
@@ -2136,7 +2140,7 @@ const msgTextJS = escJS(m.text);
 const isMediaFlag = m.is_media || m.text?.startsWith("http");
 
 return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};position:relative;" data-msg-id="${msgId}">
-<div onclick="openMessageContextMenu(event, '${msgId}', '${msgTextJS}', ${isMe}, ${Boolean(isMediaFlag)})" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;">
+<div class="msg-bubble" data-msg-id="${msgId}" data-text="${esc(msgTextJS)}" data-isme="${isMe}" data-ismedia="${Boolean(isMediaFlag)}" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;user-select:none;">
 ${content}
 </div>
 <div style="font-size:10px;color:#64748b;margin-top:2px;display:flex;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
@@ -2148,23 +2152,58 @@ ${content}
 if (isAtBottom) {
     container.scrollTop = container.scrollHeight;
 }
+attachLongPressListeners();
 }catch(e){
 container.innerHTML=`<div class="empty">Ошибка чата</div>`;
 }
 }
 
+function attachLongPressListeners(){
+document.querySelectorAll(".msg-bubble").forEach(bubble => {
+  let pressTimer = null;
+  const startPress = (e) => {
+    if(pressTimer) clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => {
+      const msgId = bubble.dataset.msgId;
+      const text = bubble.dataset.text;
+      const isMe = bubble.dataset.isme === "true";
+      const isMedia = bubble.dataset.ismedia === "true";
+      openMessageContextMenu(e, msgId, text, isMe, isMedia);
+    }, 500); // 0.5 секунды зажатия
+  };
+
+  const cancelPress = () => {
+    if(pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+  };
+
+  bubble.onmousedown = startPress;
+  bubble.onmouseup = cancelPress;
+  bubble.onmouseleave = cancelPress;
+  
+  bubble.ontouchstart = startPress;
+  bubble.ontouchend = cancelPress;
+  bubble.ontouchmove = cancelPress;
+});
+}
+
 function openMessageContextMenu(event, messageId, text, isMe, isMedia){
 document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
+if(event.cancelable) event.preventDefault();
 
-const bubble = event.currentTarget;
+const bubble = event.currentTarget || document.querySelector(`[data-msg-id="${messageId}"]`);
+if(!bubble) return;
+
 const menu = document.createElement("div");
 menu.className = "msg-context-menu";
 menu.style.cssText = "position:absolute;background:#fff;border:1px solid #cbd5e1;box-shadow:0 4px 12px rgba(0,0,0,0.15);border-radius:8px;z-index:9999;display:flex;flex-direction:column;min-width:130px;overflow:hidden;";
 
-let buttonsHtml = `<button onclick="forwardMessageFromMenu('${text}', ${isMedia})" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#2563eb;border-bottom:1px solid #f1f5f9;">${t("forward")}</button>`;
+let buttonsHtml = `<button onclick="forwardMessageFromMenu('${escJS(text)}', ${isMedia})" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#2563eb;border-bottom:1px solid #f1f5f9;">${t("forward")}</button>`;
 
 if(isMe && !isMedia){
-  buttonsHtml += `<button onclick="startEditMessage('${messageId}', '${text}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
+  buttonsHtml += `<button onclick="startEditMessage('${messageId}', '${escJS(text)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
 }
 
 if(isMe){
@@ -2182,9 +2221,13 @@ const closeMenu = (e) => {
   if(!menu.contains(e.target) && !bubble.contains(e.target)){
     menu.remove();
     document.removeEventListener('click', closeMenu);
+    document.removeEventListener('touchstart', closeMenu);
   }
 };
-setTimeout(() => document.addEventListener('click', closeMenu), 10);
+setTimeout(() => {
+  document.addEventListener('click', closeMenu);
+  document.addEventListener('touchstart', closeMenu);
+}, 10);
 }
 
 function startEditMessage(messageId, currentText){
@@ -2222,7 +2265,6 @@ try{
 const { error } = await db.from("direct_messages").delete().or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${activeChatUserId}),and(sender_id.eq.${activeChatUserId},receiver_id.eq.${currentUser.id})`);
 if(error) throw error;
 $("chatBox").classList.add("hidden");
-$("conversationsList").classList.remove("hidden");
 activeChatUserId=null;
 await showMessagesScreen();
 }catch(e){
@@ -2381,10 +2423,6 @@ alert(e.message || t("connection"));
 
 async function showMessagesScreen(){
 showScreen("messagesScreen");
-$("chatBox").classList.add("hidden");
-$("conversationsList").classList.remove("hidden");
-activeChatUserId=null;
-
 const box=$("conversationsList");
 box.innerHTML=`<div class="status">${t("loading")}</div>`;
 
@@ -2417,15 +2455,13 @@ box.innerHTML=`<div class="empty">Ошибка загрузки чатов</div>
 function idsListHasItems(arr){ return arr && arr.length > 0; }
 
 async function openChatWithUser(userId, userName){
-showScreen("messagesScreen");
 await openChat(userId, userName);
 }
 
 async function openChat(userId, userName){
 activeChatUserId=userId;
-$("conversationsList").classList.add("hidden");
-$("chatBox").classList.remove("hidden");
 $("activeChatUser").innerText=userName;
+$("chatBox").classList.remove("hidden");
 await loadDirectMessages();
 }
 
