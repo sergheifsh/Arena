@@ -160,7 +160,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .modal-box h2{margin-bottom:12px;color:#2563eb}
 .modal-box textarea{resize:vertical;min-height:90px}
 .photo-button{display:block;padding:13px;margin:6px 0;border:2px dashed #60a5fa;border-radius:12px;text-align:center;color:#2563eb;font-weight:bold;background:#eff6ff}
-#duelImageA,#duelImageB,#duelVideoA,#duelVideoB,#challengeImageB,#challengeVideoB,#avatarInput,#chatMediaInput{display:none}
+#duelImageA,#duelImageB,#duelVideoA,#duelVideoB,#duelGifA,#duelGifB,#challengeMediaFile,#avatarInput,#chatMediaInput{display:none}
 .image-preview{display:none;width:100%;height:170px;margin:7px 0;border-radius:12px;overflow:hidden;background:#e2e8f0}
 .image-preview img,.image-preview video{width:100%;height:100%;object-fit:cover}
 .secondary{width:100%;padding:12px;margin-top:8px;border:0;border-radius:12px;background:#f1f5f9;color:#334155}
@@ -392,7 +392,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 </div>
 
-<!-- Модальное окно создания дуэли (Только Вариант А для открытого вызова) -->
+<!-- Модальное окно создания дуэли (3 варианта батла) -->
 <div id="duelModal" class="modal">
 <div class="modal-box">
 
@@ -413,7 +413,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <select id="duelType" onchange="toggleDuelType()">
 <option value="photo" data-opt="photoBattle"></option>
 <option value="video" data-opt="videoBattle"></option>
-<option value="gif" data-opt="gifBattle"></option>
+<option value="challenge" data-opt="challengeBattle"></option>
 </select>
 
 <select id="duelDuration">
@@ -423,38 +423,53 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <option value="0" data-opt="unlimited"></option>
 </select>
 
+<!-- Поля для Фото батла (заполняются А и Б) -->
 <div id="photoFields">
-<input id="duelOptionA">
+<input id="duelOptionA" placeholder="Вариант A">
 <label class="photo-button">
-<span id="photoAText"></span>
+<span id="photoAText">📷 Фото варианта A</span>
 <input id="duelImageA" type="file" accept="image/*" onchange="previewDuelMedia('A',event,'image')">
 </label>
-<div id="previewA" class="image-preview">
-<img id="previewAImage" alt="Preview A">
-</div>
+<div id="previewA" class="image-preview"><img id="previewAImage" alt="Preview A"></div>
+
+<input id="duelOptionB" placeholder="Вариант B">
+<label class="photo-button">
+<span id="photoBText">📷 Фото варианта B</span>
+<input id="duelImageB" type="file" accept="image/*" onchange="previewDuelMedia('B',event,'image')">
+</label>
+<div id="previewB" class="image-preview"><img id="previewBImage" alt="Preview B"></div>
 </div>
 
+<!-- Поля для Видео батла (заполняются А и Б) -->
 <div id="videoFields" class="hidden">
-<input id="duelVideoOptionA">
+<input id="duelVideoOptionA" placeholder="Видео вариант A">
 <label class="photo-button">
-<span id="videoAText"></span>
+<span id="videoAText">🎥 Видео варианта A</span>
 <input id="duelVideoA" type="file" accept="video/*" onchange="previewDuelMedia('A',event,'video')">
 </label>
-<div id="previewVideoA" class="image-preview">
-<video id="previewVideoAElement" playsinline></video>
-</div>
+<div id="previewVideoA" class="image-preview"><video id="previewVideoAElement" playsinline></video></div>
+
+<input id="duelVideoOptionB" placeholder="Видео вариант B">
+<label class="photo-button">
+<span id="videoBText">🎥 Видео варианта B</span>
+<input id="duelVideoB" type="file" accept="video/*" onchange="previewDuelMedia('B',event,'video')">
+</label>
+<div id="previewVideoB" class="image-preview"><video id="previewVideoBElement" playsinline></video></div>
 <div class="media-help" data-i18n="maxPhotoHelp"></div>
 </div>
 
-<div id="gifFields" class="hidden">
-<input id="duelGifOptionA">
+<!-- Поля для Вызов батла (слот Б остается свободным) -->
+<div id="challengeFields" class="hidden">
+<input id="duelChallengeOptionA" placeholder="Ваш вариант (А)">
 <label class="photo-button">
-<span id="gifAText"></span>
-<input id="duelGifA" type="file" accept="image/gif" onchange="previewDuelMedia('A',event,'gif')">
+<span id="challengeAText">📷 Загрузить ваш медиафайл (Фото/Видео/GIF)</span>
+<input id="duelChallengeFileA" type="file" accept="image/*,video/*,image/gif" onchange="previewChallengeCreateMedia(event)">
 </label>
-<div id="previewGifA" class="image-preview">
-<img id="previewGifAImage" alt="Preview GIF A">
+<div id="previewChallengeA" class="image-preview">
+<img id="previewChallengeImg" alt="Preview" style="display:none">
+<video id="previewChallengeVid" playsinline style="display:none"></video>
 </div>
+<div class="media-help" data-i18n="challengeCreateHelp">Слот B останется пустым, и любой пользователь сможет принять вызов!</div>
 </div>
 
 <button id="duelSubmitButton" class="primary" type="button" onclick="createDuel()"></button>
@@ -465,7 +480,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно принятия вызова (Заполнение Варианта Б) -->
+<!-- Модальное окно принятия вызова для слота Б -->
 <div id="challengeModal" class="modal">
 <div class="modal-box">
 <h2 data-i18n="acceptChallengeTitle">Принять вызов</h2>
@@ -487,27 +502,20 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <div id="editModal" class="modal">
 <div class="modal-box">
-
 <h2 id="editProfileTitle"></h2>
-
 <label class="photo-button">
 <span id="avatarText"></span>
 <input id="avatarInput" type="file" accept="image/*" onchange="previewAvatar(event)">
 </label>
-
 <div id="avatarPreview" class="image-preview">
 <img id="avatarPreviewImage" alt="Avatar Preview">
 </div>
-
 <input id="editName">
 <input id="editUsername">
 <textarea id="editBio"></textarea>
-
 <button id="saveProfileButton" class="primary" type="button" onclick="saveProfile()"></button>
 <button id="editCancelButton" class="secondary" type="button" onclick="closeModal('editModal')"></button>
-
 <div id="profileStatus" class="status"></div>
-
 </div>
 </div>
 
@@ -553,8 +561,10 @@ let language=localStorage.getItem("arena_language")||"ru";
 let isDuelsLoading=false;
 
 let selectedImageA=null;
+let selectedImageB=null;
 let selectedVideoA=null;
-let selectedGifA=null;
+let selectedVideoB=null;
+let challengeCreateFile=null;
 let selectedAvatar=null;
 
 let activeChallengeDuelId = null;
@@ -594,12 +604,14 @@ sport:"⚽ Спорт",
 memes:"😂 Мемы",
 auto:"🚗 Авто",
 other:"✨ Другое",
-create:"⚔️ Создать открытую дуэль",
-newDuel:"⚔️ Открыть вызов",
+create:"⚔️ Создать дуэль",
+newDuel:"⚔️ Новая дуэль",
 duelName:"Название дуэли",
-optionA:"Вариант A (Ваш)",
+optionA:"Вариант A",
+optionB:"Вариант B",
 photoA:"📷 Фото варианта A",
-createDuel:"⚔️ Создать вызов",
+photoB:"📷 Фото варианта B",
+createDuel:"⚔️ Создать дуэль",
 cancel:"Отмена",
 edit:"Изменить",
 logout:"Выйти",
@@ -638,7 +650,7 @@ winner:"Кто победит?",
 blockedAccount:"🚫 Твой аккаунт заблокирован.",
 deleteConfirm:"Удалить эту дуэль?",
 adminDeleteConfirm:"Удалить эту дуэль как администратор?",
-created:"Вызов создан! Ожидаем соперника ⚔️",
+created:"Дуэль создана! ⚔️",
 invalid:"Заполни все обязательные поля.",
 wrongLogin:"Неверный email или пароль.",
 emailNotConfirmed:"Email ещё не подтверждён. Проверь почту.",
@@ -666,7 +678,7 @@ h48:"⏳ 48 часов",
 h72:"⏳ 72 часа",
 unlimited:"♾️ Безлимитно",
 videoA:"🎥 Видео вариант A",
-gifA:"🎞️ GIF вариант A",
+videoB:"🎥 Видео вариант B",
 battleEnded:"🔴 Завершён",
 commentPlaceholder:"Написать в чат дуэли...",
 chatButton:"💬 Чат дуэли",
@@ -674,7 +686,7 @@ send:"Отправить",
 noComments:"Пока нет сообщений в чате. Будь первым!",
 photoBattle:"Фото батл",
 videoBattle:"Видео батл",
-gifBattle:"GIF батл",
+challengeBattle:"Вызов (Открытый батл)",
 privateMessages:"💬 Личные сообщения",
 noActiveDialogs:"Нет активных диалогов",
 forgotPassword:"Забыли пароль?",
@@ -688,7 +700,7 @@ passwordResetSuccess:"Пароль успешно изменен! Войдите
 duelList:"Duel List",
 acceptChallenge:"⚔️ Принять вызов",
 acceptChallengeTitle:"Принять вызов",
-acceptChallengeDesc:"Загрузите ваш вариант, чтобы бросить вызов и запустить голосование!",
+acceptChallengeDesc:"Загрузите ваш вариант, чтобы бросить вызов в этой дуэли!",
 uploadYourMedia:"📷 Загрузить медиафайл",
 confirmChallenge:"Отправить вариант"
 },
@@ -717,12 +729,14 @@ sport:"⚽ Sport",
 memes:"😂 Meme",
 auto:"🚗 Auto",
 other:"✨ Altele",
-create:"⚔️ Creează duel deschis",
-newDuel:"⚔️ Deschide provocare",
+create:"⚔️ Creează duel",
+newDuel:"⚔️ Duel nou",
 duelName:"Numele duelului",
-optionA:"Varianta A (Ta)",
+optionA:"Varianta A",
+optionB:"Varianta B",
 photoA:"📷 Foto varianta A",
-createDuel:"⚔️ Creează",
+photoB:"📷 Foto varianta B",
+createDuel:"⚔️ Creează duel",
 cancel:"Anulează",
 edit:"Modifică",
 logout:"Ieșire",
@@ -761,7 +775,7 @@ winner:"Cine va câștiga?",
 blockedAccount:"🚫 Contul tău este blocat.",
 deleteConfirm:"Ștergi acest duel?",
 adminDeleteConfirm:"Ștergi acest duel ca administrator?",
-created:"Provocare creată! Se așteaptă un rival ⚔️",
+created:"Duel creat! ⚔️",
 invalid:"Completează toate câmpurile obligatorii.",
 wrongLogin:"Email sau parolă incorect.",
 emailNotConfirmed:"Emailul nu este confirmat.",
@@ -789,7 +803,7 @@ h48:"⏳ 48 de ore",
 h72:"⏳ 72 de ore",
 unlimited:"♾️ Nelimitat",
 videoA:"🎥 Video varianta A",
-gifA:"🎞️ GIF varianta A",
+videoB:"🎥 Video varianta B",
 battleEnded:"🔴 Finalizat",
 commentPlaceholder:"Scrie în chatul duelului...",
 chatButton:"💬 Chatul duelului",
@@ -797,7 +811,7 @@ send:"Trimite",
 noComments:"Niciun mesaj în chat. Fii primul!",
 photoBattle:"Duel Foto",
 videoBattle:"Duel Video",
-gifBattle:"Duel GIF",
+challengeBattle:"Provocare (Duel deschis)",
 privateMessages:"💬 Mesaje private",
 noActiveDialogs:"Nu există dialoguri active",
 forgotPassword:"Ai uitat parola?",
@@ -840,12 +854,14 @@ sport:"⚽ Sports",
 memes:"😂 Memes",
 auto:"🚗 Cars",
 other:"✨ Other",
-create:"⚔️ Create open duel",
-newDuel:"⚔️ Open challenge",
+create:"⚔️ Create a duel",
+newDuel:"⚔️ New duel",
 duelName:"Duel title",
-optionA:"Option A (Yours)",
+optionA:"Option A",
+optionB:"Option B",
 photoA:"📷 Photo option A",
-createDuel:"⚔️ Create challenge",
+photoB:"📷 Photo option B",
+createDuel:"⚔️ Create duel",
 cancel:"Cancel",
 edit:"Edit",
 logout:"Log out",
@@ -884,7 +900,7 @@ winner:"Who will win?",
 blockedAccount:"🚫 Your account is blocked.",
 deleteConfirm:"Delete this duel?",
 adminDeleteConfirm:"Delete this duel as administrator?",
-created:"Challenge created! Waiting for challenger ⚔️",
+created:"Duel created! ⚔️",
 invalid:"Fill in all required fields.",
 wrongLogin:"Invalid email or password.",
 emailNotConfirmed:"Email is not confirmed.",
@@ -912,7 +928,7 @@ h48:"⏳ 48 hours",
 h72:"⏳ 72 hours",
 unlimited:"♾️ Unlimited",
 videoA:"🎥 Option A video",
-gifA:"🎞️ Option A GIF",
+videoB:"🎥 Option B video",
 battleEnded:"🔴 Ended",
 commentPlaceholder:"Write in duel chat...",
 chatButton:"💬 Duel Chat",
@@ -920,7 +936,7 @@ send:"Send",
 noComments:"No messages in chat yet. Be the first!",
 photoBattle:"Photo battle",
 videoBattle:"Video battle",
-gifBattle:"GIF battle",
+challengeBattle:"Challenge (Open battle)",
 privateMessages:"💬 Direct Messages",
 noActiveDialogs:"No active conversations",
 forgotPassword:"Forgot password?",
@@ -1121,7 +1137,6 @@ realtimeChannel = db.channel("arena_realtime_channel")
     if(!updated) return;
     const cards = document.querySelectorAll(`[data-duel-id="${CSS.escape(String(updated.id))}"]`);
     for(const card of cards){
-        // Обновляем карточку при принятии вызова
         const parent = card.parentNode;
         if(parent){
             const newCard = await duelCard(updated);
@@ -1211,8 +1226,10 @@ duelModalTitle:"newDuel",
 duelSubmitButton:"createDuel",
 duelCancelButton:"cancel",
 photoAText:"photoA",
+photoBText:"photoB",
 videoAText:"videoA",
-gifAText:"gifA",
+videoBText:"videoB",
+challengeAText:"uploadYourMedia",
 editProfileTitle:"editProfile",
 avatarText:"avatar",
 saveProfileButton:"save",
@@ -1233,8 +1250,10 @@ regEmail:"email",
 regPassword:"password",
 duelTitle:"duelName",
 duelOptionA:"optionA",
+duelOptionB:"optionB",
 duelVideoOptionA:"optionA",
-duelGifOptionA:"optionA",
+duelVideoOptionB:"optionB",
+duelChallengeOptionA:"optionA",
 editName:"name",
 editUsername:"username",
 editBio:"about",
@@ -1962,7 +1981,6 @@ ${admin ? `<button class="admin-delete" type="button" onclick="deleteDuel('${idJ
 return card;
 }
 
-// Логика принятия открытого вызова
 function openChallengeModal(duelId){
 if(!currentUser) return;
 activeChallengeDuelId = duelId;
@@ -2009,7 +2027,6 @@ return;
 
 $("challengeStatus").innerText = t("uploading");
 try{
-// Определяем тип дуэли по файлу
 const isVid = challengeFile.type.startsWith("video/");
 const isGif = challengeFile.type.includes("gif");
 
@@ -2038,7 +2055,6 @@ status.innerText = e.message || t("connection");
 }
 }
 
-// Личные сообщения с поддержкой медиафайлов
 async function sendDirectMedia(event){
 const file = event.target.files?.[0];
 if(!file || !activeChatUserId || !currentUser) return;
@@ -2443,16 +2459,16 @@ function toggleDuelType(){
 const type=$("duelType").value;
 $("photoFields").classList.toggle("hidden",type!=="photo");
 $("videoFields").classList.toggle("hidden",type!=="video");
-$("gifFields").classList.toggle("hidden",type!=="gif");
+$("challengeFields").classList.toggle("hidden",type!=="challenge");
 }
 
 function openDuelModal(){
 if(!currentUser){ showAuth(); return; }
-["duelTitle","duelOptionA","duelVideoOptionA","duelGifOptionA"].forEach(id=>{ if($(id))$(id).value=""; });
-["duelImageA","duelVideoA","duelGifA"].forEach(id=>{ if($(id))$(id).value=""; });
-["previewA","previewVideoA","previewGifA"].forEach(id=>{ if($(id))$(id).style.display="none"; });
+["duelTitle","duelOptionA","duelOptionB","duelVideoOptionA","duelVideoOptionB","duelChallengeOptionA"].forEach(id=>{ if($(id))$(id).value=""; });
+["duelImageA","duelImageB","duelVideoA","duelVideoB","duelChallengeFileA"].forEach(id=>{ if($(id))$(id).value=""; });
+["previewA","previewB","previewVideoA","previewVideoB","previewChallengeA"].forEach(id=>{ if($(id))$(id).style.display="none"; });
 
-selectedImageA=null; selectedVideoA=null; selectedGifA=null;
+selectedImageA=null; selectedImageB=null; selectedVideoA=null; selectedVideoB=null; challengeCreateFile=null;
 $("duelType").value="photo";
 $("duelDuration").value="48";
 toggleDuelType();
@@ -2468,18 +2484,47 @@ if(file.size>100*1024*1024){ alert(t("maxPhoto")); event.target.value=""; return
 const reader=new FileReader();
 reader.onload=e=>{
 if(type==="image"){
+if(side==="A"){
 selectedImageA=file;
 $("previewAImage").src=e.target.result;
 $("previewA").style.display="block";
-}else if(type==="video"){
+}else{
+selectedImageB=file;
+$("previewBImage").src=e.target.result;
+$("previewB").style.display="block";
+}
+}else{
+if(side==="A"){
 selectedVideoA=file;
 $("previewVideoAElement").src=e.target.result;
 $("previewVideoA").style.display="block";
 }else{
-selectedGifA=file;
-$("previewGifAImage").src=e.target.result;
-$("previewGifA").style.display="block";
+selectedVideoB=file;
+$("previewVideoBElement").src=e.target.result;
+$("previewVideoB").style.display="block";
 }
+}
+};
+reader.readAsDataURL(file);
+}
+
+function previewChallengeCreateMedia(event){
+const file=event.target.files?.[0];
+if(!file)return;
+if(file.size>100*1024*1024){ alert(t("maxPhoto")); event.target.value=""; return; }
+challengeCreateFile=file;
+const reader=new FileReader();
+reader.onload=e=>{
+if(file.type.startsWith("video/")){
+  $("previewChallengeVid").src=e.target.result;
+  $("previewChallengeVid").style.display="block";
+  $("previewChallengeImg").style.display="none";
+}else{
+  $("previewChallengeImg").src=e.target.result;
+  $("previewChallengeImg").style.display="block";
+  $("previewChallengeVid").style.display="none";
+}
+$("previewChallengeA").style.display="block";
 };
 reader.readAsDataURL(file);
 }
@@ -2505,27 +2550,40 @@ const category=$("duelCategory").value;
 const duration=parseInt($("duelDuration").value,10);
 const status=$("duelStatus");
 
-let optionA="";
-if(type==="video") optionA=$("duelVideoOptionA").value.trim();
-else if(type==="gif") optionA=$("duelGifOptionA").value.trim();
-else optionA=$("duelOptionA").value.trim();
-
-if(!title||!optionA){
+if(!title){
 status.innerText=t("invalid");
 return;
 }
-if(type==="video"&&!selectedVideoA){ status.innerText=t("invalid"); return; }
-if(type==="photo"&&!selectedImageA){ status.innerText=t("invalid"); return; }
-if(type==="gif"&&!selectedGifA){ status.innerText=t("invalid"); return; }
 
 $("duelSubmitButton").disabled=true;
 try{
 status.innerText=t("uploading");
-let imageA="", videoA="", gifA="";
+let imageA="", imageB="", videoA="", videoB="";
+let optionA="", optionB="";
 
-if(type==="video") videoA=await upload(selectedVideoA,"videos");
-else if(type==="gif") gifA=await upload(selectedGifA,"gifs");
-else imageA=await upload(selectedImageA,"duels");
+if(type==="photo"){
+optionA=$("duelOptionA").value.trim();
+optionB=$("duelOptionB").value.trim();
+if(!optionA || !optionB || !selectedImageA || !selectedImageB){ status.innerText=t("invalid"); $("duelSubmitButton").disabled=false; return; }
+imageA=await upload(selectedImageA,"duels");
+imageB=await upload(selectedImageB,"duels");
+}else if(type==="video"){
+optionA=$("duelVideoOptionA").value.trim();
+optionB=$("duelVideoOptionB").value.trim();
+if(!optionA || !optionB || !selectedVideoA || !selectedVideoB){ status.innerText=t("invalid"); $("duelSubmitButton").disabled=false; return; }
+videoA=await upload(selectedVideoA,"videos");
+videoB=await upload(selectedVideoB,"videos");
+}else if(type==="challenge"){
+optionA=$("duelChallengeOptionA").value.trim();
+if(!optionA || !challengeCreateFile){ status.innerText=t("invalid"); $("duelSubmitButton").disabled=false; return; }
+const isVid = challengeCreateFile.type.startsWith("video/");
+const isGif = challengeCreateFile.type.includes("gif");
+const folder = isVid ? "videos" : (isGif ? "gifs" : "duels");
+const mediaUrl = await upload(challengeCreateFile, folder);
+if(isVid){ videoA = mediaUrl; }
+else if(isGif){ /* можем сохранять в image_a или gif_a */ imageA = mediaUrl; }
+else { imageA = mediaUrl; }
+}
 
 status.innerText=t("creatingDuel");
 const expiresAt=duration>0?new Date(Date.now()+duration*3600*1000).toISOString():null;
@@ -2536,12 +2594,14 @@ title,
 category,
 duration_hours:duration,
 expires_at:expiresAt,
-option_a:type==="photo"?optionA:"",
+option_a:optionA,
+option_b:optionB,
 image_a:imageA,
+image_b:imageB,
 video_option_a:type==="video"?optionA:"",
+video_option_b:type==="video"?optionB:"",
 video_a:videoA,
-gif_option_a:type==="gif"?optionA:"",
-gif_a:gifA,
+video_b:videoB,
 votes_a:0,
 votes_b:0
 };
