@@ -240,6 +240,14 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
+<div id="forwardSelectModal" class="modal">
+<div class="modal-box">
+<h2 style="color:#2563eb;margin-bottom:15px" data-i18n="forward">Переслать сообщение</h2>
+<div id="forwardConversationsList" style="max-height:60vh;overflow-y:auto;margin-bottom:15px"></div>
+<button class="secondary" type="button" onclick="closeModal('forwardSelectModal')" data-i18n="cancel">Отмена</button>
+</div>
+</div>
+
 <div id="app" class="app hidden">
 <div id="ptrIndicator"><div class="ptr-spinner"></div></div>
 
@@ -307,13 +315,13 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="chatBox" class="hidden">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
 <button class="secondary" onclick="$('chatBox').classList.add('hidden');$('conversationsList').classList.remove('hidden');activeChatUserId=null;" style="margin-top:0;width:auto">← Назад</button>
-<button class="secondary" onclick="deleteCurrentChat()" style="margin-top:0;width:auto;color:#dc2626;background:#fee2e2;" data-i18n="deleteChat">🗑️ Удалить чат</button>
+<button class="secondary" onclick="deleteCurrentChat()" style="margin-top:0;width:auto;color:#dc2626;background:#fee2e2;" data-i18n="deleteChat">Удалить чат</button>
 </div>
 <h3 id="activeChatUser" style="margin-bottom:10px"></h3>
 <div id="chatMessages" style="height:300px;overflow-y:auto;background:#f8fafc;padding:10px;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:10px"></div>
-<div id="forwardBanner" class="hidden" style="background:#eff6ff;border:1px solid #bfdbfe;padding:8px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:12px">
-<span id="forwardBannerText" style="color:#2563eb;font-weight:bold;">Пересылка сообщения...</span>
-<button onclick="cancelForward()" style="border:0;background:0;color:#dc2626;font-weight:bold;cursor:pointer">✕ Отмена</button>
+<div id="editBanner" class="hidden" style="background:#eff6ff;border:1px solid #bfdbfe;padding:8px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:12px">
+<span id="editBannerText" style="color:#2563eb;font-weight:bold;">Редактирование сообщения...</span>
+<button onclick="cancelEditMessage()" style="border:0;background:0;color:#dc2626;font-weight:bold;cursor:pointer">✕ Отмена</button>
 </div>
 <div style="display:flex;gap:6px;align-items:center">
 <label style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:16px" title="Прикрепить медиа">📎<input id="chatMediaInput" type="file" accept="image/*,video/*,image/gif" onchange="sendDirectMedia(event)"></label>
@@ -574,7 +582,8 @@ let challengeFile = null;
 
 let openedOtherUserId=null;
 let activeChatUserId=null;
-let forwardMessageData = null;
+let editingMessageId = null;
+let forwardingMessageData = null;
 
 let realtimeChannel=null;
 let backgroundSyncInterval=null;
@@ -706,7 +715,7 @@ acceptChallengeTitle:"Принять вызов",
 acceptChallengeDesc:"Загрузите ваш вариант, чтобы бросить вызов в этой дуэли!",
 uploadYourMedia:"📷 Загрузить медиафайл",
 confirmChallenge:"Отправить вариант",
-deleteChat:"🗑️ Удалить чат",
+deleteChat:"Удалить чат",
 deleteChatConfirm:"Удалить этот чат полностью?",
 forward:"Переслать",
 deleteAccount:"Удалить аккаунт",
@@ -836,7 +845,7 @@ acceptChallengeTitle:"Acceptă provocarea",
 acceptChallengeDesc:"Încarcă varianta ta pentru a concura în acest duel!",
 uploadYourMedia:"📷 Încarcă fișierul media",
 confirmChallenge:"Trimite varianta",
-deleteChat:"🗑️ Șterge chatul",
+deleteChat:"Șterge chatul",
 deleteChatConfirm:"Ștergi acest chat complet?",
 forward:"Trimite mai departe",
 deleteAccount:"Șterge contul",
@@ -966,7 +975,7 @@ acceptChallengeTitle:"Accept Challenge",
 acceptChallengeDesc:"Upload your option to compete in this duel!",
 uploadYourMedia:"📷 Upload media file",
 confirmChallenge:"Send option",
-deleteChat:"🗑️ Delete Chat",
+deleteChat:"Delete Chat",
 deleteChatConfirm:"Delete this entire chat?",
 forward:"Forward",
 deleteAccount:"Delete account",
@@ -2127,13 +2136,11 @@ const msgTextJS = escJS(m.text);
 const isMediaFlag = m.is_media || m.text?.startsWith("http");
 
 return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};position:relative;" data-msg-id="${msgId}">
-<div style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;">
+<div onclick="openMessageContextMenu(event, '${msgId}', '${msgTextJS}', ${isMe}, ${Boolean(isMediaFlag)})" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;">
 ${content}
 </div>
 <div style="font-size:10px;color:#64748b;margin-top:2px;display:flex;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
 <span>${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-<button onclick="forwardMessage('${msgTextJS}', ${isMediaFlag})" style="border:0;background:0;color:#2563eb;cursor:pointer;font-size:10px">${t("forward")}</button>
-${isMe?`<button onclick="deleteDirectMessage('${msgId}')" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px">${t("delete")}</button>`:''}
 </div>
 </div>`;
 }).join("");
@@ -2146,7 +2153,57 @@ container.innerHTML=`<div class="empty">Ошибка чата</div>`;
 }
 }
 
+function openMessageContextMenu(event, messageId, text, isMe, isMedia){
+document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
+
+const bubble = event.currentTarget;
+const menu = document.createElement("div");
+menu.className = "msg-context-menu";
+menu.style.cssText = "position:absolute;background:#fff;border:1px solid #cbd5e1;box-shadow:0 4px 12px rgba(0,0,0,0.15);border-radius:8px;z-index:9999;display:flex;flex-direction:column;min-width:130px;overflow:hidden;";
+
+let buttonsHtml = `<button onclick="forwardMessageFromMenu('${text}', ${isMedia})" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#2563eb;border-bottom:1px solid #f1f5f9;">${t("forward")}</button>`;
+
+if(isMe && !isMedia){
+  buttonsHtml += `<button onclick="startEditMessage('${messageId}', '${text}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
+}
+
+if(isMe){
+  buttonsHtml += `<button onclick="deleteDirectMessage('${messageId}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#dc2626;">${t("delete")}</button>`;
+}
+
+menu.innerHTML = buttonsHtml;
+document.body.appendChild(menu);
+
+const rect = bubble.getBoundingClientRect();
+menu.style.top = (rect.bottom + window.scrollY + 4) + "px";
+menu.style.left = Math.min(rect.left, window.innerWidth - 150) + "px";
+
+const closeMenu = (e) => {
+  if(!menu.contains(e.target) && !bubble.contains(e.target)){
+    menu.remove();
+    document.removeEventListener('click', closeMenu);
+  }
+};
+setTimeout(() => document.addEventListener('click', closeMenu), 10);
+}
+
+function startEditMessage(messageId, currentText){
+document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
+editingMessageId = messageId;
+$("directMessageInput").value = currentText;
+$("editBannerText").innerText = t("edit") + ": " + currentText.substring(0, 30);
+$("editBanner").classList.remove("hidden");
+$("directMessageInput").focus();
+}
+
+function cancelEditMessage(){
+editingMessageId = null;
+$("directMessageInput").value = "";
+$("editBanner").classList.add("hidden");
+}
+
 async function deleteDirectMessage(messageId){
+document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
 showCustomConfirm(t("deleteMessage"), async () => {
 try{
 const { error } = await db.from("direct_messages").delete().eq("id", messageId);
@@ -2174,15 +2231,58 @@ alert(e.message || t("connection"));
 }, t("delete"));
 }
 
-function forwardMessage(text, isMedia){
-forwardMessageData = { text, is_media: isMedia };
-$("forwardBannerText").innerText = t("forward") + ": " + (isMedia ? "[Медиафайл]" : text.substring(0, 30));
-$("forwardBanner").classList.remove("hidden");
+async function forwardMessageFromMenu(text, isMedia){
+document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
+forwardingMessageData = { text, is_media: isMedia };
+
+const modal = $("forwardSelectModal");
+const listContainer = $("forwardConversationsList");
+listContainer.innerHTML = `<div class="status">${t("loading")}</div>`;
+modal.classList.add("show");
+
+try{
+const r = await db.from("direct_messages").select("*").or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order("created_at",{ascending:false});
+if(r.error) throw r.error;
+
+const userIds = [...new Set((r.data||[]).flatMap(m=>[m.sender_id,m.receiver_id]))].filter(id=>id!==currentUser.id);
+if(!userIds.length){
+listContainer.innerHTML = `<div class="empty">${t("noActiveDialogs")}</div>`;
+return;
 }
 
-function cancelForward(){
-forwardMessageData = null;
-$("forwardBanner").classList.add("hidden");
+const profiles = await profilesMap(userIds);
+listContainer.innerHTML = userIds.map(uid=>{
+const p = profiles[uid]||{};
+const name = p.full_name || p.username || t("participant");
+const avatar = p.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
+return `
+<div onclick="executeForwardToUser('${escJS(uid)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
+${avatar}
+<div style="flex:1"><b>${esc(name)}</b></div>
+<button class="primary" style="width:auto;padding:6px 12px;font-size:12px;margin-top:0">${t("forward")}</button>
+</div>`;
+}).join("");
+}catch(e){
+listContainer.innerHTML = `<div class="empty">Ошибка загрузки</div>`;
+}
+}
+
+async function executeForwardToUser(targetUserId){
+if(!forwardingMessageData) return;
+try{
+const { error } = await db.from("direct_messages").insert({
+sender_id: currentUser.id,
+receiver_id: targetUserId,
+text: forwardingMessageData.text,
+is_media: forwardingMessageData.is_media
+});
+if(error) throw error;
+closeModal("forwardSelectModal");
+forwardingMessageData = null;
+alert("Сообщение успешно переслано! 📨");
+}catch(e){
+alert(e.message || t("connection"));
+}
 }
 
 function toggleDuelChat(button, duelId){
@@ -2307,28 +2407,10 @@ return `
 <div onclick="openChat('${escJS(uid)}', '${escJS(name)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
 ${avatar}
 <div style="flex:1"><b>${esc(name)}</b></div>
-${forwardMessageData ? `<button onclick="event.stopPropagation(); executeForward('${escJS(uid)}')" class="primary" style="width:auto;padding:6px 10px;font-size:12px;margin-top:0">${t("forward")}</button>` : ''}
 </div>`;
 }).join("");
 }catch(e){
 box.innerHTML=`<div class="empty">Ошибка загрузки чатов</div>`;
-}
-}
-
-async function executeForward(targetUserId){
-if(!forwardMessageData) return;
-try{
-const { error } = await db.from("direct_messages").insert({
-sender_id: currentUser.id,
-receiver_id: targetUserId,
-text: forwardMessageData.text,
-is_media: forwardMessageData.is_media
-});
-if(error) throw error;
-cancelForward();
-openChatWithUser(targetUserId, "Чат");
-}catch(e){
-alert(e.message || t("connection"));
 }
 }
 
@@ -2352,9 +2434,17 @@ const input=$("directMessageInput");
 const text=input.value.trim();
 if(!text||!activeChatUserId)return;
 input.value="";
+
 try{
-const r=await db.from("direct_messages").insert({ sender_id:currentUser.id, receiver_id:activeChatUserId, text, is_media:false });
-if(r.error)throw r.error;
+if(editingMessageId){
+const { error } = await db.from("direct_messages").update({ text }).eq("id", editingMessageId);
+if(error) throw error;
+editingMessageId = null;
+$("editBanner").classList.add("hidden");
+}else{
+const { error } = await db.from("direct_messages").insert({ sender_id:currentUser.id, receiver_id:activeChatUserId, text, is_media:false });
+if(error) throw error;
+}
 await loadDirectMessages();
 }catch(e){
 alert(e.message||t("connection"));
