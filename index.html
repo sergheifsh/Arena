@@ -317,7 +317,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <div id="chatBox" class="hidden" style="position:fixed;inset:0;background:#fff;z-index:90;display:flex;flex-direction:column;padding:15px;max-width:650px;margin:auto;">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-top:env(safe-area-inset-top);">
-<button class="secondary" onclick="$('chatBox').classList.add('hidden');activeChatUserId=null;" style="margin-top:0;width:auto">← Назад</button>
 <h3 id="activeChatUser" style="margin:0;font-size:16px;color:#172033;flex:1;text-align:center;padding:0 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></h3>
 <button class="secondary" onclick="deleteCurrentChat()" style="margin-top:0;width:auto;color:#dc2626;background:#fee2e2;" data-i18n="deleteChat">Удалить чат</button>
 </div>
@@ -2264,9 +2263,7 @@ showCustomConfirm(t("deleteChatConfirm"), async () => {
 try{
 const { error } = await db.from("direct_messages").delete().or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${activeChatUserId}),and(sender_id.eq.${activeChatUserId},receiver_id.eq.${currentUser.id})`);
 if(error) throw error;
-$("chatBox").classList.add("hidden");
-activeChatUserId=null;
-await showMessagesScreen();
+history.back();
 }catch(e){
 alert(e.message || t("connection"));
 }
@@ -2462,8 +2459,16 @@ async function openChat(userId, userName){
 activeChatUserId=userId;
 $("activeChatUser").innerText=userName;
 $("chatBox").classList.remove("hidden");
+history.pushState({ chatOpen: true }, "", window.location.href);
 await loadDirectMessages();
 }
+
+window.addEventListener('popstate', function(e) {
+    if(!$("chatBox").classList.contains("hidden")){
+        $("chatBox").classList.add("hidden");
+        activeChatUserId = null;
+    }
+});
 
 async function sendDirectMessage(){
 const input=$("directMessageInput");
