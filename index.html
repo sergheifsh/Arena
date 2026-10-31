@@ -25,7 +25,6 @@ button{cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 #startupScreen.hide{opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
 
-/* Спиннер для Pull-to-Refresh */
 #ptrIndicator{position:absolute;top:-50px;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;z-index:30}
 .ptr-spinner{width:24px;height:24px;border:3px solid #dbeafe;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite}
 
@@ -94,6 +93,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .option-label{padding:10px 7px;text-align:center;font-weight:bold;font-size:14px;word-break:break-word}
 .vote-button{width:calc(100% - 16px);margin:0 8px 8px;border:0;border-radius:12px;padding:12px;background:#2563eb;color:#fff;font-weight:bold;font-size:16px}
 .vote-button:disabled{opacity:.55;cursor:not-allowed}
+.accept-challenge-btn{width:calc(100% - 16px);margin:0 8px 8px;border:0;border-radius:12px;padding:12px;background:#16a34a;color:#fff;font-weight:bold;font-size:14px}
 .vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;width:43px;height:43px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#172033;color:#fff;font-size:13px;font-weight:900;box-shadow:0 4px 15px #0003}
 
 .results{padding:10px 12px 14px;border-top:1px solid #e2e8f0}
@@ -160,7 +160,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .modal-box h2{margin-bottom:12px;color:#2563eb}
 .modal-box textarea{resize:vertical;min-height:90px}
 .photo-button{display:block;padding:13px;margin:6px 0;border:2px dashed #60a5fa;border-radius:12px;text-align:center;color:#2563eb;font-weight:bold;background:#eff6ff}
-#duelImageA,#duelImageB,#duelVideoA,#duelVideoB,#avatarInput{display:none}
+#duelImageA,#duelImageB,#duelVideoA,#duelVideoB,#challengeImageB,#challengeVideoB,#avatarInput,#chatMediaInput{display:none}
 .image-preview{display:none;width:100%;height:170px;margin:7px 0;border-radius:12px;overflow:hidden;background:#e2e8f0}
 .image-preview img,.image-preview video{width:100%;height:100%;object-fit:cover}
 .secondary{width:100%;padding:12px;margin-top:8px;border:0;border-radius:12px;background:#f1f5f9;color:#334155}
@@ -308,7 +308,8 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button class="secondary" onclick="$('chatBox').classList.add('hidden');$('conversationsList').classList.remove('hidden');activeChatUserId=null;" style="margin-bottom:10px">← Назад к списку</button>
 <h3 id="activeChatUser" style="margin-bottom:10px"></h3>
 <div id="chatMessages" style="height:300px;overflow-y:auto;background:#f8fafc;padding:10px;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:10px"></div>
-<div style="display:flex;gap:6px">
+<div style="display:flex;gap:6px;align-items:center">
+<label style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:16px" title="Прикрепить медиа">📎<input id="chatMediaInput" type="file" accept="image/*,video/*,image/gif" onchange="sendDirectMedia(event)"></label>
 <input type="text" id="directMessageInput" placeholder="Введите сообщение..." style="flex:1;padding:10px;border:1px solid #cbd5e1;border-radius:10px;outline:0" onkeydown="if(event.key==='Enter')sendDirectMessage()">
 <button type="button" onclick="sendDirectMessage()" class="primary" style="width:auto;margin-top:0">Отправить</button>
 </div>
@@ -346,7 +347,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 </div>
 
-<h3 id="myDuelsTitle" style="margin:18px 0 10px"></h3>
+<h3 id="myDuelsTitle" style="margin:18px 0 10px" data-i18n="duelList"></h3>
 <div id="myDuels"></div>
 
 </div>
@@ -391,6 +392,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 </div>
 
+<!-- Модальное окно создания дуэли (Только Вариант А для открытого вызова) -->
 <div id="duelModal" class="modal">
 <div class="modal-box">
 
@@ -411,6 +413,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <select id="duelType" onchange="toggleDuelType()">
 <option value="photo" data-opt="photoBattle"></option>
 <option value="video" data-opt="videoBattle"></option>
+<option value="gif" data-opt="gifBattle"></option>
 </select>
 
 <select id="duelDuration">
@@ -421,57 +424,37 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </select>
 
 <div id="photoFields">
-
 <input id="duelOptionA">
-
 <label class="photo-button">
 <span id="photoAText"></span>
 <input id="duelImageA" type="file" accept="image/*" onchange="previewDuelMedia('A',event,'image')">
 </label>
-
 <div id="previewA" class="image-preview">
 <img id="previewAImage" alt="Preview A">
 </div>
-
-<input id="duelOptionB">
-
-<label class="photo-button">
-<span id="photoBText"></span>
-<input id="duelImageB" type="file" accept="image/*" onchange="previewDuelMedia('B',event,'image')">
-</label>
-
-<div id="previewB" class="image-preview">
-<img id="previewBImage" alt="Preview B">
-</div>
-
 </div>
 
 <div id="videoFields" class="hidden">
-
 <input id="duelVideoOptionA">
-
 <label class="photo-button">
 <span id="videoAText"></span>
 <input id="duelVideoA" type="file" accept="video/*" onchange="previewDuelMedia('A',event,'video')">
 </label>
-
 <div id="previewVideoA" class="image-preview">
 <video id="previewVideoAElement" playsinline></video>
 </div>
-
-<input id="duelVideoOptionB">
-
-<label class="photo-button">
-<span id="videoBText"></span>
-<input id="duelVideoB" type="file" accept="video/*" onchange="previewDuelMedia('B',event,'video')">
-</label>
-
-<div id="previewVideoB" class="image-preview">
-<video id="previewVideoBElement" playsinline></video>
+<div class="media-help" data-i18n="maxPhotoHelp"></div>
 </div>
 
-<div class="media-help" data-i18n="maxPhotoHelp"></div>
-
+<div id="gifFields" class="hidden">
+<input id="duelGifOptionA">
+<label class="photo-button">
+<span id="gifAText"></span>
+<input id="duelGifA" type="file" accept="image/gif" onchange="previewDuelMedia('A',event,'gif')">
+</label>
+<div id="previewGifA" class="image-preview">
+<img id="previewGifAImage" alt="Preview GIF A">
+</div>
 </div>
 
 <button id="duelSubmitButton" class="primary" type="button" onclick="createDuel()"></button>
@@ -479,6 +462,26 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <div id="duelStatus" class="status"></div>
 
+</div>
+</div>
+
+<!-- Модальное окно принятия вызова (Заполнение Варианта Б) -->
+<div id="challengeModal" class="modal">
+<div class="modal-box">
+<h2 data-i18n="acceptChallengeTitle">Принять вызов</h2>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="acceptChallengeDesc">Загрузите ваш вариант, чтобы бросить вызов в этой дуэли!</p>
+<input id="challengeOptionB" placeholder="Название вашего варианта">
+<label class="photo-button">
+<span id="challengeFileText" data-i18n="uploadYourMedia">📷 Загрузить медиафайл</span>
+<input id="challengeMediaFile" type="file" accept="image/*,video/*,image/gif" onchange="previewChallengeMedia(event)">
+</label>
+<div id="challengePreview" class="image-preview">
+<img id="challengePreviewImg" alt="Preview" style="display:none">
+<video id="challengePreviewVid" playsinline style="display:none"></video>
+</div>
+<button class="primary" type="button" onclick="submitChallenge()" data-i18n="confirmChallenge">Отправить свой вариант</button>
+<button class="secondary" type="button" onclick="closeModal('challengeModal')" data-i18n="cancel">Отмена</button>
+<div id="challengeStatus" class="status"></div>
 </div>
 </div>
 
@@ -516,7 +519,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно для списка подписчиков / подписок -->
 <div id="followersModal" class="modal">
 <div class="modal-box">
 <h2 id="followersModalTitle" style="color:#2563eb;margin-bottom:12px"></h2>
@@ -551,10 +553,12 @@ let language=localStorage.getItem("arena_language")||"ru";
 let isDuelsLoading=false;
 
 let selectedImageA=null;
-let selectedImageB=null;
 let selectedVideoA=null;
-let selectedVideoB=null;
+let selectedGifA=null;
 let selectedAvatar=null;
+
+let activeChallengeDuelId = null;
+let challengeFile = null;
 
 let openedOtherUserId=null;
 let activeChatUserId=null;
@@ -590,14 +594,12 @@ sport:"⚽ Спорт",
 memes:"😂 Мемы",
 auto:"🚗 Авто",
 other:"✨ Другое",
-create:"⚔️ Создать свою дуэль",
-newDuel:"⚔️ Новая дуэль",
+create:"⚔️ Создать открытую дуэль",
+newDuel:"⚔️ Открыть вызов",
 duelName:"Название дуэли",
-optionA:"Вариант A",
-optionB:"Вариант B",
+optionA:"Вариант A (Ваш)",
 photoA:"📷 Фото варианта A",
-photoB:"📷 Фото варианта B",
-createDuel:"⚔️ Создать дуэль",
+createDuel:"⚔️ Создать вызов",
 cancel:"Отмена",
 edit:"Изменить",
 logout:"Выйти",
@@ -636,7 +638,7 @@ winner:"Кто победит?",
 blockedAccount:"🚫 Твой аккаунт заблокирован.",
 deleteConfirm:"Удалить эту дуэль?",
 adminDeleteConfirm:"Удалить эту дуэль как администратор?",
-created:"Дуэль создана! ⚔️",
+created:"Вызов создан! Ожидаем соперника ⚔️",
 invalid:"Заполни все обязательные поля.",
 wrongLogin:"Неверный email или пароль.",
 emailNotConfirmed:"Email ещё не подтверждён. Проверь почту.",
@@ -663,8 +665,8 @@ h24:"⏳ 24 часа",
 h48:"⏳ 48 часов",
 h72:"⏳ 72 часа",
 unlimited:"♾️ Безлимитно",
-videoA:"🎥 Видео участника A",
-videoB:"🎥 Видео участника B",
+videoA:"🎥 Видео вариант A",
+gifA:"🎞️ GIF вариант A",
 battleEnded:"🔴 Завершён",
 commentPlaceholder:"Написать в чат дуэли...",
 chatButton:"💬 Чат дуэли",
@@ -672,6 +674,7 @@ send:"Отправить",
 noComments:"Пока нет сообщений в чате. Будь первым!",
 photoBattle:"Фото батл",
 videoBattle:"Видео батл",
+gifBattle:"GIF батл",
 privateMessages:"💬 Личные сообщения",
 noActiveDialogs:"Нет активных диалогов",
 forgotPassword:"Забыли пароль?",
@@ -682,9 +685,12 @@ sendCode:"Отправить временный код",
 saveNewPassword:"Создать новый пароль",
 resetPasswordSent:"Временный код отправлен на email 📧",
 passwordResetSuccess:"Пароль успешно изменен! Войдите с новым паролем.",
-deleteAccount:"Удалить аккаунт",
-deleteAccountConfirm:"Вы уверены, что хотите навсегда удалить свой аккаунт?",
-duelList:"Duel List"
+duelList:"Duel List",
+acceptChallenge:"⚔️ Принять вызов",
+acceptChallengeTitle:"Принять вызов",
+acceptChallengeDesc:"Загрузите ваш вариант, чтобы бросить вызов и запустить голосование!",
+uploadYourMedia:"📷 Загрузить медиафайл",
+confirmChallenge:"Отправить вариант"
 },
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
@@ -711,14 +717,12 @@ sport:"⚽ Sport",
 memes:"😂 Meme",
 auto:"🚗 Auto",
 other:"✨ Altele",
-create:"⚔️ Creează duel",
-newDuel:"⚔️ Duel nou",
+create:"⚔️ Creează duel deschis",
+newDuel:"⚔️ Deschide provocare",
 duelName:"Numele duelului",
-optionA:"Varianta A",
-optionB:"Varianta B",
+optionA:"Varianta A (Ta)",
 photoA:"📷 Foto varianta A",
-photoB:"📷 Foto varianta B",
-createDuel:"⚔️ Creează duel",
+createDuel:"⚔️ Creează",
 cancel:"Anulează",
 edit:"Modifică",
 logout:"Ieșire",
@@ -757,7 +761,7 @@ winner:"Cine va câștiga?",
 blockedAccount:"🚫 Contul tău este blocat.",
 deleteConfirm:"Ștergi acest duel?",
 adminDeleteConfirm:"Ștergi acest duel ca administrator?",
-created:"Duel creat! ⚔️",
+created:"Provocare creată! Se așteaptă un rival ⚔️",
 invalid:"Completează toate câmpurile obligatorii.",
 wrongLogin:"Email sau parolă incorect.",
 emailNotConfirmed:"Emailul nu este confirmat.",
@@ -784,8 +788,8 @@ h24:"⏳ 24 de ore",
 h48:"⏳ 48 de ore",
 h72:"⏳ 72 de ore",
 unlimited:"♾️ Nelimitat",
-videoA:"🎥 Video participant A",
-videoB:"🎥 Video participant B",
+videoA:"🎥 Video varianta A",
+gifA:"🎞️ GIF varianta A",
 battleEnded:"🔴 Finalizat",
 commentPlaceholder:"Scrie în chatul duelului...",
 chatButton:"💬 Chatul duelului",
@@ -793,6 +797,7 @@ send:"Trimite",
 noComments:"Niciun mesaj în chat. Fii primul!",
 photoBattle:"Duel Foto",
 videoBattle:"Duel Video",
+gifBattle:"Duel GIF",
 privateMessages:"💬 Mesaje private",
 noActiveDialogs:"Nu există dialoguri active",
 forgotPassword:"Ai uitat parola?",
@@ -803,9 +808,12 @@ sendCode:"Trimite codul",
 saveNewPassword:"Salvează noua parolă",
 resetPasswordSent:"Codul a fost trimis pe email 📧",
 passwordResetSuccess:"Parolă schimbată cu succes!",
-deleteAccount:"Șterge contul",
-deleteAccountConfirm:"Ești sigur că vrei să îți ștergi contul definitiv?",
-duelList:"Duel List"
+duelList:"Duel List",
+acceptChallenge:"⚔️ Acceptă provocarea",
+acceptChallengeTitle:"Acceptă provocarea",
+acceptChallengeDesc:"Încarcă varianta ta pentru a concura în acest duel!",
+uploadYourMedia:"📷 Încarcă fișierul media",
+confirmChallenge:"Trimite varianta"
 },
 en:{
 subtitle:"Who wins? You decide.",
@@ -832,14 +840,12 @@ sport:"⚽ Sports",
 memes:"😂 Memes",
 auto:"🚗 Cars",
 other:"✨ Other",
-create:"⚔️ Create a duel",
-newDuel:"⚔️ New duel",
+create:"⚔️ Create open duel",
+newDuel:"⚔️ Open challenge",
 duelName:"Duel title",
-optionA:"Option A",
-optionB:"Option B",
+optionA:"Option A (Yours)",
 photoA:"📷 Photo option A",
-photoB:"📷 Photo option A",
-createDuel:"⚔️ Create duel",
+createDuel:"⚔️ Create challenge",
 cancel:"Cancel",
 edit:"Edit",
 logout:"Log out",
@@ -878,7 +884,7 @@ winner:"Who will win?",
 blockedAccount:"🚫 Your account is blocked.",
 deleteConfirm:"Delete this duel?",
 adminDeleteConfirm:"Delete this duel as administrator?",
-created:"Duel created! ⚔️",
+created:"Challenge created! Waiting for challenger ⚔️",
 invalid:"Fill in all required fields.",
 wrongLogin:"Invalid email or password.",
 emailNotConfirmed:"Email is not confirmed.",
@@ -905,8 +911,8 @@ h24:"⏳ 24 hours",
 h48:"⏳ 48 hours",
 h72:"⏳ 72 hours",
 unlimited:"♾️ Unlimited",
-videoA:"🎥 Participant A video",
-videoB:"🎥 Participant A video",
+videoA:"🎥 Option A video",
+gifA:"🎞️ Option A GIF",
 battleEnded:"🔴 Ended",
 commentPlaceholder:"Write in duel chat...",
 chatButton:"💬 Duel Chat",
@@ -914,6 +920,7 @@ send:"Send",
 noComments:"No messages in chat yet. Be the first!",
 photoBattle:"Photo battle",
 videoBattle:"Video battle",
+gifBattle:"GIF battle",
 privateMessages:"💬 Direct Messages",
 noActiveDialogs:"No active conversations",
 forgotPassword:"Forgot password?",
@@ -924,9 +931,12 @@ sendCode:"Send code",
 saveNewPassword:"Save new password",
 resetPasswordSent:"Temporary code sent to your email 📧",
 passwordResetSuccess:"Password changed successfully!",
-deleteAccount:"Delete account",
-deleteAccountConfirm:"Are you sure you want to permanently delete your account?",
-duelList:"Duel List"
+duelList:"Duel List",
+acceptChallenge:"⚔️ Accept Challenge",
+acceptChallengeTitle:"Accept Challenge",
+acceptChallengeDesc:"Upload your option to compete in this duel!",
+uploadYourMedia:"📷 Upload media file",
+confirmChallenge:"Send option"
 }
 };
 
@@ -981,6 +991,7 @@ function startCountdownTimers(){
 setInterval(()=>{
 document.querySelectorAll(".duel-time[data-expires]").forEach(el=>{
 const expiresAt=el.dataset.expires;
+if(!expiresAt) return;
 const res=formatCountdown(expiresAt);
 el.innerText=res.text;
 if(res.ended){
@@ -1036,7 +1047,7 @@ clean();
 };
 }
 
-// Pull to Refresh Implementation (только крутящийся кружок)
+// Pull to Refresh (только спиннер)
 let touchStartY = 0;
 let isRefreshing = false;
 
@@ -1105,6 +1116,19 @@ realtimeChannel = db.channel("arena_realtime_channel")
         }
     }
 })
+.on("postgres_changes", { event: "*", schema: "public", table: "duels" }, async (payload) => {
+    const updated = payload.new;
+    if(!updated) return;
+    const cards = document.querySelectorAll(`[data-duel-id="${CSS.escape(String(updated.id))}"]`);
+    for(const card of cards){
+        // Обновляем карточку при принятии вызова
+        const parent = card.parentNode;
+        if(parent){
+            const newCard = await duelCard(updated);
+            parent.replaceChild(newCard, card);
+        }
+    }
+})
 .on("postgres_changes", { event: "DELETE", schema: "public", table: "duels" }, (payload) => {
     const deletedId = payload.old?.id;
     if(!deletedId) return;
@@ -1129,12 +1153,6 @@ realtimeChannel = db.channel("arena_realtime_channel")
         if(activeChatUserId && m.sender_id === activeChatUserId){
             await loadDirectMessages();
         } else {
-            let senderName = "Пользователь";
-            try {
-                const res = await db.from("profiles").select("full_name, username").eq("id", m.sender_id).maybeSingle();
-                if(res.data) senderName = res.data.full_name || res.data.username || senderName;
-            } catch(err){}
-
             if($("messagesScreen").classList.contains("active") && !activeChatUserId){
                 await showMessagesScreen();
             }
@@ -1193,9 +1211,8 @@ duelModalTitle:"newDuel",
 duelSubmitButton:"createDuel",
 duelCancelButton:"cancel",
 photoAText:"photoA",
-photoBText:"photoB",
 videoAText:"videoA",
-videoBText:"videoB",
+gifAText:"gifA",
 editProfileTitle:"editProfile",
 avatarText:"avatar",
 saveProfileButton:"save",
@@ -1216,9 +1233,8 @@ regEmail:"email",
 regPassword:"password",
 duelTitle:"duelName",
 duelOptionA:"optionA",
-duelOptionB:"optionB",
 duelVideoOptionA:"optionA",
-duelVideoOptionB:"optionB",
+duelGifOptionA:"optionA",
 editName:"name",
 editUsername:"username",
 editBio:"about",
@@ -1427,14 +1443,10 @@ async function getUniqueFullName(requestedName) {
             .ilike("full_name", finalName)
             .maybeSingle();
 
-        if (!check.data) {
-            break;
-        }
-
+        if (!check.data) break;
         finalName = `${requestedName} ${counter}`;
         counter++;
     }
-
     return finalName;
 }
 
@@ -1464,24 +1476,17 @@ const username="arena_"+rnd();
 const r=await db.auth.signUp({
 email,
 password:pass,
-options:{
-data:{
-full_name:name,
-username
-}
-}
+options:{ data:{ full_name:name, username } }
 });
 
 if(r.error)throw r.error;
 
 if(r.data.user){
-const p=await db.from("profiles").upsert({
+await db.from("profiles").upsert({
 id:r.data.user.id,
 full_name:name,
 username
 },{onConflict:"id"});
-
-if(p.error)console.warn("Profile:",p.error);
 }
 
 if(r.data.session){
@@ -1491,11 +1496,9 @@ await startApp();
 status.innerText=t("checkingEmail");
 showLogin();
 }
-
 }catch(e){
 status.innerText=authError(e);
 }
-
 $("registerButton").disabled=false;
 }
 
@@ -1518,19 +1521,11 @@ $("loginButton").disabled=true;
 status.innerText=t("loggingIn");
 
 try{
-const r=await db.auth.signInWithPassword({
-email,
-password:pass
-});
-
+const r=await db.auth.signInWithPassword({ email, password:pass });
 if(r.error)throw r.error;
-
-if(!r.data?.session||!r.data?.user)
-throw new Error("Не удалось получить сессию.");
 
 currentUser=r.data.user;
 await startApp();
-
 }catch(e){
 status.innerText=authError(e);
 $("loginButton").disabled=false;
@@ -1546,9 +1541,7 @@ await db.auth.signOut();
 
 currentUser=null;
 currentProfile=null;
-
 localStorage.removeItem("arena_last_screen");
-
 showAuth();
 showLogin();
 }
@@ -1560,9 +1553,7 @@ if(!currentUser){
     if(rawStorage){
         try{
             const parsed = JSON.parse(rawStorage);
-            if(parsed?.user){
-                currentUser = parsed.user;
-            }
+            if(parsed?.user) currentUser = parsed.user;
         }catch(err){}
     }
 }
@@ -1571,10 +1562,6 @@ if(!currentUser){
     showAuth();
     showLogin();
     return;
-}
-
-if (window.AndroidBridge && window.AndroidBridge.loginOneSignal && currentUser && currentUser.id) {
-    window.AndroidBridge.loginOneSignal(currentUser.id);
 }
 
 try{
@@ -1595,62 +1582,37 @@ $("auth").style.display="none";
 $("app").classList.remove("hidden");
 
 setupRealtimeSubscriptions();
-
 showScreen("homeScreen");
 localStorage.setItem("arena_last_screen", "homeScreen");
 
-Promise.allSettled([
-loadDuels()
-]);
-
+Promise.allSettled([loadDuels()]);
 }catch(e){
-try{
 showAuth();
 showLogin();
-}catch(_){}
 }finally{
 hideStartup();
 }
 }
 
 function showScreen(id){
-document.querySelectorAll(".screen")
-.forEach(e=>e.classList.remove("active"));
-
+document.querySelectorAll(".screen").forEach(e=>e.classList.remove("active"));
 if($(id))$(id).classList.add("active");
-
 localStorage.setItem("arena_last_screen",id);
 }
 
 async function loadProfile(){
 if(!currentUser)return null;
 
-let r=await db.from("profiles")
-.select("*")
-.eq("id",currentUser.id)
-.maybeSingle();
+let r=await db.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
 
 if(!r.data){
 const name=currentUser.user_metadata?.full_name||t("participant");
 const username=currentUser.user_metadata?.username||"arena_"+rnd();
-
-const create=await db.from("profiles").upsert({
-id:currentUser.id,
-full_name:name,
-username
-},{onConflict:"id"});
-
-r=await db.from("profiles")
-.select("*")
-.eq("id",currentUser.id)
-.maybeSingle();
+await db.from("profiles").upsert({ id:currentUser.id, full_name:name, username },{onConflict:"id"});
+r=await db.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
 }
 
-currentProfile=r.data||{
-id:currentUser.id,
-full_name:t("participant"),
-username:"arena"
-};
+currentProfile=r.data||{ id:currentUser.id, full_name:t("participant"), username:"arena" };
 
 $("profileName").innerText=currentProfile.full_name||t("participant");
 $("profileUsername").innerText="@"+(currentProfile.username||"arena");
@@ -1675,31 +1637,19 @@ return currentProfile;
 function setAvatar(id,url){
 const e=$(id);
 if(!e)return;
-
-e.innerHTML=url
-?`<img src="${esc(url)}" alt="avatar">`
-:"⚔️";
+e.innerHTML=url?`<img src="${esc(url)}" alt="avatar">`:"⚔️";
 }
 
 async function count(table,column,id){
-const r=await db.from(table)
-.select("*",{count:"exact",head:true})
-.eq(column,id);
-
+const r=await db.from(table).select("*",{count:"exact",head:true}).eq(column,id);
 return r.count||0;
 }
 
 async function updateStats(){
 if(!currentUser)return;
-
-$("myDuelsCount").innerText=
-await count("duels","user_id",currentUser.id);
-
-$("myFollowersCount").innerText=
-await count("follows","following_id",currentUser.id);
-
-$("myFollowingCount").innerText=
-await count("follows","follower_id",currentUser.id);
+$("myDuelsCount").innerText=await count("duels","user_id",currentUser.id);
+$("myFollowersCount").innerText=await count("follows","following_id",currentUser.id);
+$("myFollowingCount").innerText=await count("follows","follower_id",currentUser.id);
 }
 
 async function showProfile(){
@@ -1721,10 +1671,7 @@ try {
 let queryCol = type === 'followers' ? 'following_id' : 'follower_id';
 let targetCol = type === 'followers' ? 'follower_id' : 'following_id';
 
-const r = await db.from("follows")
-.select(targetCol)
-.eq(queryCol, userId);
-
+const r = await db.from("follows").select(targetCol).eq(queryCol, userId);
 if(r.error) throw r.error;
 
 const ids = (r.data || []).map(item => item[targetCol]);
@@ -1750,7 +1697,6 @@ ${avatar}
 </div>
 </div>`;
 }).join("");
-
 } catch(e) {
 contentEl.innerHTML = `<div class="empty">Ошибка загрузки</div>`;
 }
@@ -1781,27 +1727,23 @@ textarea.focus();
 textarea.select();
 
 try {
-  const successful = document.execCommand("copy");
+  document.execCommand("copy");
   textarea.remove();
-  if (successful) {
-    if (button) {
-      const origText = button.innerHTML;
-      button.innerText = t("shareCopied");
-      setTimeout(() => button.innerHTML = origText, 1800);
-    }
-    return;
+  if (button) {
+    const origText = button.innerHTML;
+    button.innerText = t("shareCopied");
+    setTimeout(() => button.innerHTML = origText, 1800);
   }
+  return;
 } catch (err) {
   textarea.remove();
 }
-
 prompt("Скопируйте ссылку на дуэль:", url);
 }
 
 async function openSharedDuel(){
 const params=new URLSearchParams(location.search);
 const duelId=params.get("duel");
-
 if(!duelId||!currentUser)return;
 
 try{
@@ -1809,31 +1751,18 @@ const feed=$("duelsFeed");
 if(!feed)return;
 
 const existingCard=feed.querySelector(`[data-duel-id="${CSS.escape(String(duelId))}"]`);
-
 if(existingCard){
-existingCard.scrollIntoView({
-behavior:"smooth",
-block:"center"
-});
+existingCard.scrollIntoView({ behavior:"smooth", block:"center" });
 return;
 }
 
-const r=await db.from("duels")
-.select("*")
-.eq("id",duelId)
-.maybeSingle();
-
+const r=await db.from("duels").select("*").eq("id",duelId).maybeSingle();
 if(r.error||!r.data)return;
 
 showScreen("homeScreen");
 const card=await duelCard(r.data);
 feed.prepend(card);
-
-card.scrollIntoView({
-behavior:"smooth",
-block:"center"
-});
-
+card.scrollIntoView({ behavior:"smooth", block:"center" });
 }catch(e){}
 }
 
@@ -1841,95 +1770,65 @@ function openEditProfile(){
 $("editName").value=currentProfile?.full_name||"";
 $("editUsername").value=currentProfile?.username||"";
 $("editBio").value=currentProfile?.bio||"";
-
 $("avatarInput").value="";
 $("avatarPreview").style.display="none";
 $("profileStatus").innerText="";
 selectedAvatar=null;
-
 $("editModal").classList.add("show");
 }
 
 function previewAvatar(event){
 const file=event.target.files?.[0];
 if(!file)return;
-
-if(file.size>100*1024*1024){
-alert(t("maxPhoto"));
-event.target.value="";
-return;
-}
-
+if(file.size>100*1024*1024){ alert(t("maxPhoto")); event.target.value=""; return; }
 if(!file.type.startsWith("image/"))return;
-
 selectedAvatar=file;
 const reader=new FileReader();
-
 reader.onload=e=>{
 $("avatarPreviewImage").src=e.target.result;
 $("avatarPreview").style.display="block";
 };
-
 reader.readAsDataURL(file);
 }
 
 async function getVote(id){
 if(!currentUser)return null;
-
-const r=await db.from("duel_votes")
-.select("id,choice")
-.eq("duel_id",String(id))
-.eq("user_id",currentUser.id)
-.maybeSingle();
-
+const r=await db.from("duel_votes").select("id,choice").eq("duel_id",String(id)).eq("user_id",currentUser.id).maybeSingle();
 if(r.error)return null;
-
 return r.data?.choice||null;
 }
 
 async function getDuelVoteCounts(id){
 const duelId=String(id);
-
-const r=await db.from("duel_votes")
-.select("choice")
-.eq("duel_id",duelId);
-
+const r=await db.from("duel_votes").select("choice").eq("duel_id",duelId);
 if(r.error)throw r.error;
 
-let a=0;
-let b=0;
-
+let a=0, b=0;
 for(const row of r.data||[]){
 const choice=String(row.choice||"").toLowerCase();
 if(choice==="a")a++;
 if(choice==="b")b++;
 }
-
 const total=a+b;
-let pa=0;
-let pb=0;
-
+let pa=0, pb=0;
 if(total>0){
 pa=Math.round((a/total)*100);
 pb=100-pa;
 }
-
 return{a,b,total,pa,pb};
 }
 
 function isVideoDuel(d){
-return !!(
-d.video_a||
-d.video_b||
-d.video_option_a||
-d.video_option_b
-);
+return !!(d.video_a||d.video_b||d.video_option_a||d.video_option_b);
+}
+
+function isGifDuel(d){
+return !!(d.gif_a||d.gif_b||d.gif_option_a||d.gif_option_b);
 }
 
 async function duelCard(duel){
 const vote=await getVote(duel.id);
 let voteCounts;
-
 try{
 voteCounts=await getDuelVoteCounts(duel.id);
 }catch(e){
@@ -1943,134 +1842,88 @@ const id=String(duel.id);
 const idJS=escJS(id);
 
 const video=isVideoDuel(duel);
+const gif=isGifDuel(duel);
 
 let authorName = t("participant");
 let authorId = duel.user_id;
 if(authorId){
   try{
     const authorRes = await db.from("profiles").select("full_name, username").eq("id", authorId).maybeSingle();
-    if(authorRes.data){
-      authorName = authorRes.data.full_name || authorRes.data.username || t("participant");
-    }
+    if(authorRes.data) authorName = authorRes.data.full_name || authorRes.data.username || t("participant");
   }catch(err){}
 }
 
-let mediaA="";
-let mediaB="";
+let mediaA="", mediaB="";
+let labelA="", labelB="";
 
 if(video){
-mediaA=duel.video_a
-?`<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_a)}#t=0.001" preload="metadata" playsinline webkit-playsinline></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_a)}"></div></div>`
-:`<div class="option-placeholder video-placeholder">🎥</div>`;
-
-mediaB=duel.video_b
-?`<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_b)}#t=0.001" preload="metadata" playsinline webkit-playsinline></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_b)}"></div></div>`
-:`<div class="option-placeholder video-placeholder">🎥</div>`;
-
+  mediaA=duel.video_a ? `<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_a)}#t=0.001" preload="metadata" playsinline webkit-playsinline></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_a)}"></div></div>` : `<div class="option-placeholder video-placeholder">🎥</div>`;
+  mediaB=duel.video_b ? `<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_b)}#t=0.001" preload="metadata" playsinline webkit-playsinline></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_b)}"></div></div>` : `<div class="option-placeholder video-placeholder">🎥</div>`;
+  labelA=duel.video_option_a||duel.option_a||"A";
+  labelB=duel.video_option_b||duel.option_b||"B";
+}else if(gif){
+  mediaA=duel.gif_a ? `<img src="${esc(duel.gif_a)}" alt="A">` : `<div class="option-placeholder">GIF</div>`;
+  mediaB=duel.gif_b ? `<img src="${esc(duel.gif_b)}" alt="B">` : `<div class="option-placeholder">GIF</div>`;
+  labelA=duel.gif_option_a||duel.option_a||"A";
+  labelB=duel.gif_option_b||duel.option_b||"B";
 }else{
-mediaA=duel.image_a
-?`<img src="${esc(duel.image_a)}" alt="A">`
-:`<div class="option-placeholder">A</div>`;
-
-mediaB=duel.image_b
-?`<img src="${esc(duel.image_b)}" alt="B">`
-:`<div class="option-placeholder">B</div>`;
+  mediaA=duel.image_a ? `<img src="${esc(duel.image_a)}" alt="A">` : `<div class="option-placeholder">A</div>`;
+  mediaB=duel.image_b ? `<img src="${esc(duel.image_b)}" alt="B">` : `<div class="option-placeholder">B</div>`;
+  labelA=duel.option_a||"A";
+  labelB=duel.option_b||"B";
 }
 
-const labelA=video
-?(duel.video_option_a||duel.option_a||"A")
-:(duel.option_a||"A");
-
-const labelB=video
-?(duel.video_option_b||duel.option_b||"B")
-:(duel.option_b||"B");
+const hasSecondOption = !!(duel.image_b || duel.video_b || duel.gif_b || duel.option_b || duel.video_option_b || duel.gif_option_b);
 
 const card=document.createElement("article");
 card.className="duel";
 card.dataset.duelId=id;
 
 const categoryKey={
-"Фильмы":"films",
-"Музыка":"music",
-"Игры":"games",
-"Спорт":"sport",
-"Мемы":"memes",
-"Авто":"auto",
-"Другое":"other"
+"Фильмы":"films","Музыка":"music","Игры":"games","Спорт":"sport","Мемы":"memes","Авто":"auto","Другое":"other"
 }[duel.category]||"other";
 
 const timerRes=formatCountdown(duel.expires_at);
+const battleTypeLabel = video ? '📹 ' + t("videoBattle") : (gif ? '🎞️ ' + t("gifBattle") : '📷 ' + t("photoBattle"));
 
 card.innerHTML=`
 <div class="duel-head">
 <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap">
-<span class="duel-category">
-${t(categoryKey)}
-</span>
-<span class="duel-type">
-${video ? '📹 ' + t("videoBattle") : '📷 ' + t("photoBattle")}
-</span>
+<span class="duel-category">${t(categoryKey)}</span>
+<span class="duel-type">${battleTypeLabel}</span>
 </div>
-<span class="duel-time ${timerRes.ended?'ended':''}" data-expires="${esc(duel.expires_at||'')}">
-${timerRes.text}
-</span>
+<span class="duel-time ${timerRes.ended?'ended':''}" data-expires="${esc(duel.expires_at||'')}">${timerRes.text}</span>
 </div>
 
-<div class="duel-author-row" onclick="openUserProfile('${escJS(authorId)}')">
-👤 ${esc(authorName)}
-</div>
-
-<div class="duel-title">
-${esc(duel.title||t("winner"))}
-</div>
+<div class="duel-author-row" onclick="openUserProfile('${escJS(authorId)}')">👤 ${esc(authorName)}</div>
+<div class="duel-title">${esc(duel.title||t("winner"))}</div>
 
 <div class="duel-options">
 <div class="option">
-<div class="option-media">
-${mediaA}
-</div>
-<div class="option-label">
-${esc(labelA)}
-</div>
-<button
-class="vote-button"
-type="button"
-${(vote||timerRes.ended)?"disabled":""}
-onclick="voteDuel('${idJS}','a',this)"
->
+<div class="option-media">${mediaA}</div>
+<div class="option-label">${esc(labelA)}</div>
+<button class="vote-button" type="button" ${(vote||timerRes.ended||!hasSecondOption)?"disabled":""} onclick="voteDuel('${idJS}','a',this)">
 ${vote?(vote==="a"?t("yourChoice"):"❤️"):t("chooseA")}
 </button>
 </div>
 
 <div class="option">
-<div class="option-media">
-${mediaB}
+<div class="option-media">${mediaB}</div>
+<div class="option-label">${esc(labelB || "Ожидает соперника...")}</div>
+${hasSecondOption 
+  ? `<button class="vote-button" type="button" ${(vote||timerRes.ended)?"disabled":""} onclick="voteDuel('${idJS}','b',this)">${vote?(vote==="b"?t("yourChoice"):"❤️"):t("chooseB")}</button>`
+  : (currentUser ? `<button class="accept-challenge-btn" type="button" onclick="openChallengeModal('${idJS}')">${t("acceptChallenge")}</button>` : `<button class="accept-challenge-btn" type="button" disabled>Войдите для участия</button>`)}
 </div>
-<div class="option-label">
-${esc(labelB)}
-</div>
-<button
-class="vote-button"
-type="button"
-${(vote||timerRes.ended)?"disabled":""}
-onclick="voteDuel('${idJS}','b',this)"
->
-${vote?(vote==="b"?t("yourChoice"):"❤️"):t("chooseB")}
-</button>
-</div>
-
 <div class="vs">VS</div>
 </div>
 
-<div class="results">
+<div class="results" ${!hasSecondOption?'style="display:none"':''}>
 <div class="result-row">
 <div class="result-info">
 <span class="result-a-text">A — ${esc(labelA)} · ${voteCounts.a} ${t("votes")}</span>
 <b class="result-a-percent">${voteCounts.pa}%</b>
 </div>
-<div class="progress">
-<div class="progress-fill result-a-fill" style="width:${voteCounts.pa}%"></div>
-</div>
+<div class="progress"><div class="progress-fill result-a-fill" style="width:${voteCounts.pa}%"></div></div>
 </div>
 
 <div class="result-row">
@@ -2078,39 +1931,22 @@ ${vote?(vote==="b"?t("yourChoice"):"❤️"):t("chooseB")}
 <span class="result-b-text">B — ${esc(labelB)} · ${voteCounts.b} ${t("votes")}</span>
 <b class="result-b-percent">${voteCounts.pb}%</b>
 </div>
-<div class="progress">
-<div class="progress-fill result-b-fill" style="width:${voteCounts.pb}%"></div>
-</div>
+<div class="progress"><div class="progress-fill result-b-fill" style="width:${voteCounts.pb}%"></div></div>
 </div>
 </div>
 
 <div class="duel-actions">
-<span class="duel-total-votes" onclick="openVotersModal('${idJS}')">
-🗳️ ${voteCounts.total} ${t("votes")}
-</span>
-
-<button
-class="duel-share-button"
-type="button"
-onclick="shareDuel('${idJS}',this)"
->
+<span class="duel-total-votes" onclick="openVotersModal('${idJS}')">🗳️ ${voteCounts.total} ${t("votes")}</span>
+<button class="duel-share-button" type="button" onclick="shareDuel('${idJS}',this)">
 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
 ${t("share")}
 </button>
-
-${owner
-?`<button class="owner-delete" type="button" onclick="deleteDuel('${idJS}')">${t("delete")}</button>`
-:""}
-
-${admin
-?`<button class="admin-delete" type="button" onclick="deleteDuel('${idJS}',true)">${t("adminDelete")}</button>`
-:""}
+${owner ? `<button class="owner-delete" type="button" onclick="deleteDuel('${idJS}')">${t("delete")}</button>` : ""}
+${admin ? `<button class="admin-delete" type="button" onclick="deleteDuel('${idJS}',true)">${t("adminDelete")}</button>` : ""}
 </div>
 
 <div style="padding: 0 14px 12px;">
-<button type="button" onclick="toggleDuelChat(this, '${idJS}')" style="width:100%;padding:10px;border:1px solid #dbe4f0;background:#f8fafc;color:#2563eb;border-radius:12px;font-weight:bold;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px">
-${t("chatButton")}
-</button>
+<button type="button" onclick="toggleDuelChat(this, '${idJS}')" style="width:100%;padding:10px;border:1px solid #dbe4f0;background:#f8fafc;color:#2563eb;border-radius:12px;font-weight:bold;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px">${t("chatButton")}</button>
 </div>
 
 <div class="duel-chat-box hidden" style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#f8fafc;border-radius:0 0 20px 20px" data-chat-id="${idJS}">
@@ -2123,8 +1959,139 @@ ${t("chatButton")}
 </div>
 </div>
 `;
-
 return card;
+}
+
+// Логика принятия открытого вызова
+function openChallengeModal(duelId){
+if(!currentUser) return;
+activeChallengeDuelId = duelId;
+$("challengeOptionB").value = "";
+$("challengeMediaFile").value = "";
+$("challengePreviewImg").style.display = "none";
+$("challengePreviewVid").style.display = "none";
+$("challengePreview").style.display = "none";
+challengeFile = null;
+$("challengeStatus").innerText = "";
+$("challengeModal").classList.add("show");
+}
+
+function previewChallengeMedia(event){
+const file = event.target.files?.[0];
+if(!file) return;
+if(file.size > 100*1024*1024){ alert(t("maxPhoto")); event.target.value=""; return; }
+
+challengeFile = file;
+const reader = new FileReader();
+reader.onload = e => {
+if(file.type.startsWith("video/")){
+  $("challengePreviewVid").src = e.target.result;
+  $("challengePreviewVid").style.display = "block";
+  $("challengePreviewImg").style.display = "none";
+} else {
+  $("challengePreviewImg").src = e.target.result;
+  $("challengePreviewImg").style.display = "block";
+  $("challengePreviewVid").style.display = "none";
+}
+$("challengePreview").style.display = "block";
+};
+reader.readAsDataURL(file);
+}
+
+async function submitChallenge(){
+const optB = $("challengeOptionB").value.trim();
+const status = $("challengeStatus");
+
+if(!optB || !challengeFile){
+status.innerText = t("invalid");
+return;
+}
+
+$("challengeStatus").innerText = t("uploading");
+try{
+// Определяем тип дуэли по файлу
+const isVid = challengeFile.type.startsWith("video/");
+const isGif = challengeFile.type.includes("gif");
+
+const folder = isVid ? "videos" : (isGif ? "gifs" : "duels");
+const mediaUrl = await upload(challengeFile, folder);
+
+const updatePayload = isVid ? {
+  video_option_b: optB,
+  video_b: mediaUrl
+} : (isGif ? {
+  gif_option_b: optB,
+  gif_b: mediaUrl
+} : {
+  option_b: optB,
+  image_b: mediaUrl
+});
+
+const r = await db.from("duels").update(updatePayload).eq("id", activeChallengeDuelId);
+if(r.error) throw r.error;
+
+closeModal("challengeModal");
+await loadDuels();
+alert("Вы успешно приняли вызов! Дуэль запущена ⚔️");
+}catch(e){
+status.innerText = e.message || t("connection");
+}
+}
+
+// Личные сообщения с поддержкой медиафайлов
+async function sendDirectMedia(event){
+const file = event.target.files?.[0];
+if(!file || !activeChatUserId || !currentUser) return;
+if(file.size > 100*1024*1024){ alert(t("maxPhoto")); return; }
+
+try{
+const folder = file.type.startsWith("video/") ? "videos" : (file.type.includes("gif") ? "gifs" : "duels");
+const url = await upload(file, folder);
+
+const { error } = await db.from("direct_messages").insert({
+sender_id: currentUser.id,
+receiver_id: activeChatUserId,
+text: url,
+is_media: true
+});
+if(error) throw error;
+await loadDirectMessages();
+}catch(e){
+alert(e.message || t("connection"));
+}
+}
+
+async function loadDirectMessages(){
+const container=$("chatMessages");
+try{
+const r=await db.from("direct_messages")
+.select("*")
+.or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${activeChatUserId}),and(sender_id.eq.${activeChatUserId},receiver_id.eq.${currentUser.id})`)
+.order("created_at",{ascending:true});
+
+if(r.error)throw r.error;
+
+container.innerHTML=(r.data||[]).map(m=>{
+const isMe=m.sender_id===currentUser.id;
+let content = esc(m.text);
+if(m.is_media || m.text?.startsWith("http")){
+  if(m.text.match(/\.(mp4|webm|ogg)$/i) || m.text.includes("videos/")){
+    content = `<video src="${esc(m.text)}" controls style="max-width:200px;max-height:200px;border-radius:8px"></video>`;
+  } else {
+    content = `<img src="${esc(m.text)}" style="max-width:200px;max-height:200px;border-radius:8px;object-fit:cover;cursor:pointer">`;
+  }
+}
+
+return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'}">
+<div style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word">
+${content}
+</div>
+</div>`;
+}).join("");
+container.scrollTop=container.scrollHeight;
+}catch(e){
+container.innerHTML=`<div class="empty">Ошибка чата</div>`;
+}
 }
 
 function toggleDuelChat(button, duelId){
@@ -2132,7 +2099,6 @@ const card = button.closest(".duel");
 if(!card) return;
 const box = card.querySelector(".duel-chat-box");
 if(!box) return;
-
 const isHidden = box.classList.contains("hidden");
 if(isHidden){
 box.classList.remove("hidden");
@@ -2151,11 +2117,7 @@ const container = boxOrContainer.classList?.contains("duel-chat-box")
 if(!container)return;
 
 try{
-const r=await db.from("duel_comments")
-.select("*")
-.eq("duel_id",sId)
-.order("created_at",{ascending:true});
-
+const r=await db.from("duel_comments").select("*").eq("duel_id",sId).order("created_at",{ascending:true});
 if(r.error)throw r.error;
 
 const comments=r.data||[];
@@ -2166,14 +2128,12 @@ return;
 
 const userIds=[...new Set(comments.map(c=>c.user_id))];
 const profilesMapData=await profilesMap(userIds);
-
 const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
 
 container.innerHTML=comments.map(c=>{
 const p=profilesMapData[c.user_id]||{};
 const name=p.full_name||p.username||t("participant");
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:24px;height:24px;border-radius:50%;object-fit:cover">`:`<div style="width:24px;height:24px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:10px">⚔️</div>`;
-
 const canDelete = currentUser && (String(c.user_id) === String(currentUser.id) || isAdminUser);
 
 return `
@@ -2204,19 +2164,10 @@ if(!input) return;
 
 const text=input.value.trim();
 if(!text)return;
-
-if(!currentUser){
-alert("Требуется авторизация");
-return;
-}
+if(!currentUser){ alert("Требуется авторизация"); return; }
 
 try{
-const r=await db.from("duel_comments").insert({
-duel_id:sId,
-user_id:currentUser.id,
-text
-});
-
+const r=await db.from("duel_comments").insert({ duel_id:sId, user_id:currentUser.id, text });
 if(r.error)throw r.error;
 input.value="";
 loadComments(card.querySelector(".duel-chat-box"), sId);
@@ -2231,9 +2182,7 @@ const card = button.closest(".duel");
 try{
 const r = await db.from("duel_comments").delete().eq("id", commentId);
 if(r.error) throw r.error;
-if(card){
-loadComments(card.querySelector(".duel-chat-box"), sId);
-}
+if(card) loadComments(card.querySelector(".duel-chat-box"), sId);
 }catch(e){
 alert(e.message || t("connection"));
 }
@@ -2249,27 +2198,20 @@ const box=$("conversationsList");
 box.innerHTML=`<div class="status">${t("loading")}</div>`;
 
 try{
-const r=await db.from("direct_messages")
-.select("*")
-.or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`)
-.order("created_at",{ascending:false});
-
+const r=await db.from("direct_messages").select("*").or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order("created_at",{ascending:false});
 if(r.error)throw r.error;
 
 const userIds=[...new Set((r.data||[]).flatMap(m=>[m.sender_id,m.receiver_id]))].filter(id=>id!==currentUser.id);
-
-if(!userIds.length){
+if(!idsListHasItems(userIds)){
 box.innerHTML=`<div class="empty">${t("noActiveDialogs")}</div>`;
 return;
 }
 
 const profiles=await profilesMap(userIds);
-
 box.innerHTML=userIds.map(uid=>{
 const p=profiles[uid]||{};
 const name=p.full_name||p.username||t("participant");
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`:`<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
-
 return `
 <div onclick="openChat('${escJS(uid)}', '${escJS(name)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
 ${avatar}
@@ -2280,6 +2222,8 @@ ${avatar}
 box.innerHTML=`<div class="empty">Ошибка загрузки чатов</div>`;
 }
 }
+
+function idsListHasItems(arr){ return arr && arr.length > 0; }
 
 async function openChatWithUser(userId, userName){
 showScreen("messagesScreen");
@@ -2294,43 +2238,13 @@ $("activeChatUser").innerText=userName;
 await loadDirectMessages();
 }
 
-async function loadDirectMessages(){
-const container=$("chatMessages");
-try{
-const r=await db.from("direct_messages")
-.select("*")
-.or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${activeChatUserId}),and(sender_id.eq.${activeChatUserId},receiver_id.eq.${currentUser.id})`)
-.order("created_at",{ascending:true});
-
-if(r.error)throw r.error;
-
-container.innerHTML=(r.data||[]).map(m=>{
-const isMe=m.sender_id===currentUser.id;
-return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'}">
-<div style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word">
-${esc(m.text)}
-</div>
-</div>`;
-}).join("");
-container.scrollTop=container.scrollHeight;
-}catch(e){
-container.innerHTML=`<div class="empty">Ошибка чата</div>`;
-}
-}
-
 async function sendDirectMessage(){
 const input=$("directMessageInput");
 const text=input.value.trim();
 if(!text||!activeChatUserId)return;
-
 input.value="";
 try{
-const r=await db.from("direct_messages").insert({
-sender_id:currentUser.id,
-receiver_id:activeChatUserId,
-text
-});
-
+const r=await db.from("direct_messages").insert({ sender_id:currentUser.id, receiver_id:activeChatUserId, text, is_media:false });
 if(r.error)throw r.error;
 await loadDirectMessages();
 }catch(e){
@@ -2345,10 +2259,7 @@ content.innerHTML=`<div class="empty">${t("loading")}</div>`;
 $("votersModal").classList.add("show");
 
 try{
-const r=await db.from("duel_votes")
-.select("choice, user_id")
-.eq("duel_id",duelId);
-
+const r=await db.from("duel_votes").select("choice, user_id").eq("duel_id",duelId);
 if(r.error)throw r.error;
 const votes=r.data||[];
 
@@ -2360,9 +2271,7 @@ return;
 const userIds=[...new Set(votes.map(v=>v.user_id))];
 const profilesMapData=await profilesMap(userIds);
 
-let listA=[];
-let listB=[];
-
+let listA=[], listB=[];
 votes.forEach(v=>{
 const p=profilesMapData[v.user_id]||{};
 const name=p.full_name||p.username||t("participant");
@@ -2392,46 +2301,27 @@ content.innerHTML=`<div class="empty">Ошибка загрузки</div>`;
 
 async function profilesMap(ids){
 if(!ids.length)return{};
-
-const r=await db.from("profiles")
-.select("id,full_name,username,avatar_url")
-.in("id",ids);
-
+const r=await db.from("profiles").select("id,full_name,username,avatar_url").in("id",ids);
 if(r.error)return{};
-
 const map={};
-(r.data||[]).forEach(p=>{
-map[p.id]=p;
-});
-
+(r.data||[]).forEach(p=>{ map[p.id]=p; });
 return map;
 }
 
 async function loadDuels(){
 if(isDuelsLoading)return;
 isDuelsLoading=true;
-
 const box=$("duelsFeed");
-if(!box) {
-isDuelsLoading=false;
-return;
-}
+if(!box){ isDuelsLoading=false; return; }
 
 box.innerHTML=`<div class="status">${esc(t("loading"))} ⏳</div>`;
 
 try{
-let q=db.from("duels")
-.select("*")
-.order("created_at",{ascending:false})
-.limit(50);
-
-if(currentCategory!=="all")
-q=q.eq("category",currentCategory);
+let q=db.from("duels").select("*").order("created_at",{ascending:false}).limit(50);
+if(currentCategory!=="all") q=q.eq("category",currentCategory);
 
 const r=await q;
-
 if(r.error)throw r.error;
-
 box.innerHTML="";
 
 if(!r.data?.length){
@@ -2447,7 +2337,6 @@ try{
 box.appendChild(await duelCard(duel));
 }catch(e){}
 }
-
 await openSharedDuel();
 }catch(e){
 box.innerHTML=`<div class="empty">${esc(e.message||"Ошибка загрузки")}</div>`;
@@ -2458,17 +2347,13 @@ isDuelsLoading=false;
 
 function selectCategory(category,button){
 currentCategory=category;
-document.querySelectorAll(".category-btn")
-.forEach(e=>e.classList.remove("active"));
-
+document.querySelectorAll(".category-btn").forEach(e=>e.classList.remove("active"));
 button.classList.add("active");
 loadDuels();
 }
 
 async function voteDuel(id,choice,button){
-if(!currentUser||!["a","b"].includes(choice))
-return;
-
+if(!currentUser||!["a","b"].includes(choice)) return;
 const card=button.closest(".duel");
 if(!card)return;
 
@@ -2477,46 +2362,24 @@ buttons.forEach(b=>b.disabled=true);
 
 try{
 const duelId=String(id);
-
-const existing=await db.from("duel_votes")
-.select("id,choice")
-.eq("duel_id",duelId)
-.eq("user_id",currentUser.id)
-.maybeSingle();
-
+const existing=await db.from("duel_votes").select("id,choice").eq("duel_id",duelId).eq("user_id",currentUser.id).maybeSingle();
 if(existing.error)throw existing.error;
 
 if(existing.data){
-const existingChoice=existing.data.choice;
-await updateDuelVoteCard(card,duelId,existingChoice);
+await updateDuelVoteCard(card,duelId,existing.data.choice);
 return;
 }
 
-const insert=await db.from("duel_votes")
-.insert({
-duel_id:duelId,
-user_id:currentUser.id,
-choice
-})
-.select("id,choice")
-.maybeSingle();
-
+const insert=await db.from("duel_votes").insert({ duel_id:duelId, user_id:currentUser.id, choice }).select("id,choice").maybeSingle();
 if(insert.error){
 const msg=String(insert.error.message||"").toLowerCase();
-
-if(
-msg.includes("duplicate")||
-msg.includes("unique")||
-msg.includes("already exists")
-){
+if(msg.includes("duplicate")||msg.includes("unique")||msg.includes("already exists")){
 await updateDuelVoteCard(card,duelId,await getVote(duelId));
 return;
 }
 throw insert.error;
 }
-
 await updateDuelVoteCard(card,duelId,choice);
-
 }catch(e){
 alert(e.message||t("connection"));
 buttons.forEach(b=>b.disabled=false);
@@ -2525,7 +2388,6 @@ buttons.forEach(b=>b.disabled=false);
 
 async function updateDuelVoteCard(card,duelId,vote){
 const counts=await getDuelVoteCounts(duelId);
-
 const resultA=card.querySelector(".result-a-text");
 const resultB=card.querySelector(".result-b-text");
 const percentA=card.querySelector(".result-a-percent");
@@ -2538,29 +2400,15 @@ const labels=card.querySelectorAll(".option-label");
 const labelA=labels[0]?.innerText||"A";
 const labelB=labels[1]?.innerText||"B";
 
-if(resultA)
-resultA.innerText=`A — ${labelA} · ${counts.a} ${t("votes")}`;
-
-if(resultB)
-resultB.innerText=`B — ${labelB} · ${counts.b} ${t("votes")}`;
-
-if(percentA)
-percentA.innerText=`${counts.pa}%`;
-
-if(percentB)
-percentB.innerText=`${counts.pb}%`;
-
-if(fillA)
-fillA.style.width=`${counts.pa}%`;
-
-if(fillB)
-fillB.style.width=`${counts.pb}%`;
-
-if(total)
-total.innerHTML=`🗳️ ${counts.total} ${t("votes")}`;
+if(resultA) resultA.innerText=`A — ${labelA} · ${counts.a} ${t("votes")}`;
+if(resultB) resultB.innerText=`B — ${labelB} · ${counts.b} ${t("votes")}`;
+if(percentA) percentA.innerText=`${counts.pa}%`;
+if(percentB) percentB.innerText=`${counts.pb}%`;
+if(fillA) fillA.style.width=`${counts.pa}%`;
+if(fillB) fillB.style.width=`${counts.pb}%`;
+if(total) total.innerHTML=`🗳️ ${counts.total} ${t("votes")}`;
 
 const buttons=card.querySelectorAll(".vote-button");
-
 buttons.forEach((btn,index)=>{
 if(vote){
 btn.disabled=true;
@@ -2576,23 +2424,15 @@ btn.innerText=index===0?t("chooseA"):t("chooseB");
 
 async function deleteDuel(id,admin=false){
 if(!currentUser)return;
-
 showCustomConfirm(t(admin?"adminDeleteConfirm":"deleteConfirm"), async () => {
 try{
 let q=db.from("duels").delete().eq("id",String(id));
-
-if(!admin)
-q=q.eq("user_id",currentUser.id);
-
+if(!admin) q=q.eq("user_id",currentUser.id);
 const r=await q;
 if(r.error)throw r.error;
-
 await loadDuels();
 await updateStats();
-
-if($("profileScreen")?.classList.contains("active"))
-await loadMyDuels();
-
+if($("profileScreen")?.classList.contains("active")) await loadMyDuels();
 }catch(e){
 alert(e.message||t("connection"));
 }
@@ -2603,50 +2443,18 @@ function toggleDuelType(){
 const type=$("duelType").value;
 $("photoFields").classList.toggle("hidden",type!=="photo");
 $("videoFields").classList.toggle("hidden",type!=="video");
+$("gifFields").classList.toggle("hidden",type!=="gif");
 }
 
 function openDuelModal(){
-if(!currentUser){
-showAuth();
-return;
-}
+if(!currentUser){ showAuth(); return; }
+["duelTitle","duelOptionA","duelVideoOptionA","duelGifOptionA"].forEach(id=>{ if($(id))$(id).value=""; });
+["duelImageA","duelVideoA","duelGifA"].forEach(id=>{ if($(id))$(id).value=""; });
+["previewA","previewVideoA","previewGifA"].forEach(id=>{ if($(id))$(id).style.display="none"; });
 
-[
-"duelTitle",
-"duelOptionA",
-"duelOptionB",
-"duelVideoOptionA",
-"duelVideoOptionB"
-].forEach(id=>{
-if($(id))$(id).value="";
-});
-
-[
-"duelImageA",
-"duelImageB",
-"duelVideoA",
-"duelVideoB"
-].forEach(id=>{
-if($(id))$(id).value="";
-});
-
-[
-"previewA",
-"previewB",
-"previewVideoA",
-"previewVideoB"
-].forEach(id=>{
-if($(id))$(id).style.display="none";
-});
-
-selectedImageA=null;
-selectedImageB=null;
-selectedVideoA=null;
-selectedVideoB=null;
-
+selectedImageA=null; selectedVideoA=null; selectedGifA=null;
 $("duelType").value="photo";
 $("duelDuration").value="48";
-
 toggleDuelType();
 $("duelStatus").innerText="";
 $("duelModal").classList.add("show");
@@ -2655,69 +2463,39 @@ $("duelModal").classList.add("show");
 function previewDuelMedia(side,event,type){
 const file=event.target.files?.[0];
 if(!file)return;
-
-if(file.size>100*1024*1024){
-alert(t("maxPhoto"));
-event.target.value="";
-return;
-}
-
-if(type==="image"&&!file.type.startsWith("image/"))return;
-if(type==="video"&&!file.type.startsWith("video/"))return;
+if(file.size>100*1024*1024){ alert(t("maxPhoto")); event.target.value=""; return; }
 
 const reader=new FileReader();
-
 reader.onload=e=>{
 if(type==="image"){
-if(side==="A"){
 selectedImageA=file;
 $("previewAImage").src=e.target.result;
 $("previewA").style.display="block";
-}else{
-selectedImageB=file;
-$("previewBImage").src=e.target.result;
-$("previewB").style.display="block";
-}
-}else{
-if(side==="A"){
+}else if(type==="video"){
 selectedVideoA=file;
 $("previewVideoAElement").src=e.target.result;
 $("previewVideoA").style.display="block";
 }else{
-selectedVideoB=file;
-$("previewVideoBElement").src=e.target.result;
-$("previewVideoB").style.display="block";
-}
+selectedGifA=file;
+$("previewGifAImage").src=e.target.result;
+$("previewGifA").style.display="block";
 }
 };
-
 reader.readAsDataURL(file);
 }
 
 async function upload(file, folder){
 if(!file)return"";
-
-const ext=(file.name.split(".").pop()||"bin")
-.replace(/[^a-z0-9]/gi,"")||"bin";
-
-const path=
-`${folder}/${currentUser.id}-${Date.now()}-${rnd()}.${ext}`;
-
+const ext=(file.name.split(".").pop()||"bin").replace(/[^a-z0-9]/gi,"")||"bin";
+const path=`${folder}/${currentUser.id}-${Date.now()}-${rnd()}.${ext}`;
 const bucketName = "Photos";
 
-const r=await db.storage
-.from(bucketName)
-.upload(path,file,{
+const r=await db.storage.from(bucketName).upload(path,file,{
 upsert:true,
 contentType: file.type || "application/octet-stream"
 });
-
 if(r.error)throw r.error;
-
-return db.storage
-.from(bucketName)
-.getPublicUrl(path)
-.data.publicUrl;
+return db.storage.from(bucketName).getPublicUrl(path).data.publicUrl;
 }
 
 async function createDuel(){
@@ -2728,62 +2506,28 @@ const duration=parseInt($("duelDuration").value,10);
 const status=$("duelStatus");
 
 let optionA="";
-let optionB="";
+if(type==="video") optionA=$("duelVideoOptionA").value.trim();
+else if(type==="gif") optionA=$("duelGifOptionA").value.trim();
+else optionA=$("duelOptionA").value.trim();
 
-if(type==="video"){
-optionA=$("duelVideoOptionA").value.trim();
-optionB=$("duelVideoOptionB").value.trim();
-}else{
-optionA=$("duelOptionA").value.trim();
-optionB=$("duelOptionB").value.trim();
-}
-
-if(!title||!optionA||!optionB){
+if(!title||!optionA){
 status.innerText=t("invalid");
 return;
 }
-
-if(type==="video"&&!selectedVideoA&&!selectedVideoB){
-status.innerText=t("videoRequired");
-return;
-}
-
-if(title.length>300){
-status.innerText=t("tooLongTitle");
-return;
-}
-
-if(optionA.length>200||optionB.length>200){
-status.innerText=t("tooLongOption");
-return;
-}
+if(type==="video"&&!selectedVideoA){ status.innerText=t("invalid"); return; }
+if(type==="photo"&&!selectedImageA){ status.innerText=t("invalid"); return; }
+if(type==="gif"&&!selectedGifA){ status.innerText=t("invalid"); return; }
 
 $("duelSubmitButton").disabled=true;
-
 try{
 status.innerText=t("uploading");
+let imageA="", videoA="", gifA="";
 
-let imageA="";
-let imageB="";
-let videoA="";
-let videoB="";
-
-if(type==="video"){
-if(selectedVideoA)
-videoA=await upload(selectedVideoA,"videos");
-
-if(selectedVideoB)
-videoB=await upload(selectedVideoB,"videos");
-}else{
-if(selectedImageA)
-imageA=await upload(selectedImageA,"duels");
-
-if(selectedImageB)
-imageB=await upload(selectedImageB,"duels");
-}
+if(type==="video") videoA=await upload(selectedVideoA,"videos");
+else if(type==="gif") gifA=await upload(selectedGifA,"gifs");
+else imageA=await upload(selectedImageA,"duels");
 
 status.innerText=t("creatingDuel");
-
 const expiresAt=duration>0?new Date(Date.now()+duration*3600*1000).toISOString():null;
 
 const payload={
@@ -2793,13 +2537,11 @@ category,
 duration_hours:duration,
 expires_at:expiresAt,
 option_a:type==="photo"?optionA:"",
-option_b:type==="photo"?optionB:"",
 image_a:imageA,
-image_b:imageB,
 video_option_a:type==="video"?optionA:"",
-video_option_b:type==="video"?optionB:"",
 video_a:videoA,
-video_b:videoB,
+gif_option_a:type==="gif"?optionA:"",
+gif_a:gifA,
 votes_a:0,
 votes_b:0
 };
@@ -2810,48 +2552,30 @@ if(r.error)throw r.error;
 closeModal("duelModal");
 await loadDuels();
 await updateStats();
-
-if($("profileScreen").classList.contains("active"))
-await loadMyDuels();
-
+if($("profileScreen").classList.contains("active")) await loadMyDuels();
 alert(t("created"));
-
 }catch(e){
 status.innerText=e.message||t("connection");
 }
-
 $("duelSubmitButton").disabled=false;
 }
 
 async function loadTop(category="all",button){
 showScreen("topScreen");
-
 if(button){
-document.querySelectorAll(".top-tab")
-.forEach(e=>e.classList.remove("active"));
+document.querySelectorAll(".top-tab").forEach(e=>e.classList.remove("active"));
 button.classList.add("active");
 }
-
 const box=$("topList");
 box.innerHTML=`<div class="status">${esc(t("loading"))}</div>`;
 
-let q=db.from("duels")
-.select("*")
-.limit(50);
-
-if(category!=="all")
-q=q.eq("category",category);
-
+let q=db.from("duels").select("*").limit(50);
+if(category!=="all") q=q.eq("category",category);
 const r=await q;
-
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
+if(r.error){ box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`; return; }
 
 const scored=[];
 const seenTopIds = new Set();
-
 for(const d of r.data||[]){
 if(seenTopIds.has(d.id)) continue;
 seenTopIds.add(d.id);
@@ -2862,65 +2586,36 @@ scored.push({duel:d,counts});
 scored.push({duel:d,counts:{a:0,b:0,total:0,pa:0,pb:0}});
 }
 }
-
 scored.sort((x,y)=>y.counts.total-x.counts.total);
 const data=scored.slice(0,20);
 
-const categoryKey={
-"Фильмы":"films",
-"Музыка":"music",
-"Игры":"games",
-"Спорт":"sport",
-"Мемы":"memes",
-"Авто":"auto",
-"Другое":"other"
-};
-
-box.innerHTML=data.length
-?data.map((item,i)=>{
+const categoryKey={"Фильмы":"films","Музыка":"music","Игры":"games","Спорт":"sport","Мемы":"memes","Авто":"auto","Другое":"other"};
+box.innerHTML=data.length?data.map((item,i)=>{
 const d=item.duel;
 const counts=item.counts;
 const video=isVideoDuel(d);
-
+const gif=isGifDuel(d);
 return`
 <div class="rank-item">
 <div class="rank-number">${i+1}</div>
 <div class="rank-main">
 <div class="rank-title">${esc(d.title)}</div>
-<div class="rank-category">
-${video?"🎥 ":"🖼️ "}
-${t(categoryKey[d.category]||"other")}
+<div class="rank-category">${video?"🎥 ":(gif?"🎞️ ":"🖼️ ")}${t(categoryKey[d.category]||"other")}</div>
 </div>
-</div>
-<div class="rank-score">
-${counts.total}<br><small>${t("votes")}</small>
-</div>
+<div class="rank-score">${counts.total}<br><small>${t("votes")}</small></div>
 </div>
 `;
-}).join("")
-:`<div class="empty">${esc(t("noDuels"))}</div>`;
+}).join(""):`<div class="empty">${esc(t("noDuels"))}</div>`;
 }
 
 async function searchUsers(){
 const value=$("searchInput").value.trim();
 const box=$("searchResults");
-
-if(!value){
-box.innerHTML=`<div class="empty">${esc(t("searchStart"))}</div>`;
-return;
-}
+if(!value){ box.innerHTML=`<div class="empty">${esc(t("searchStart"))}</div>`; return; }
 
 const safe=safeSearch(value);
-
-const r=await db.from("profiles")
-.select("*")
-.or(`full_name.ilike.%${safe}%,username.ilike.%${safe}%`)
-.limit(20);
-
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
+const r=await db.from("profiles").select("*").or(`full_name.ilike.%${safe}%,username.ilike.%${safe}%`).limit(20);
+if(r.error){ box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`; return; }
 
 const seenUsers = new Set();
 const uniqueUsers = (r.data||[]).filter(p => {
@@ -2929,8 +2624,7 @@ seenUsers.add(p.id);
 return true;
 });
 
-box.innerHTML=uniqueUsers.length
-?uniqueUsers.map(p=>`
+box.innerHTML=uniqueUsers.length?uniqueUsers.map(p=>`
 <div class="search-result" onclick="openUserProfile('${escJS(p.id)}')">
 <div class="profile-big-avatar" style="width:48px;height:48px;font-size:22px">
 ${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
@@ -2940,40 +2634,26 @@ ${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
 <div style="font-size:12px;color:#64748b">@${esc(p.username||"arena")}</div>
 </div>
 </div>
-`).join("")
-:`<div class="empty">${esc(t("noResults"))}</div>`;
+`).join(""):`<div class="empty">${esc(t("noResults"))}</div>`;
 }
 
 async function openUserProfile(id){
-if(String(id)===String(currentUser.id)){
-await showProfile();
-return;
-}
-
+if(String(id)===String(currentUser.id)){ await showProfile(); return; }
 openedOtherUserId=String(id);
 showScreen("otherProfileScreen");
 
-const r=await db.from("profiles")
-.select("*")
-.eq("id",String(id))
-.maybeSingle();
-
-if(!r.data){
-alert("Профиль не найден.");
-return;
-}
+const r=await db.from("profiles").select("*").eq("id",String(id)).maybeSingle();
+if(!r.data){ alert("Профиль не найден."); return; }
 
 const p=r.data;
 $("otherName").innerText=p.full_name||t("participant");
 $("otherUsername").innerText="@"+(p.username||"arena");
 $("otherBio").innerText=p.bio||"";
-
 setAvatar("otherAvatar",p.avatar_url);
 
 $("otherDuelsCount").innerText=await count("duels","user_id",String(id));
 $("otherFollowersCount").innerText=await count("follows","following_id",String(id));
 $("otherFollowingCount").innerText=await count("follows","follower_id",String(id));
-
 $("otherFollowersLabel").innerText=t("followers");
 $("otherFollowingLabel").innerText=t("following");
 
@@ -2983,68 +2663,32 @@ await loadOtherDuels(String(id));
 
 async function loadOtherDuels(id){
 const box=$("otherDuels");
-
-const r=await db.from("duels")
-.select("*")
-.eq("user_id",String(id))
-.order("created_at",{ascending:false});
-
+const r=await db.from("duels").select("*").eq("user_id",String(id)).order("created_at",{ascending:false});
 box.innerHTML="";
-
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
-
-if(!r.data?.length){
-box.innerHTML=`<div class="empty">${esc(t("noDuels"))}</div>`;
-return;
-}
+if(r.error){ box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`; return; }
+if(!r.data?.length){ box.innerHTML=`<div class="empty">${esc(t("noDuels"))}</div>`; return; }
 
 const seenOtherDuels = new Set();
 for(const duel of r.data){
 if(seenOtherDuels.has(duel.id)) continue;
 seenOtherDuels.add(duel.id);
-try{
-box.appendChild(await duelCard(duel));
-}catch(e){}
+try{ box.appendChild(await duelCard(duel)); }catch(e){}
 }
 }
 
 async function updateFollowButton(id){
 const button=$("otherFollowButton");
-
-const r=await db.from("follows")
-.select("id")
-.eq("follower_id",currentUser.id)
-.eq("following_id",String(id))
-.maybeSingle();
-
+const r=await db.from("follows").select("id").eq("follower_id",currentUser.id).eq("following_id",String(id)).maybeSingle();
 button.innerText=r.data?t("followed"):t("follow");
 button.onclick=()=>toggleFollow(String(id));
 }
 
 async function toggleFollow(id){
-const r=await db.from("follows")
-.select("id")
-.eq("follower_id",currentUser.id)
-.eq("following_id",String(id))
-.maybeSingle();
-
+const r=await db.from("follows").select("id").eq("follower_id",currentUser.id).eq("following_id",String(id)).maybeSingle();
 let op;
-if(r.data){
-op=await db.from("follows").delete().eq("id",r.data.id);
-}else{
-op=await db.from("follows").insert({
-follower_id:currentUser.id,
-following_id:String(id)
-});
-}
-
-if(op.error){
-alert(op.error.message);
-return;
-}
+if(r.data){ op=await db.from("follows").delete().eq("id",r.data.id); }
+else{ op=await db.from("follows").insert({ follower_id:currentUser.id, following_id:String(id) }); }
+if(op.error){ alert(op.error.message); return; }
 
 await updateFollowButton(String(id));
 $("otherFollowersCount").innerText=await count("follows","following_id",String(id));
@@ -3056,11 +2700,7 @@ const username=$("editUsername").value.trim();
 const bio=$("editBio").value.trim();
 const status=$("profileStatus");
 
-if(!rawName){
-status.innerText=t("nameRequired");
-return;
-}
-
+if(!rawName){ status.innerText=t("nameRequired"); return; }
 status.innerText=t("saving");
 
 try{
@@ -3068,37 +2708,16 @@ let name = rawName;
 if(rawName.toLowerCase() !== (currentProfile?.full_name || "").toLowerCase()){
     name = await getUniqueFullName(rawName);
 }
-
 let avatar=currentProfile?.avatar_url||"";
+if(selectedAvatar) avatar=await upload(selectedAvatar,"avatars");
 
-if(selectedAvatar)
-avatar=await upload(selectedAvatar,"avatars");
-
-const r=await db.from("profiles")
-.update({
-full_name:name,
-username:username||null,
-bio,
-avatar_url:avatar
-})
-.eq("id",currentUser.id)
-.select()
-.single();
-
+const r=await db.from("profiles").update({ full_name:name, username:username||null, bio, avatar_url:avatar }).eq("id",currentUser.id).select().single();
 if(r.error)throw r.error;
 
 currentProfile=r.data;
-
-await db.auth.updateUser({
-data:{
-full_name:name,
-username:username||null
-}
-});
-
+await db.auth.updateUser({ data:{ full_name:name, username:username||null } });
 await loadProfile();
 closeModal("editModal");
-
 }catch(e){
 status.innerText=e.message||t("connection");
 }
@@ -3106,65 +2725,34 @@ status.innerText=e.message||t("connection");
 
 async function loadMyDuels(){
 const box=$("myDuels");
-
-const r=await db.from("duels")
-.select("*")
-.eq("user_id",currentUser.id)
-.order("created_at",{ascending:false});
-
+const r=await db.from("duels").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false});
 box.innerHTML="";
-
-if(r.error){
-box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`;
-return;
-}
-
-if(!r.data?.length){
-box.innerHTML=`<div class="empty">${esc(t("noMyDuels"))}</div>`;
-return;
-}
+if(r.error){ box.innerHTML=`<div class="empty">${esc(r.error.message)}</div>`; return; }
+if(!r.data?.length){ box.innerHTML=`<div class="empty">${esc(t("noMyDuels"))}</div>`; return; }
 
 const seenMyDuels = new Set();
 for(const duel of r.data){
 if(seenMyDuels.has(duel.id)) continue;
 seenMyDuels.add(duel.id);
-try{
-box.appendChild(await duelCard(duel));
-}catch(e){}
+try{ box.appendChild(await duelCard(duel)); }catch(e){}
 }
 }
 
 async function openAdminPanel(){
 const isAdminUser = (currentProfile?.is_admin===true)||(currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
-if(!isAdminUser){
-alert("Нет прав администратора");
-return;
-}
-
+if(!isAdminUser){ alert("Нет прав администратора"); return; }
 $("adminPanel").classList.toggle("hidden");
-
-if(!$("adminPanel").classList.contains("hidden"))
-await loadAdminUsers();
+if(!$("adminPanel").classList.contains("hidden")) await loadAdminUsers();
 }
 
 async function loadAdminUsers(){
 const box=$("adminContent");
 box.innerHTML=`<div class="empty">${esc(t("loading"))}</div>`;
 
-const usersRes=await db.from("profiles")
-.select("id,full_name,username,is_admin,is_blocked")
-.order("full_name")
-.limit(100);
-
-const countRes=await db.from("profiles")
-.select("id",{count:"exact",head:true});
-
+const usersRes=await db.from("profiles").select("id,full_name,username,is_admin,is_blocked").order("full_name").limit(100);
+const countRes=await db.from("profiles").select("id",{count:"exact",head:true});
 const totalUsers=countRes.count||0;
-
-if(usersRes.error){
-box.innerText=usersRes.error.message;
-return;
-}
+if(usersRes.error){ box.innerText=usersRes.error.message; return; }
 
 const seenAdminUsers = new Set();
 const uniqueAdminUsers = (usersRes.data||[]).filter(u => {
@@ -3174,46 +2762,27 @@ return true;
 });
 
 const statsHtml=`<div style="margin-bottom:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;font-weight:bold;color:#2563eb;text-align:center;">👥 Всего пользователей на сайте: ${totalUsers}</div>`;
-
 const rows=uniqueAdminUsers.map(u=>`
 <div class="admin-user-row">
 <div class="admin-user-main">
 <div class="admin-user-name">${esc(u.full_name||t("participant"))}</div>
 <div style="font-size:11px;color:#64748b">@${esc(u.username||"arena")}</div>
-<div class="${u.is_blocked?"admin-blocked":"admin-active"}">
-${u.is_blocked?t("blocked"):t("active")}
-</div>
+<div class="${u.is_blocked?"admin-blocked":"admin-active"}">${u.is_blocked?t("blocked"):t("active")}</div>
 </div>
 ${u.is_admin?"👑":""}
-${u.id!==currentUser.id
-?`<button class="admin-action ${u.is_blocked?"admin-unblock-button":"admin-block-button"}" type="button" onclick="adminBlock('${escJS(u.id)}',${!!u.is_blocked})">
-${u.is_blocked?t("unblock"):t("block")}
-</button>`
-:""}
+${u.id!==currentUser.id?`<button class="admin-action ${u.is_blocked?"admin-unblock-button":"admin-block-button"}" type="button" onclick="adminBlock('${escJS(u.id)}',${!!u.is_blocked})">${u.is_blocked?t("unblock"):t("block")}</button>`:""}
 </div>
 `).join("");
-
 box.innerHTML=statsHtml+rows;
 }
 
 async function adminBlock(id,blocked){
-const question=blocked
-?(language==="ru"?"Разблокировать пользователя?":language==="ro"?"Deblochezi utilizatorul?":"Unblock user?")
-:(language==="ru"?"Заблокировать пользователя?":language==="ro"?"Blochezi utilizatorul?":"Block user?");
-
+const question=blocked?(language==="ru"?"Разблокировать пользователя?":language==="ro"?"Deblochezi utilizatorul?":"Unblock user?"):(language==="ru"?"Заблокировать пользователя?":language==="ro"?"Blochezi utilizatorul?":"Block user?");
 const actionButtonText = blocked ? t("unblockAction") : t("blockAction");
 
 showCustomConfirm(question, async () => {
-const r=await db.rpc("admin_set_blocked",{
-target_user_id:id,
-blocked_value:!blocked
-});
-
-if(r.error){
-alert(r.error.message);
-return;
-}
-
+const r=await db.rpc("admin_set_blocked",{ target_user_id:id, blocked_value:!blocked });
+if(r.error){ alert(r.error.message); return; }
 await loadAdminUsers();
 }, actionButtonText);
 }
@@ -3236,67 +2805,37 @@ try{
         attempts++;
     }
 
-    if(!["ru","ro","en"].includes(language))
-    language="ru";
-
+    if(!["ru","ro","en"].includes(language)) language="ru";
     applyLanguage();
     startCountdownTimers();
 
     $("searchInput")?.addEventListener("input",searchUsers);
 
-    if(!initDB()){
-        hideStartup();
-        showAuth();
-        showLogin();
-        return;
-    }
+    if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
 
     let hasSession = false;
     const rawStorage = localStorage.getItem("arena-supabase-auth");
     if(rawStorage){
         try{
             const parsed = JSON.parse(rawStorage);
-            if(parsed?.user){
-                currentUser = parsed.user;
-                hasSession = true;
-            }
+            if(parsed?.user){ currentUser = parsed.user; hasSession = true; }
         }catch(err){}
     }
 
-    if(hasSession){
-        await startApp();
-    }else{
-        showAuth();
-        showLogin();
-        hideStartup();
-    }
+    if(hasSession){ await startApp(); }
+    else{ showAuth(); showLogin(); hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
         if(event==="SIGNED_OUT"){
-            currentUser=null;
-            currentProfile=null;
-            showAuth();
-            showLogin();
-            hideStartup();
-            return;
+            currentUser=null; currentProfile=null; showAuth(); showLogin(); hideStartup(); return;
         }
-
-        if(event==="TOKEN_REFRESHED"&&session){
-            currentUser=session.user;
-            return;
-        }
-
+        if(event==="TOKEN_REFRESHED"&&session){ currentUser=session.user; return; }
         if(event==="SIGNED_IN"&&session){
             if(currentUser && currentUser.id === session.user.id) return;
             currentUser=session.user;
-            if($("app").classList.contains("hidden")){
-                try{
-                    await startApp();
-                }catch(e){}
-            }
+            if($("app").classList.contains("hidden")){ try{ await startApp(); }catch(e){} }
         }
     });
-
 }catch(e){
     showAuth();
     $("authStatus").innerText=t("connection");
@@ -3317,10 +2856,7 @@ try{
 
         function closePhotoViewer() {
             overlay.style.opacity = '0';
-            setTimeout(() => {
-                overlay.style.visibility = 'hidden';
-                fullImg.src = '';
-            }, 300);
+            setTimeout(() => { overlay.style.visibility = 'hidden'; fullImg.src = ''; }, 300);
             document.body.style.overflow = '';
         }
 
@@ -3342,9 +2878,7 @@ try{
         
         const progressBar = document.createElement('input');
         progressBar.type = 'range';
-        progressBar.min = '0';
-        progressBar.max = '100';
-        progressBar.value = '0';
+        progressBar.min = '0'; progressBar.max = '100'; progressBar.value = '0';
         progressBar.style.cssText = 'flex:1;accent-color:#2563eb;cursor:pointer;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.6);';
 
         const timeDisplay = document.createElement('span');
@@ -3365,16 +2899,11 @@ try{
 
         playBtn.onclick = (e) => {
             e.stopPropagation();
-            if (fullVideo.paused) {
-                fullVideo.play();
-            } else {
-                fullVideo.pause();
-            }
+            if (fullVideo.paused) fullVideo.play(); else fullVideo.pause();
         };
 
         fullVideo.onplay = () => { playBtn.innerHTML = '❚❚'; };
         fullVideo.onpause = () => { playBtn.innerHTML = '▶'; };
-
         fullVideo.ontimeupdate = () => {
             if (fullVideo.duration) {
                 const percent = (fullVideo.currentTime / fullVideo.duration) * 100;
@@ -3382,25 +2911,12 @@ try{
                 timeDisplay.innerHTML = `${formatTime(fullVideo.currentTime)} / ${formatTime(fullVideo.duration)}`;
             }
         };
-
-        fullVideo.onloadedmetadata = () => {
-            timeDisplay.innerHTML = `0:00 / ${formatTime(fullVideo.duration)}`;
-        };
-
+        fullVideo.onloadedmetadata = () => { timeDisplay.innerHTML = `0:00 / ${formatTime(fullVideo.duration)}`; };
         progressBar.oninput = (e) => {
             e.stopPropagation();
-            if (fullVideo.duration) {
-                fullVideo.currentTime = (progressBar.value / 100) * fullVideo.duration;
-            }
+            if (fullVideo.duration) fullVideo.currentTime = (progressBar.value / 100) * fullVideo.duration;
         };
-
-        fullVideo.onclick = () => {
-            if (fullVideo.paused) {
-                fullVideo.play();
-            } else {
-                fullVideo.pause();
-            }
-        };
+        fullVideo.onclick = () => { if (fullVideo.paused) fullVideo.play(); else fullVideo.pause(); };
 
         document.body.appendChild(videoOverlay);
 
@@ -3414,19 +2930,10 @@ try{
 
         window.addEventListener('popstate', function(e) {
             let closedSomething = false;
-            if (videoOverlay.style.visibility === 'visible') {
-                closeVideoPlayer();
-                closedSomething = true;
-            }
-            if (overlay.style.visibility === 'visible') {
-                closePhotoViewer();
-                closedSomething = true;
-            }
-            if (closedSomething) {
-                history.pushState(null, "", window.location.href);
-            }
+            if (videoOverlay.style.visibility === 'visible') { closeVideoPlayer(); closedSomething = true; }
+            if (overlay.style.visibility === 'visible') { closePhotoViewer(); closedSomething = true; }
+            if (closedSomething) history.pushState(null, "", window.location.href);
         });
-
         history.pushState(null, "", window.location.href);
 
         document.addEventListener('click', function(e) {
@@ -3435,37 +2942,28 @@ try{
                 e.stopPropagation();
                 const videoEl = videoTrig.tagName === 'VIDEO' ? videoTrig : videoTrig.previousElementSibling;
                 const videoSrc = videoTrig.dataset.videoSrc || videoEl?.src;
-                
                 if (videoSrc) {
                     fullVideo.src = videoSrc.replace('#t=0.001', '');
                     videoOverlay.style.visibility = 'visible';
                     videoOverlay.style.opacity = '1';
                     document.body.style.overflow = 'hidden';
-                    
                     history.pushState({ modalOpen: true }, "", window.location.href);
                     fullVideo.play().catch(err => {});
                     return;
                 }
             }
-
             if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview')) {
                 e.stopPropagation();
                 fullImg.src = e.target.src;
                 overlay.style.visibility = 'visible';
                 overlay.style.opacity = '1';
                 document.body.style.overflow = 'hidden';
-
                 history.pushState({ modalOpen: true }, "", window.location.href);
             }
         });
 
-        overlay.addEventListener('click', function() {
-            window.history.back();
-        });
-        
-        videoOverlay.addEventListener('click', function() {
-            window.history.back();
-        });
+        overlay.addEventListener('click', function() { window.history.back(); });
+        videoOverlay.addEventListener('click', function() { window.history.back(); });
     });
 </script>
 
