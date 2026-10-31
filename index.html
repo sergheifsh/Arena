@@ -305,9 +305,16 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <h2 id="messagesTitle" style="color:#2563eb;margin-bottom:15px"></h2>
 <div id="conversationsList" style="margin-bottom:15px"></div>
 <div id="chatBox" class="hidden">
-<button class="secondary" onclick="$('chatBox').classList.add('hidden');$('conversationsList').classList.remove('hidden');activeChatUserId=null;" style="margin-bottom:10px">← Назад к списку</button>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+<button class="secondary" onclick="$('chatBox').classList.add('hidden');$('conversationsList').classList.remove('hidden');activeChatUserId=null;" style="margin-top:0;width:auto">← Назад</button>
+<button class="secondary" onclick="deleteCurrentChat()" style="margin-top:0;width:auto;color:#dc2626;background:#fee2e2;" data-i18n="deleteChat">🗑️ Удалить чат</button>
+</div>
 <h3 id="activeChatUser" style="margin-bottom:10px"></h3>
 <div id="chatMessages" style="height:300px;overflow-y:auto;background:#f8fafc;padding:10px;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:10px"></div>
+<div id="forwardBanner" class="hidden" style="background:#eff6ff;border:1px solid #bfdbfe;padding:8px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:12px">
+<span id="forwardBannerText" style="color:#2563eb;font-weight:bold;">Пересылка сообщения...</span>
+<button onclick="cancelForward()" style="border:0;background:0;color:#dc2626;font-weight:bold;cursor:pointer">✕ Отмена</button>
+</div>
 <div style="display:flex;gap:6px;align-items:center">
 <label style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:8px 10px;cursor:pointer;font-size:16px" title="Прикрепить медиа">📎<input id="chatMediaInput" type="file" accept="image/*,video/*,image/gif" onchange="sendDirectMedia(event)"></label>
 <input type="text" id="directMessageInput" placeholder="Введите сообщение..." style="flex:1;padding:10px;border:1px solid #cbd5e1;border-radius:10px;outline:0" onkeydown="if(event.key==='Enter')sendDirectMessage()">
@@ -392,7 +399,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 </div>
 
-<!-- Модальное окно создания дуэли (3 варианта батла) -->
 <div id="duelModal" class="modal">
 <div class="modal-box">
 
@@ -423,7 +429,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <option value="0" data-opt="unlimited"></option>
 </select>
 
-<!-- Поля для Фото батла (заполняются А и Б) -->
 <div id="photoFields">
 <input id="duelOptionA" placeholder="Вариант A">
 <label class="photo-button">
@@ -440,7 +445,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="previewB" class="image-preview"><img id="previewBImage" alt="Preview B"></div>
 </div>
 
-<!-- Поля для Видео батла (заполняются А и Б) -->
 <div id="videoFields" class="hidden">
 <input id="duelVideoOptionA" placeholder="Видео вариант A">
 <label class="photo-button">
@@ -458,7 +462,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div class="media-help" data-i18n="maxPhotoHelp"></div>
 </div>
 
-<!-- Поля для Вызов батла (слот Б остается свободным) -->
 <div id="challengeFields" class="hidden">
 <input id="duelChallengeOptionA" placeholder="Ваш вариант (А)">
 <label class="photo-button">
@@ -480,7 +483,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно принятия вызова для слота Б -->
 <div id="challengeModal" class="modal">
 <div class="modal-box">
 <h2 data-i18n="acceptChallengeTitle">Принять вызов</h2>
@@ -572,6 +574,7 @@ let challengeFile = null;
 
 let openedOtherUserId=null;
 let activeChatUserId=null;
+let forwardMessageData = null;
 
 let realtimeChannel=null;
 let backgroundSyncInterval=null;
@@ -697,12 +700,17 @@ sendCode:"Отправить временный код",
 saveNewPassword:"Создать новый пароль",
 resetPasswordSent:"Временный код отправлен на email 📧",
 passwordResetSuccess:"Пароль успешно изменен! Войдите с новым паролем.",
-duelList:"Duel List",
+duelList:"Список дуэлей",
 acceptChallenge:"⚔️ Принять вызов",
 acceptChallengeTitle:"Принять вызов",
 acceptChallengeDesc:"Загрузите ваш вариант, чтобы бросить вызов в этой дуэли!",
 uploadYourMedia:"📷 Загрузить медиафайл",
-confirmChallenge:"Отправить вариант"
+confirmChallenge:"Отправить вариант",
+deleteChat:"🗑️ Удалить чат",
+deleteChatConfirm:"Удалить этот чат полностью?",
+forward:"Переслать",
+deleteAccount:"Удалить аккаунт",
+deleteAccountConfirm:"Вы действительно хотите удалить аккаунт?"
 },
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
@@ -822,12 +830,17 @@ sendCode:"Trimite codul",
 saveNewPassword:"Salvează noua parolă",
 resetPasswordSent:"Codul a fost trimis pe email 📧",
 passwordResetSuccess:"Parolă schimbată cu succes!",
-duelList:"Duel List",
+duelList:"Lista duelurilor",
 acceptChallenge:"⚔️ Acceptă provocarea",
 acceptChallengeTitle:"Acceptă provocarea",
 acceptChallengeDesc:"Încarcă varianta ta pentru a concura în acest duel!",
 uploadYourMedia:"📷 Încarcă fișierul media",
-confirmChallenge:"Trimite varianta"
+confirmChallenge:"Trimite varianta",
+deleteChat:"🗑️ Șterge chatul",
+deleteChatConfirm:"Ștergi acest chat complet?",
+forward:"Trimite mai departe",
+deleteAccount:"Șterge contul",
+deleteAccountConfirm:"Sigur doriți să ștergeți contul?"
 },
 en:{
 subtitle:"Who wins? You decide.",
@@ -952,7 +965,12 @@ acceptChallenge:"⚔️ Accept Challenge",
 acceptChallengeTitle:"Accept Challenge",
 acceptChallengeDesc:"Upload your option to compete in this duel!",
 uploadYourMedia:"📷 Upload media file",
-confirmChallenge:"Send option"
+confirmChallenge:"Send option",
+deleteChat:"🗑️ Delete Chat",
+deleteChatConfirm:"Delete this entire chat?",
+forward:"Forward",
+deleteAccount:"Delete account",
+deleteAccountConfirm:"Are you sure you want to delete your account?"
 }
 };
 
@@ -1063,7 +1081,6 @@ clean();
 };
 }
 
-// Pull to Refresh (только спиннер)
 let touchStartY = 0;
 let isRefreshing = false;
 
@@ -1160,12 +1177,12 @@ realtimeChannel = db.channel("arena_realtime_channel")
         }
     }
 })
-.on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, async (payload) => {
+.on("postgres_changes", { event: "*", schema: "public", table: "direct_messages" }, async (payload) => {
     const m = payload.new;
-    if(!m || !currentUser) return;
+    if(!currentUser) return;
     
-    if(m.receiver_id === currentUser.id){
-        if(activeChatUserId && m.sender_id === activeChatUserId){
+    if(m && (m.receiver_id === currentUser.id || m.sender_id === currentUser.id)){
+        if(activeChatUserId && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
             await loadDirectMessages();
         } else {
             if($("messagesScreen").classList.contains("active") && !activeChatUserId){
@@ -1215,6 +1232,7 @@ loginSwitch:"haveAccount",
 createDuelButton:"create",
 topTitle:"topArena",
 myDuelsTitle:"duelList",
+otherDuelsTitle:"duelList",
 myDuelsLabel:"duels",
 myFollowersLabel:"followers",
 myFollowingLabel:"following",
@@ -1235,7 +1253,6 @@ avatarText:"avatar",
 saveProfileButton:"save",
 editCancelButton:"cancel",
 otherBackButton:"back",
-otherDuelsTitle:"duelList",
 messagesTitle:"privateMessages",
 deleteAccountButton:"deleteAccount"
 };
@@ -2087,32 +2104,85 @@ const r=await db.from("direct_messages")
 
 if(r.error)throw r.error;
 
+const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 150;
+
 container.innerHTML=(r.data||[]).map(m=>{
 const isMe=m.sender_id===currentUser.id;
 let content = esc(m.text);
 if(m.is_media || m.text?.startsWith("http")){
   if(m.text.match(/\.(mp4|webm|ogg)$/i) || m.text.includes("videos/")){
-    content = `<div style="position:relative;width:200px;height:120px;background:#000;border-radius:8px;overflow:hidden;cursor:pointer;display:flex;align-items:center;justify-content:center;">
-      <video src="${esc(m.text)}#t=0.001" preload="metadata" playsinline webkit-playsinline style="width:100%;height:100%;object-fit:cover;"></video>
-      <div class="video-overlay-trigger" data-video-src="${esc(m.text)}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);">
+    content = `<div style="position:relative;width:200px;height:120px;background:#000;border-radius:8px;overflow:hidden;flex-shrink:0;">
+      <video src="${esc(m.text)}#t=0.001" preload="none" playsinline webkit-playsinline style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+      <div class="video-overlay-trigger" data-video-src="${esc(m.text)}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);cursor:pointer;">
         <div style="width:40px;height:40px;background:rgba(0,0,0,0.6);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;">▶</div>
       </div>
     </div>`;
   } else {
-    content = `<img src="${esc(m.text)}" style="max-width:200px;max-height:200px;border-radius:8px;object-fit:cover;cursor:pointer">`;
+    content = `<img src="${esc(m.text)}" style="max-width:200px;max-height:200px;border-radius:8px;object-fit:cover;cursor:pointer" alt="media">`;
   }
 }
 
-return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'}">
-<div style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word">
+const msgId = m.id;
+const msgTextJS = escJS(m.text);
+const isMediaFlag = m.is_media || m.text?.startsWith("http");
+
+return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};position:relative;" data-msg-id="${msgId}">
+<div style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;">
 ${content}
+</div>
+<div style="font-size:10px;color:#64748b;margin-top:2px;display:flex;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
+<span>${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+<button onclick="forwardMessage('${msgTextJS}', ${isMediaFlag})" style="border:0;background:0;color:#2563eb;cursor:pointer;font-size:10px">${t("forward")}</button>
+${isMe?`<button onclick="deleteDirectMessage('${msgId}')" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:10px">${t("delete")}</button>`:''}
 </div>
 </div>`;
 }).join("");
-container.scrollTop=container.scrollHeight;
+
+if (isAtBottom) {
+    container.scrollTop = container.scrollHeight;
+}
 }catch(e){
 container.innerHTML=`<div class="empty">Ошибка чата</div>`;
 }
+}
+
+async function deleteDirectMessage(messageId){
+showCustomConfirm(t("deleteMessage"), async () => {
+try{
+const { error } = await db.from("direct_messages").delete().eq("id", messageId);
+if(error) throw error;
+await loadDirectMessages();
+}catch(e){
+alert(e.message || t("connection"));
+}
+}, t("delete"));
+}
+
+async function deleteCurrentChat(){
+if(!activeChatUserId) return;
+showCustomConfirm(t("deleteChatConfirm"), async () => {
+try{
+const { error } = await db.from("direct_messages").delete().or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${activeChatUserId}),and(sender_id.eq.${activeChatUserId},receiver_id.eq.${currentUser.id})`);
+if(error) throw error;
+$("chatBox").classList.add("hidden");
+$("conversationsList").classList.remove("hidden");
+activeChatUserId=null;
+await showMessagesScreen();
+}catch(e){
+alert(e.message || t("connection"));
+}
+}, t("delete"));
+}
+
+function forwardMessage(text, isMedia){
+forwardMessageData = { text, is_media: isMedia };
+$("forwardBannerText").innerText = t("forward") + ": " + (isMedia ? "[Медиафайл]" : text.substring(0, 30));
+$("forwardBanner").classList.remove("hidden");
+}
+
+function cancelForward(){
+forwardMessageData = null;
+$("forwardBanner").classList.add("hidden");
 }
 
 function toggleDuelChat(button, duelId){
@@ -2237,10 +2307,28 @@ return `
 <div onclick="openChat('${escJS(uid)}', '${escJS(name)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
 ${avatar}
 <div style="flex:1"><b>${esc(name)}</b></div>
+${forwardMessageData ? `<button onclick="event.stopPropagation(); executeForward('${escJS(uid)}')" class="primary" style="width:auto;padding:6px 10px;font-size:12px;margin-top:0">${t("forward")}</button>` : ''}
 </div>`;
 }).join("");
 }catch(e){
 box.innerHTML=`<div class="empty">Ошибка загрузки чатов</div>`;
+}
+}
+
+async function executeForward(targetUserId){
+if(!forwardMessageData) return;
+try{
+const { error } = await db.from("direct_messages").insert({
+sender_id: currentUser.id,
+receiver_id: targetUserId,
+text: forwardMessageData.text,
+is_media: forwardMessageData.is_media
+});
+if(error) throw error;
+cancelForward();
+openChatWithUser(targetUserId, "Чат");
+}catch(e){
+alert(e.message || t("connection"));
 }
 }
 
@@ -3017,7 +3105,7 @@ try{
                     return;
                 }
             }
-            if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview')) {
+            if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview, #chatMessages')) {
                 e.stopPropagation();
                 fullImg.src = e.target.src;
                 overlay.style.visibility = 'visible';
