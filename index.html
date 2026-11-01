@@ -1149,7 +1149,6 @@ const r = await db.from("direct_messages")
 .eq("receiver_id", currentUser.id)
 .eq("is_read", false);
 
-
 const badge = $("navMessagesBadge");
 if(badge){
 if(r.data && r.data.length > 0){
