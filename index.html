@@ -2125,7 +2125,7 @@ const currentDuelRes = await db.from("duels").select("*").eq("id", activeChallen
 const duelData = currentDuelRes.data || {};
 
 const isVideoBattle = !!(duelData.video_a || duelData.video_option_a);
-const isGifBattle = !!(duelData.gif_a);
+const isGifBattle = !!(duelData.gif_a || (duelData.image_a && duelData.image_a.includes('.gif')));
 
 let updatePayload = {};
 if(isVideoBattle){
@@ -2887,7 +2887,7 @@ videoA=await upload(selectedVideoA,"videos");
 videoB=await upload(selectedVideoB,"videos");
 }else if(type==="challenge"){
 optionA=$("duelChallengeOptionA").value.trim();
-optionB=""; // Вариант B остается пустым до принятия вызова
+optionB="";
 if(!optionA || !challengeCreateFile){ status.innerText=t("invalid"); $("duelSubmitButton").disabled=false; return; }
 const isVid = challengeCreateFile.type.startsWith("video/");
 const isGif = challengeCreateFile.type.includes("gif");
