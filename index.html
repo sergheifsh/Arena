@@ -1619,6 +1619,11 @@ $("loginButton").disabled=false;
 
 async function logout(){
 try{
+if(window.OneSignalDeferred) {
+    window.OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.logout();
+    });
+}
 if(realtimeChannel) db.removeChannel(realtimeChannel);
 if(backgroundSyncInterval) clearInterval(backgroundSyncInterval);
 await db.auth.signOut();
@@ -1647,6 +1652,15 @@ if(!currentUser){
     showAuth();
     showLogin();
     return;
+}
+
+// Привязываем пользователя к OneSignal для работы пуш-уведомлений в APK
+if(currentUser && window.OneSignalDeferred) {
+    window.OneSignalDeferred.push(async function(OneSignal) {
+        try {
+            await OneSignal.login(currentUser.id);
+        } catch(err) {}
+    });
 }
 
 try{
