@@ -154,6 +154,11 @@ nav button{position:relative;flex:1;height:100%;border:0;background:transparent;
 nav button span{font-size:10px}
 nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radius:50%;background:#2563eb;color:#fff;font-size:30px;box-shadow:0 6px 18px #2563eb55}
 
+.nav-badge{position:absolute;top:10px;right:calc(50% - 14px);width:10px;height:10px;background:#dc2626;border-radius:50%;border:2px solid #fff;display:none}
+.nav-badge.show{display:block}
+
+.chat-badge{width:10px;height:10px;background:#dc2626;border-radius:50%;display:inline-block;margin-left:6px}
+
 .modal{display:none;position:fixed;inset:0;background:#0f172a99;z-index:100;align-items:flex-end;justify-content:center}
 .modal.show{display:flex}
 .modal-box{width:min(650px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px 22px 0 0;padding:18px;padding-bottom:calc(18px + env(safe-area-inset-bottom))}
@@ -321,7 +326,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button class="secondary" onclick="deleteCurrentChat()" style="margin-top:0;width:auto;color:#dc2626;background:#fee2e2;" data-i18n="deleteChat">Удалить чат</button>
 </div>
 
-<div id="chatMessages" style="flex:1;overflow-y:auto;background:#f8fafc;padding:12px;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:10px"></div>
+<div id="chatMessages" style="flex:1;overflow-y:auto;background:#fff;padding:4px 0;margin-bottom:10px"></div>
 
 <div id="editBanner" class="hidden" style="background:#eff6ff;border:1px solid #bfdbfe;padding:8px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:12px">
 <span id="editBannerText" style="color:#2563eb;font-weight:bold;">Редактирование сообщения...</span>
@@ -331,7 +336,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div style="display:flex;gap:6px;align-items:center;padding-bottom:calc(10px + env(safe-area-inset-bottom));">
 <label style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:10px;cursor:pointer;font-size:16px" title="Прикрепить медиа">📎<input id="chatMediaInput" type="file" accept="image/*,video/*,image/gif" onchange="sendDirectMedia(event)"></label>
 <input type="text" id="directMessageInput" placeholder="Введите сообщение..." style="flex:1;padding:12px;border:1px solid #cbd5e1;border-radius:10px;outline:0;font-size:14px;" onkeydown="if(event.key==='Enter')sendDirectMessage()">
-<button type="button" onclick="sendDirectMessage()" class="primary" style="width:auto;margin-top:0;padding:12px 18px;">Отправить</button>
+<button type="button" onclick="sendDirectMessage()" class="primary" style="width:auto;margin-top:0;padding:12px 18px;" data-i18n="send">Отправить</button>
 </div>
 </div>
 
@@ -404,7 +409,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button type="button" onclick="showScreen('homeScreen')">⚔️<br><span data-nav="arena"></span></button>
 <button type="button" onclick="showScreen('searchScreen')">🔍<br><span data-nav="search"></span></button>
 <button class="add" type="button" onclick="openDuelModal()">＋</button>
-<button type="button" onclick="showMessagesScreen()">💬<br><span data-nav="messages"></span></button>
+<button type="button" onclick="showMessagesScreen()" style="position:relative">💬<div id="navMessagesBadge" class="nav-badge"></div><br><span data-nav="messages"></span></button>
 <button type="button" onclick="showProfile()">👤<br><span data-nav="profile"></span></button>
 </nav>
 
@@ -1136,6 +1141,26 @@ ptr.style.transform = `translateY(0)`;
 }
 });
 
+async function checkUnreadMessages(){
+if(!currentUser) return;
+try{
+const r = await db.from("direct_messages")
+.select("id")
+.eq("receiver_id", currentUser.id)
+.eq("is_read", false);
+
+
+const badge = $("navMessagesBadge");
+if(badge){
+if(r.data && r.data.length > 0){
+badge.classList.add("show");
+} else {
+badge.classList.remove("show");
+}
+}
+}catch(e){}
+}
+
 function setupRealtimeSubscriptions(){
 if(!db) return;
 if(realtimeChannel) db.removeChannel(realtimeChannel);
@@ -1189,17 +1214,20 @@ realtimeChannel = db.channel("arena_realtime_channel")
         }
     }
 })
-.on("postgres_changes", { event: "*", schema: "public", table: "direct_messages" }, async (payload) => {
+.on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, async (payload) => {
     const m = payload.new;
     if(!currentUser) return;
     
     if(m && (m.receiver_id === currentUser.id || m.sender_id === currentUser.id)){
         if(activeChatUserId && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
             await loadDirectMessages();
-        } else {
-            if($("messagesScreen").classList.contains("active") && !activeChatUserId){
-                await showMessagesScreen();
+            if(m.receiver_id === currentUser.id){
+                await db.from("direct_messages").update({ is_read: true }).eq("id", m.id);
             }
+        }
+        await checkUnreadMessages();
+        if($("messagesScreen").classList.contains("active")){
+            await showMessagesScreen();
         }
     }
 })
@@ -1208,6 +1236,7 @@ realtimeChannel = db.channel("arena_realtime_channel")
 if(backgroundSyncInterval) clearInterval(backgroundSyncInterval);
 backgroundSyncInterval = setInterval(async () => {
     if(!currentUser) return;
+    await checkUnreadMessages();
     if($("homeScreen").classList.contains("active")){
         document.querySelectorAll(".duel[data-duel-id]").forEach(async card => {
             const duelId = card.dataset.duelId;
@@ -1220,12 +1249,6 @@ backgroundSyncInterval = setInterval(async () => {
     if(activeChatUserId && !$("chatBox").classList.contains("hidden")){
         await loadDirectMessages();
     }
-    document.querySelectorAll(".duel-chat-box:not(.hidden)").forEach(box => {
-        const card = box.closest(".duel");
-        if(card && card.dataset.duelId){
-            loadComments(box, card.dataset.duelId);
-        }
-    });
 }, 3000);
 }
 
@@ -1633,7 +1656,7 @@ setupRealtimeSubscriptions();
 showScreen("homeScreen");
 localStorage.setItem("arena_last_screen", "homeScreen");
 
-Promise.allSettled([loadDuels()]);
+Promise.allSettled([loadDuels(), checkUnreadMessages()]);
 }catch(e){
 showAuth();
 showLogin();
@@ -2062,16 +2085,19 @@ const isGif = challengeFile.type.includes("gif");
 const folder = isVid ? "videos" : (isGif ? "gifs" : "duels");
 const mediaUrl = await upload(challengeFile, folder);
 
-const updatePayload = isVid ? {
-  video_option_b: optB,
-  video_b: mediaUrl
-} : (isGif ? {
-  gif_option_b: optB,
-  gif_b: mediaUrl
-} : {
-  option_b: optB,
-  image_b: mediaUrl
-});
+const currentDuelRes = await db.from("duels").select("*").eq("id", activeChallengeDuelId).maybeSingle();
+const duelData = currentDuelRes.data || {};
+const isVideoBattle = !!(duelData.video_a || duelData.video_option_a);
+const isGifBattle = !!(duelData.gif_a);
+
+let updatePayload = {};
+if(isVideoBattle){
+  updatePayload = { video_option_b: optB, video_b: mediaUrl };
+} else if(isGifBattle){
+  updatePayload = { gif_option_b: optB, gif_b: mediaUrl };
+} else {
+  updatePayload = { option_b: optB, image_b: mediaUrl };
+}
 
 const r = await db.from("duels").update(updatePayload).eq("id", activeChallengeDuelId);
 if(r.error) throw r.error;
@@ -2097,7 +2123,8 @@ const { error } = await db.from("direct_messages").insert({
 sender_id: currentUser.id,
 receiver_id: activeChatUserId,
 text: url,
-is_media: true
+is_media: true,
+is_read: false
 });
 if(error) throw error;
 await loadDirectMessages();
@@ -2116,9 +2143,16 @@ const r=await db.from("direct_messages")
 
 if(r.error)throw r.error;
 
+const messages = r.data || [];
+for(const msg of messages){
+if(msg.receiver_id === currentUser.id && !msg.is_read){
+await db.from("direct_messages").update({ is_read: true }).eq("id", msg.id);
+}
+}
+
 const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 150;
 
-container.innerHTML=(r.data||[]).map(m=>{
+container.innerHTML=messages.map(m=>{
 const isMe=m.sender_id===currentUser.id;
 let content = esc(m.text);
 if(m.is_media || m.text?.startsWith("http")){
@@ -2168,7 +2202,7 @@ document.querySelectorAll(".msg-bubble").forEach(bubble => {
       const isMe = bubble.dataset.isme === "true";
       const isMedia = bubble.dataset.ismedia === "true";
       openMessageContextMenu(e, msgId, text, isMe, isMedia);
-    }, 500); // 0.5 секунды зажатия
+    }, 500);
   };
 
   const cancelPress = () => {
@@ -2313,7 +2347,8 @@ const { error } = await db.from("direct_messages").insert({
 sender_id: currentUser.id,
 receiver_id: targetUserId,
 text: forwardingMessageData.text,
-is_media: forwardingMessageData.is_media
+is_media: forwardingMessageData.is_media,
+is_read: false
 });
 if(error) throw error;
 closeModal("forwardSelectModal");
@@ -2427,21 +2462,30 @@ try{
 const r=await db.from("direct_messages").select("*").or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order("created_at",{ascending:false});
 if(r.error)throw r.error;
 
-const userIds=[...new Set((r.data||[]).flatMap(m=>[m.sender_id,m.receiver_id]))].filter(id=>id!==currentUser.id);
+const messages = r.data || [];
+const userIds=[...new Set(messages.flatMap(m=>[m.sender_id,m.receiver_id]))].filter(id=>id!==currentUser.id);
 if(!idsListHasItems(userIds)){
 box.innerHTML=`<div class="empty">${t("noActiveDialogs")}</div>`;
 return;
 }
+
+const unreadMap = {};
+messages.forEach(m => {
+  if(m.receiver_id === currentUser.id && !m.is_read){
+    unreadMap[m.sender_id] = true;
+  }
+});
 
 const profiles=await profilesMap(userIds);
 box.innerHTML=userIds.map(uid=>{
 const p=profiles[uid]||{};
 const name=p.full_name||p.username||t("participant");
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`:`<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
+const hasUnread = unreadMap[uid] ? `<div class="chat-badge"></div>` : "";
 return `
 <div onclick="openChat('${escJS(uid)}', '${escJS(name)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
 ${avatar}
-<div style="flex:1"><b>${esc(name)}</b></div>
+<div style="flex:1"><b>${esc(name)}</b>${hasUnread}</div>
 </div>`;
 }).join("");
 }catch(e){
@@ -2460,6 +2504,12 @@ activeChatUserId=userId;
 $("activeChatUser").innerText=userName;
 $("chatBox").classList.remove("hidden");
 history.pushState({ chatOpen: true }, "", window.location.href);
+
+try{
+await db.from("direct_messages").update({ is_read: true }).eq("sender_id", userId).eq("receiver_id", currentUser.id);
+await checkUnreadMessages();
+}catch(e){}
+
 await loadDirectMessages();
 }
 
@@ -2467,6 +2517,7 @@ window.addEventListener('popstate', function(e) {
     if(!$("chatBox").classList.contains("hidden")){
         $("chatBox").classList.add("hidden");
         activeChatUserId = null;
+        checkUnreadMessages();
     }
 });
 
@@ -2483,7 +2534,7 @@ if(error) throw error;
 editingMessageId = null;
 $("editBanner").classList.add("hidden");
 }else{
-const { error } = await db.from("direct_messages").insert({ sender_id:currentUser.id, receiver_id:activeChatUserId, text, is_media:false });
+const { error } = await db.from("direct_messages").insert({ sender_id:currentUser.id, receiver_id:activeChatUserId, text, is_media:false, is_read:false });
 if(error) throw error;
 }
 await loadDirectMessages();
