@@ -8,21 +8,6 @@
 <meta http-equiv="Expires" content="0">
 <title>ARENA — Who Beats Who</title>
 
-<!-- OneSignal Push Notifications SDK -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  window.OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "61e09f87-71e8-4d08-97c5-b9ed4330951f",
-      safari_web_id: "",
-      notifyButton: {
-        enable: true,
-      },
-    });
-  });
-</script>
-
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100%;width:100%;overflow-x:hidden}
@@ -187,7 +172,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .empty{text-align:center;padding:35px 15px;color:#64748b}
 .media-help{font-size:11px;color:#64748b;margin:4px 2px 8px}
 
-/* Стили для разделения экрана при открытии чата дуэли (похоже на шторку снизу как на скриншоте) */
 .duel.chat-split-top {
     transform: translateY(-25vh);
     transition: transform 0.3s ease;
@@ -1650,10 +1634,6 @@ async function logout(){
 try{
 if (window.AndroidBridge && typeof window.AndroidBridge.logoutOneSignal === 'function') {
     window.AndroidBridge.logoutOneSignal();
-} else if(window.OneSignalDeferred) {
-    window.OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.logout();
-    });
 }
 if(realtimeChannel) db.removeChannel(realtimeChannel);
 if(backgroundSyncInterval) clearInterval(backgroundSyncInterval);
@@ -1685,21 +1665,10 @@ if(!currentUser){
     return;
 }
 
+// Вызов нативного Android Bridge для OneSignal (без дублирования веб-пушей)
 if (currentUser && currentUser.id) {
     if (window.AndroidBridge && typeof window.AndroidBridge.loginOneSignal === 'function') {
         window.AndroidBridge.loginOneSignal(currentUser.id);
-    } else if (window.OneSignalDeferred) {
-        window.OneSignalDeferred.push(async function(OneSignal) {
-            try {
-                await OneSignal.login(currentUser.id);
-                const permission = OneSignal.Notifications.permission;
-                if (!permission) {
-                    await OneSignal.Notifications.requestPermission(true);
-                }
-            } catch (err) {
-                console.log("OneSignal login error:", err);
-            }
-        });
     }
 }
 
