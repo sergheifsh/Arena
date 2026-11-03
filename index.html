@@ -63,13 +63,13 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .create-duel{margin:14px;border-radius:17px;background:linear-gradient(135deg,#eff6ff,#f8fafc);border:1px solid #bfdbfe;padding:15px}
 .create-duel button{width:100%;border:0;background:0;color:#2563eb;font-weight:bold;padding:8px;font-size:15px}
 
-.duel{margin:10px 12px 18px;border:1px solid #dbe4f0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 5px 18px #0f172a12}
+.duel{margin:10px 12px 18px;border:1px solid #dbe4f0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 5px 18px #0f172a12;overflow-anchor:none;}
 .duel-head{padding:13px 14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 .duel-category{background:#eff6ff;color:#2563eb;padding:6px 9px;border-radius:10px;font-size:11px;font-weight:bold}
 .duel-type{background:#172033;color:#fff;padding:6px 9px;border-radius:10px;font-size:11px;font-weight:bold;display:flex;align-items:center;gap:4px}
 .duel-time{color:#dc2626;font-size:12px;font-weight:bold;background:#fef2f2;padding:4px 8px;border-radius:8px;border:1px solid #fecaca}
 .duel-time.ended{color:#64748b;background:#f1f5f9;border-color:#e2e8f0}
-.duel-author-row{padding:0 14px 8px;font-size:12px;color:#64748b;font-weight:bold;display:flex;align-items:center;gap:6px;cursor:pointer}
+.duel-author-row{padding:0 14px 8px;font-size:13px;color:#172033;font-weight:bold;display:flex;align-items:center;gap:8px;cursor:pointer}
 .duel-title{padding:0 14px 13px;font-size:18px;font-weight:bold}
 
 .duel-options{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 8px 8px}
@@ -171,6 +171,16 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .secondary{width:100%;padding:12px;margin-top:8px;border:0;border-radius:12px;background:#f1f5f9;color:#334155}
 .empty{text-align:center;padding:35px 15px;color:#64748b}
 .media-help{font-size:11px;color:#64748b;margin:4px 2px 8px}
+
+/* Увеличенный шрифт комментариев и сообщений (от 17px) */
+.comment-bubble {
+    font-size: 17px !important;
+    line-height: 1.45 !important;
+}
+.msg-bubble {
+    font-size: 17px !important;
+    line-height: 1.45 !important;
+}
 
 .duel.chat-split-top {
     position: fixed !important;
@@ -1971,13 +1981,21 @@ const idJS=escJS(id);
 const video=isVideoDuel(duel);
 
 let authorName = t("participant");
+let authorAvatarUrl = "";
 let authorId = duel.user_id;
 if(authorId){
   try{
-    const authorRes = await db.from("profiles").select("full_name, username").eq("id", authorId).maybeSingle();
-    if(authorRes.data) authorName = authorRes.data.full_name || authorRes.data.username || t("participant");
+    const authorRes = await db.from("profiles").select("full_name, username, avatar_url").eq("id", authorId).maybeSingle();
+    if(authorRes.data) {
+      authorName = authorRes.data.full_name || authorRes.data.username || t("participant");
+      authorAvatarUrl = authorRes.data.avatar_url || "";
+    }
   }catch(err){}
 }
+
+const authorAvatarHtml = authorAvatarUrl 
+  ? `<img src="${esc(authorAvatarUrl)}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;">` 
+  : `<div style="width:26px;height:26px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px;">⚔️</div>`;
 
 let mediaA="", mediaB="";
 let labelA="", labelB="";
@@ -2016,7 +2034,7 @@ card.innerHTML=`
 <span class="duel-time ${timerRes.ended?'ended':''}" data-expires="${esc(duel.expires_at||'')}">${timerRes.text}</span>
 </div>
 
-<div class="duel-author-row" onclick="openUserProfile('${escJS(authorId)}')">👤 ${esc(authorName)}</div>
+<div class="duel-author-row" onclick="openUserProfile('${escJS(authorId)}')">${authorAvatarHtml} ${esc(authorName)}</div>
 <div class="duel-title">${esc(duel.title||t("winner"))}</div>
 
 <div class="duel-options">
@@ -2215,7 +2233,7 @@ const msgTextJS = escJS(m.text);
 const isMediaFlag = m.is_media || m.text?.startsWith("http");
 
 return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};position:relative;" data-msg-id="${msgId}">
-<div class="msg-bubble" data-msg-id="${msgId}" data-text="${esc(msgTextJS)}" data-isme="${isMe}" data-ismedia="${Boolean(isMediaFlag)}" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;user-select:none;font-size:14px;">
+<div class="msg-bubble" data-msg-id="${msgId}" data-text="${esc(msgTextJS)}" data-isme="${isMe}" data-ismedia="${Boolean(isMediaFlag)}" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;user-select:none;">
 ${content}
 </div>
 <div style="font-size:11px;color:#64748b;margin-top:2px;display:flex;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
@@ -2472,7 +2490,7 @@ ${avatar}
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
 <span style="font-weight:bold;color:#172033;font-size:14px">${esc(name)}</span>
 </div>
-<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;word-break:break-word;cursor:pointer;user-select:none;padding:6px 10px;border-radius:8px;background:#f8fafc;display:inline-block;max-width:100%;font-size:15px;">
+<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;word-break:break-word;cursor:pointer;user-select:none;padding:6px 10px;border-radius:8px;background:#f8fafc;display:inline-block;max-width:100%;">
 ${esc(c.text)}
 </div>
 </div>
@@ -2672,6 +2690,24 @@ await loadDirectMessages();
 
 window.addEventListener('popstate', function(e) {
     let closedSomething = false;
+
+    // 0. Закрываем глобальные оверлеи фото/видео (если открыты)
+    const photoOverlay = document.getElementById('globalPhotoOverlay');
+    if(photoOverlay && photoOverlay.style.visibility === 'visible'){
+        photoOverlay.style.opacity = '0';
+        setTimeout(() => { photoOverlay.style.visibility = 'hidden'; }, 300);
+        document.body.style.overflow = '';
+        closedSomething = true;
+    }
+    const videoOverlay = document.getElementById('globalVideoOverlay');
+    if(videoOverlay && videoOverlay.style.visibility === 'visible'){
+        const v = videoOverlay.querySelector('video');
+        if(v) v.pause();
+        videoOverlay.style.opacity = '0';
+        setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
+        document.body.style.overflow = '';
+        closedSomething = true;
+    }
 
     // 1. Сначала закрываем полноэкранный чат с пользователем
     if(!$("chatBox").classList.contains("hidden")){
@@ -3368,6 +3404,7 @@ try{
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const overlay = document.createElement('div');
+        overlay.id = 'globalPhotoOverlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;cursor:pointer;';
         
         const fullImg = document.createElement('img');
@@ -3382,6 +3419,7 @@ try{
         }
 
         const videoOverlay = document.createElement('div');
+        videoOverlay.id = 'globalVideoOverlay';
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;overflow:hidden;';
         
         const fullVideo = document.createElement('video');
@@ -3461,6 +3499,7 @@ try{
                     videoOverlay.style.opacity = '1';
                     document.body.style.overflow = 'hidden';
                     fullVideo.play().catch(err => {});
+                    history.pushState({ videoOpen: true }, "", window.location.href);
                     return;
                 }
             }
@@ -3470,6 +3509,7 @@ try{
                 overlay.style.visibility = 'visible';
                 overlay.style.opacity = '1';
                 document.body.style.overflow = 'hidden';
+                history.pushState({ photoOpen: true }, "", window.location.href);
             }
         });
 
