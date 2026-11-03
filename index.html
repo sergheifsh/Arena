@@ -172,7 +172,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .empty{text-align:center;padding:35px 15px;color:#64748b}
 .media-help{font-size:11px;color:#64748b;margin:4px 2px 8px}
 
-/* Увеличенный шрифт комментариев и сообщений (от 17px) */
 .comment-bubble {
     font-size: 17px !important;
     line-height: 1.45 !important;
@@ -2691,7 +2690,6 @@ await loadDirectMessages();
 window.addEventListener('popstate', function(e) {
     let closedSomething = false;
 
-    // 0. Закрываем глобальные оверлеи фото/видео (если открыты)
     const photoOverlay = document.getElementById('globalPhotoOverlay');
     if(photoOverlay && photoOverlay.style.visibility === 'visible'){
         photoOverlay.style.opacity = '0';
@@ -2709,7 +2707,6 @@ window.addEventListener('popstate', function(e) {
         closedSomething = true;
     }
 
-    // 1. Сначала закрываем полноэкранный чат с пользователем
     if(!$("chatBox").classList.contains("hidden")){
         $("chatBox").classList.add("hidden");
         activeChatUserId = null;
@@ -2717,7 +2714,6 @@ window.addEventListener('popstate', function(e) {
         closedSomething = true;
     }
 
-    // 2. Закрываем сплит-чаты дуэлей
     document.querySelectorAll(".duel.chat-split-top").forEach(card => {
         const box = card.querySelector(".duel-chat-box");
         if(box && !box.classList.contains("hidden")){
@@ -2728,13 +2724,11 @@ window.addEventListener('popstate', function(e) {
         }
     });
 
-    // 3. Закрываем открытые модальные окна
     document.querySelectorAll('.modal.show').forEach(m => {
         m.classList.remove('show');
         closedSomething = true;
     });
 
-    // Если ничего из вышеперечисленного не было открыто, но мы не на домашнем экране — возвращаем на домашний экран
     if(!closedSomething && !$("homeScreen").classList.contains("active")){
         showScreen("homeScreen");
         closedSomething = true;
@@ -3512,6 +3506,11 @@ try{
                 history.pushState({ photoOpen: true }, "", window.location.href);
             }
         });
+
+        // Блокировка прокрутки подложкой на мобильных устройствах
+        overlay.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
 
         overlay.addEventListener('click', function() { closePhotoViewer(); });
         videoOverlay.addEventListener('click', function() { closeVideoPlayer(); });
