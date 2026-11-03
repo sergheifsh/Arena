@@ -21,7 +21,6 @@
       },
     });
 
-    // Принудительный запрос разрешения на пуши для Android/APK
     try {
       await OneSignal.Notifications.requestPermission(true);
     } catch(e) {
@@ -1661,7 +1660,6 @@ if(!currentUser){
     return;
 }
 
-// Привязываем пользователя к OneSignal для работы пуш-уведомлений в APK
 if(currentUser && window.OneSignalDeferred) {
     window.OneSignalDeferred.push(async function(OneSignal) {
         try {
@@ -2104,6 +2102,7 @@ $("challengePreview").style.display = "block";
 reader.readAsDataURL(file);
 }
 
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ ВАРИАНТА Б (CHALLENGE)
 async function submitChallenge(){
 const optB = $("challengeOptionB").value.trim();
 const status = $("challengeStatus");
@@ -2121,19 +2120,13 @@ const isGif = challengeFile.type.includes("gif");
 const folder = isVid ? "videos" : (isGif ? "gifs" : "duels");
 const mediaUrl = await upload(challengeFile, folder);
 
-const currentDuelRes = await db.from("duels").select("*").eq("id", activeChallengeDuelId).maybeSingle();
-const duelData = currentDuelRes.data || {};
-
 let updatePayload = {};
-const hasVideoA = !!(duelData.video_a || duelData.video_option_a);
-const hasGifA = !!(duelData.gif_a || (duelData.image_a && duelData.image_a.includes('.gif')));
-
-if(hasVideoA || isVid){
-  updatePayload = { video_option_b: optB, video_b: mediaUrl };
-} else if(hasGifA || isGif){
-  updatePayload = { gif_option_b: optB, gif_b: mediaUrl };
+if (isVid) {
+    updatePayload = { video_option_b: optB, video_b: mediaUrl };
+} else if (isGif) {
+    updatePayload = { gif_option_b: optB, gif_b: mediaUrl };
 } else {
-  updatePayload = { option_b: optB, image_b: mediaUrl };
+    updatePayload = { option_b: optB, image_b: mediaUrl };
 }
 
 const r = await db.from("duels").update(updatePayload).eq("id", activeChallengeDuelId);
@@ -3301,14 +3294,7 @@ try{
             document.body.style.overflow = '';
         }
 
-        window.addEventListener('popstate', function(e) {
-            let closedSomething = false;
-            if (videoOverlay.style.visibility === 'visible') { closeVideoPlayer(); closedSomething = true; }
-            if (overlay.style.visibility === 'visible') { closePhotoViewer(); closedSomething = true; }
-            if (closedSomething) history.pushState(null, "", window.location.href);
-        });
-        history.pushState(null, "", window.location.href);
-
+        // ИСПРАВЛЕННЫЙ ПРОСМОТРЩИК МЕДИА БЕЗ history.back() ПРИ КЛИКЕ
         document.addEventListener('click', function(e) {
             const videoTrig = e.target.closest('.video-overlay-trigger') || (e.target.tagName === 'VIDEO' && !e.target.closest('div[style*="position:fixed"]'));
             if (videoTrig) {
@@ -3320,7 +3306,6 @@ try{
                     videoOverlay.style.visibility = 'visible';
                     videoOverlay.style.opacity = '1';
                     document.body.style.overflow = 'hidden';
-                    history.pushState({ modalOpen: true }, "", window.location.href);
                     fullVideo.play().catch(err => {});
                     return;
                 }
@@ -3331,12 +3316,11 @@ try{
                 overlay.style.visibility = 'visible';
                 overlay.style.opacity = '1';
                 document.body.style.overflow = 'hidden';
-                history.pushState({ modalOpen: true }, "", window.location.href);
             }
         });
 
-        overlay.addEventListener('click', function() { window.history.back(); });
-        videoOverlay.addEventListener('click', function() { window.history.back(); });
+        overlay.addEventListener('click', function() { closePhotoViewer(); });
+        videoOverlay.addEventListener('click', function() { closeVideoPlayer(); });
     });
 </script>
 
