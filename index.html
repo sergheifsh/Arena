@@ -1979,17 +1979,20 @@ const idJS=escJS(id);
 
 const video=isVideoDuel(duel);
 
-let authorName = t("participant");
+let authorName = "";
 let authorAvatarUrl = "";
 let authorId = duel.user_id;
 if(authorId){
   try{
     const authorRes = await db.from("profiles").select("full_name, username, avatar_url").eq("id", authorId).maybeSingle();
     if(authorRes.data) {
-      authorName = authorRes.data.full_name || authorRes.data.username || t("participant");
+      authorName = authorRes.data.full_name || authorRes.data.username || "";
       authorAvatarUrl = authorRes.data.avatar_url || "";
     }
   }catch(err){}
+}
+if(!authorName){
+  authorName = "Пользователь";
 }
 
 const authorAvatarHtml = authorAvatarUrl 
@@ -2391,7 +2394,7 @@ return;
 const profiles = await profilesMap(userIds);
 listContainer.innerHTML = userIds.map(uid=>{
 const p = profiles[uid]||{};
-const name = p.full_name || p.username || t("participant");
+const name = p.full_name || p.username || "Пользователь";
 const avatar = p.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 return `
 <div onclick="executeForwardToUser('${escJS(uid)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
@@ -2474,7 +2477,7 @@ const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && curre
 
 container.innerHTML=comments.map(c=>{
 const p=profilesMapData[c.user_id]||{};
-const name=p.full_name||p.username||t("participant");
+const name=p.full_name||p.username||"Пользователь";
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px">⚔️</div>`;
 const isMe = currentUser && String(c.user_id) === String(currentUser.id);
 const canManage = currentUser && (isMe || isAdminUser);
@@ -2653,7 +2656,7 @@ messages.forEach(m => {
 const profiles=await profilesMap(userIds);
 box.innerHTML=userIds.map(uid=>{
 const p=profiles[uid]||{};
-const name=p.full_name||p.username||t("participant");
+const name=p.full_name||p.username||"Пользователь";
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`:`<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 const hasUnread = unreadMap[uid] ? `<div class="chat-badge"></div>` : "";
 return `
@@ -2783,7 +2786,7 @@ const profilesMapData=await profilesMap(userIds);
 let listA=[], listB=[];
 votes.forEach(v=>{
 const p=profilesMapData[v.user_id]||{};
-const name=p.full_name||p.username||t("participant");
+const name=p.full_name||p.username||"Пользователь";
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px">⚔️</div>`;
 const username=p.username?`@${esc(p.username)}`:"";
 
@@ -3181,7 +3184,7 @@ box.innerHTML=uniqueUsers.length?uniqueUsers.map(p=>`
 ${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
 </div>
 <div class="search-result-main">
-<b>${esc(p.full_name||t("participant"))}</b>
+<b>${esc(p.full_name||"Пользователь")}</b>
 <div style="font-size:12px;color:#64748b">@${esc(p.username||"arena")}</div>
 </div>
 </div>
@@ -3197,7 +3200,7 @@ const r=await db.from("profiles").select("*").eq("id",String(id)).maybeSingle();
 if(!r.data){ alert("Профиль не найден."); return; }
 
 const p=r.data;
-$("otherName").innerText=p.full_name||t("participant");
+$("otherName").innerText=p.full_name||"Пользователь";
 $("otherUsername").innerText="@"+(p.username||"arena");
 $("otherBio").innerText=p.bio||"";
 setAvatar("otherAvatar",p.avatar_url);
@@ -3316,7 +3319,7 @@ const statsHtml=`<div style="margin-bottom:12px;padding:12px;background:#fff;bor
 const rows=uniqueAdminUsers.map(u=>`
 <div class="admin-user-row">
 <div class="admin-user-main">
-<div class="admin-user-name">${esc(u.full_name||t("participant"))}</div>
+<div class="admin-user-name">${esc(u.full_name||"Пользователь")}</div>
 <div style="font-size:11px;color:#64748b">@${esc(u.username||"arena")}</div>
 <div class="${u.is_blocked?"admin-blocked":"admin-active"}">${u.is_blocked?t("blocked"):t("active")}</div>
 </div>
