@@ -1619,7 +1619,9 @@ $("loginButton").disabled=false;
 
 async function logout(){
 try{
-if(window.OneSignalDeferred) {
+if (window.AndroidBridge && typeof window.AndroidBridge.logoutOneSignal === 'function') {
+    window.AndroidBridge.logoutOneSignal();
+} else if(window.OneSignalDeferred) {
     window.OneSignalDeferred.push(async function(OneSignal) {
         await OneSignal.logout();
     });
@@ -1654,19 +1656,23 @@ if(!currentUser){
     return;
 }
 
-// 🔔 ОПТИМИЗИРОВАННАЯ ПРИВЯЗКА ONESIGNAL К EXTERNAL ID
-if (currentUser && currentUser.id && window.OneSignalDeferred) {
-    window.OneSignalDeferred.push(async function(OneSignal) {
-        try {
-            await OneSignal.login(currentUser.id);
-            const permission = OneSignal.Notifications.permission;
-            if (!permission) {
-                await OneSignal.Notifications.requestPermission(true);
+// 🔔 ИНТЕГРАЦИЯ С НАТИВНЫМ МОСТОМ ANDROID APK ИЛИ ONE SIGNAL WEB
+if (currentUser && currentUser.id) {
+    if (window.AndroidBridge && typeof window.AndroidBridge.loginOneSignal === 'function') {
+        window.AndroidBridge.loginOneSignal(currentUser.id);
+    } else if (window.OneSignalDeferred) {
+        window.OneSignalDeferred.push(async function(OneSignal) {
+            try {
+                await OneSignal.login(currentUser.id);
+                const permission = OneSignal.Notifications.permission;
+                if (!permission) {
+                    await OneSignal.Notifications.requestPermission(true);
+                }
+            } catch (err) {
+                console.log("OneSignal login error:", err);
             }
-        } catch (err) {
-            console.log("OneSignal login error:", err);
-        }
-    });
+        });
+    }
 }
 
 try{
