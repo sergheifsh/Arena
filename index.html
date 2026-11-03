@@ -355,7 +355,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 
 <div style="display:flex;gap:6px;align-items:center;padding-bottom:calc(10px + env(safe-area-inset-bottom));">
-<label style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:10px;cursor:pointer;font-size:16px" title="Прикрепить медиа">📎<input id="chatMediaInput" type="file" accept="image/*,video/*,image/gif" onchange="sendDirectMedia(event)"></label>
+<label style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:10px;cursor:pointer;font-size:16px" title="Прикрепить медиа">📎<input id="chatMediaInput" type="file" accept="image/*,video/*" onchange="sendDirectMedia(event)"></label>
 <input type="text" id="directMessageInput" placeholder="Введите сообщение..." style="flex:1;padding:12px;border:1px solid #cbd5e1;border-radius:10px;outline:0;font-size:14px;" onkeydown="if(event.key==='Enter')sendDirectMessage()">
 <button type="button" onclick="sendDirectMessage()" class="primary" style="width:auto;margin-top:0;padding:12px 18px;" data-i18n="send">Отправить</button>
 </div>
@@ -502,8 +502,8 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="challengeFields" class="hidden">
 <input id="duelChallengeOptionA" placeholder="Ваш вариант (А)">
 <label class="photo-button">
-<span id="challengeAText">📷 Загрузить ваш медиафайл (Фото/Видео/GIF)</span>
-<input id="duelChallengeFileA" type="file" accept="image/*,video/*,image/gif" onchange="previewChallengeCreateMedia(event)">
+<span id="challengeAText">📷 Загрузить ваш медиафайл (Фото/Видео)</span>
+<input id="duelChallengeFileA" type="file" accept="image/*,video/*" onchange="previewChallengeCreateMedia(event)">
 </label>
 <div id="previewChallengeA" class="image-preview">
 <img id="previewChallengeImg" alt="Preview" style="display:none">
@@ -527,7 +527,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="challengeOptionB" placeholder="Название вашего варианта">
 <label class="photo-button">
 <span id="challengeFileText" data-i18n="uploadYourMedia">📷 Загрузить медиафайл</span>
-<input id="challengeMediaFile" type="file" accept="image/*,video/*,image/gif" onchange="previewChallengeMedia(event)">
+<input id="challengeMediaFile" type="file" accept="image/*,video/*" onchange="previewChallengeMedia(event)">
 </label>
 <div id="challengePreview" class="image-preview">
 <img id="challengePreviewImg" alt="Preview" style="display:none">
@@ -1927,10 +1927,6 @@ function isVideoDuel(d){
 return !!(d.video_a||d.video_b||d.video_option_a||d.video_option_b);
 }
 
-function isGifDuel(d){
-return !!(d.gif_a||d.gif_b||d.gif_option_a||d.gif_option_b);
-}
-
 async function duelCard(duel){
 const vote=await getVote(duel.id);
 let voteCounts;
@@ -1947,7 +1943,6 @@ const id=String(duel.id);
 const idJS=escJS(id);
 
 const video=isVideoDuel(duel);
-const gif=isGifDuel(duel);
 
 let authorName = t("participant");
 let authorId = duel.user_id;
@@ -1966,11 +1961,6 @@ if(video){
   mediaB=duel.video_b ? `<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_b)}#t=0.001" preload="metadata" playsinline webkit-playsinline></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_b)}"></div></div>` : `<div class="option-placeholder video-placeholder">🎥</div>`;
   labelA=duel.video_option_a||duel.option_a||"A";
   labelB=duel.video_option_b||duel.option_b||"B";
-}else if(gif){
-  mediaA=duel.gif_a ? `<img src="${esc(duel.gif_a)}" alt="A">` : `<div class="option-placeholder">GIF</div>`;
-  mediaB=duel.gif_b ? `<img src="${esc(duel.gif_b)}" alt="B">` : `<div class="option-placeholder">GIF</div>`;
-  labelA=duel.gif_option_a||duel.option_a||"A";
-  labelB=duel.gif_option_b||duel.option_b||"B";
 }else{
   mediaA=duel.image_a ? `<img src="${esc(duel.image_a)}" alt="A">` : `<div class="option-placeholder">A</div>`;
   mediaB=duel.image_b ? `<img src="${esc(duel.image_b)}" alt="B">` : `<div class="option-placeholder">B</div>`;
@@ -1978,7 +1968,7 @@ if(video){
   labelB=duel.option_b||"B";
 }
 
-const hasSecondOption = !!(duel.image_b || duel.video_b || duel.gif_b || duel.option_b || duel.video_option_b || duel.gif_option_b);
+const hasSecondOption = !!(duel.image_b || duel.video_b || duel.option_b || duel.video_option_b);
 
 const card=document.createElement("article");
 card.className="duel";
@@ -1989,7 +1979,7 @@ const categoryKey={
 }[duel.category]||"other";
 
 const timerRes=formatCountdown(duel.expires_at);
-const battleTypeLabel = video ? '📹 ' + t("videoBattle") : (gif ? '🎞️ ' + t("gifBattle") : '📷 ' + t("photoBattle"));
+const battleTypeLabel = video ? '📹 ' + t("videoBattle") : '📷 ' + t("photoBattle");
 
 card.innerHTML=`
 <div class="duel-head">
@@ -2102,7 +2092,6 @@ $("challengePreview").style.display = "block";
 reader.readAsDataURL(file);
 }
 
-// ИСПРАВЛЕННАЯ ФУНКЦИЯ СОХРАНЕНИЯ ВАРИАНТА Б (CHALLENGE)
 async function submitChallenge(){
 const optB = $("challengeOptionB").value.trim();
 const status = $("challengeStatus");
@@ -2115,16 +2104,12 @@ return;
 $("challengeStatus").innerText = t("uploading");
 try{
 const isVid = challengeFile.type.startsWith("video/");
-const isGif = challengeFile.type.includes("gif");
-
-const folder = isVid ? "videos" : (isGif ? "gifs" : "duels");
+const folder = isVid ? "videos" : "duels";
 const mediaUrl = await upload(challengeFile, folder);
 
 let updatePayload = {};
 if (isVid) {
     updatePayload = { video_option_b: optB, video_b: mediaUrl };
-} else if (isGif) {
-    updatePayload = { gif_option_b: optB, gif_b: mediaUrl };
 } else {
     updatePayload = { option_b: optB, image_b: mediaUrl };
 }
@@ -2146,7 +2131,7 @@ if(!file || !activeChatUserId || !currentUser) return;
 if(file.size > 100*1024*1024){ alert(t("maxPhoto")); return; }
 
 try{
-const folder = file.type.startsWith("video/") ? "videos" : (file.type.includes("gif") ? "gifs" : "duels");
+const folder = file.type.startsWith("video/") ? "videos" : "duels";
 const url = await upload(file, folder);
 
 const { error } = await db.from("direct_messages").insert({
@@ -2883,11 +2868,9 @@ optionA=$("duelChallengeOptionA").value.trim();
 optionB="";
 if(!optionA || !challengeCreateFile){ status.innerText=t("invalid"); $("duelSubmitButton").disabled=false; return; }
 const isVid = challengeCreateFile.type.startsWith("video/");
-const isGif = challengeCreateFile.type.includes("gif");
-const folder = isVid ? "videos" : (isGif ? "gifs" : "duels");
+const folder = isVid ? "videos" : "duels";
 const mediaUrl = await upload(challengeCreateFile, folder);
 if(isVid){ videoA = mediaUrl; }
-else if(isGif){ imageA = mediaUrl; }
 else { imageA = mediaUrl; }
 }
 
@@ -2960,13 +2943,12 @@ box.innerHTML=data.length?data.map((item,i)=>{
 const d=item.duel;
 const counts=item.counts;
 const video=isVideoDuel(d);
-const gif=isGifDuel(d);
 return`
 <div class="rank-item">
 <div class="rank-number">${i+1}</div>
 <div class="rank-main">
 <div class="rank-title">${esc(d.title)}</div>
-<div class="rank-category">${video?"🎥 ":(gif?"🎞️ ":"🖼️ ")}${t(categoryKey[d.category]||"other")}</div>
+<div class="rank-category">${video?"🎥 ":"🖼️ "}${t(categoryKey[d.category]||"other")}</div>
 </div>
 <div class="rank-score">${counts.total}<br><small>${t("votes")}</small></div>
 </div>
@@ -3294,7 +3276,6 @@ try{
             document.body.style.overflow = '';
         }
 
-        // ИСПРАВЛЕННЫЙ ПРОСМОТРЩИК МЕДИА БЕЗ history.back() ПРИ КЛИКЕ
         document.addEventListener('click', function(e) {
             const videoTrig = e.target.closest('.video-overlay-trigger') || (e.target.tagName === 'VIDEO' && !e.target.closest('div[style*="position:fixed"]'));
             if (videoTrig) {
