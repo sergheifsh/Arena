@@ -638,7 +638,6 @@ let editingCommentId = null;
 let forwardingMessageData = null;
 
 let realtimeChannel=null;
-let backgroundSyncInterval=null;
 let presenceInterval=null;
 
 const $=id=>document.getElementById(id);
@@ -1279,24 +1278,6 @@ realtimeChannel = db.channel("arena_realtime_channel")
     }
 })
 .subscribe();
-
-if(backgroundSyncInterval) clearInterval(backgroundSyncInterval);
-backgroundSyncInterval = setInterval(async () => {
-    if(!currentUser) return;
-    await checkUnreadMessages();
-    if($("homeScreen").classList.contains("active")){
-        document.querySelectorAll(".duel[data-duel-id]").forEach(async card => {
-            const duelId = card.dataset.duelId;
-            if(duelId){
-                const userVote = await getVote(duelId);
-                await updateDuelVoteCard(card, duelId, userVote);
-            }
-        });
-    }
-    if(activeChatUserId && !$("chatBox").classList.contains("hidden")){
-        await loadDirectMessages();
-    }
-}, 3000);
 }
 
 function initUserPresence() {
@@ -1678,7 +1659,6 @@ if (window.AndroidBridge && typeof window.AndroidBridge.logoutOneSignal === 'fun
     window.AndroidBridge.logoutOneSignal();
 }
 if(realtimeChannel) db.removeChannel(realtimeChannel);
-if(backgroundSyncInterval) clearInterval(backgroundSyncInterval);
 if(presenceInterval) clearInterval(presenceInterval);
 await db.auth.signOut();
 }catch(e){}
@@ -2688,7 +2668,6 @@ await loadDirectMessages();
 window.addEventListener('popstate', function(e) {
     let closedSomething = false;
     
-    // Закрытие открытых модалок на аппаратную кнопку «Назад»
     document.querySelectorAll('.modal.show').forEach(m => {
         m.classList.remove('show');
         closedSomething = true;
