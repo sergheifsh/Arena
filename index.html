@@ -640,7 +640,7 @@ let forwardingMessageData = null;
 
 let realtimeChannel=null;
 let backgroundSyncInterval=null;
-let presenceInterval=null; // Интервал активности (пингов)
+let presenceInterval=null;
 
 const $=id=>document.getElementById(id);
 
@@ -1300,7 +1300,6 @@ backgroundSyncInterval = setInterval(async () => {
 }, 3000);
 }
 
-// Система проверки и отправки активности (онлайн / оффлайн)
 function initUserPresence() {
     if (!currentUser) return;
 
@@ -1678,7 +1677,6 @@ $("loginButton").disabled=false;
 async function logout(){
 try{
 if(currentUser){
-    // Сбрасываем время активности мгновенно при выходе
     await db.from("profiles")
         .update({ last_seen: new Date(0).toISOString() })
         .eq("id", currentUser.id);
@@ -1742,7 +1740,7 @@ $("auth").style.display="none";
 $("app").classList.remove("hidden");
 
 setupRealtimeSubscriptions();
-initUserPresence(); // Запуск пингов активности
+initUserPresence();
 showScreen("homeScreen");
 localStorage.setItem("arena_last_screen", "homeScreen");
 
@@ -2102,11 +2100,11 @@ ${admin ? `<button class="admin-delete" type="button" onclick="deleteDuel('${idJ
 
 <div class="duel-chat-box hidden" data-chat-id="${idJS}">
 <div class="comments-list" style="margin-bottom:8px;max-height:calc(50vh - 90px);overflow-y:auto">
-<div style="font-size:12px;color:#64748b;text-align:center">${t("loading")}</div>
+<div style="font-size:14px;color:#64748b;text-align:center">${t("loading")}</div>
 </div>
 <div style="display:flex;gap:6px">
-<input type="text" class="comment-input" placeholder="${t("commentPlaceholder")}" style="flex:1;padding:8px 10px;border:1px solid #cbd5e1;border-radius:10px;font-size:12px;outline:0;background:#fff" onkeydown="if(event.key==='Enter')addComment(this, '${idJS}')">
-<button type="button" onclick="addComment(this, '${idJS}')" style="padding:8px 12px;border:0;background:#2563eb;color:#fff;border-radius:10px;font-weight:bold;font-size:12px">${t("send")}</button>
+<input type="text" class="comment-input" placeholder="${t("commentPlaceholder")}" style="flex:1;padding:8px 10px;border:1px solid #cbd5e1;border-radius:10px;font-size:14px;outline:0;background:#fff" onkeydown="if(event.key==='Enter')addComment(this, '${idJS}')">
+<button type="button" onclick="addComment(this, '${idJS}')" style="padding:8px 12px;border:0;background:#2563eb;color:#fff;border-radius:10px;font-weight:bold;font-size:14px">${t("send")}</button>
 </div>
 </div>
 `;
@@ -2245,10 +2243,10 @@ const msgTextJS = escJS(m.text);
 const isMediaFlag = m.is_media || m.text?.startsWith("http");
 
 return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};position:relative;" data-msg-id="${msgId}">
-<div class="msg-bubble" data-msg-id="${msgId}" data-text="${esc(msgTextJS)}" data-isme="${isMe}" data-ismedia="${Boolean(isMediaFlag)}" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;user-select:none;">
+<div class="msg-bubble" data-msg-id="${msgId}" data-text="${esc(msgTextJS)}" data-isme="${isMe}" data-ismedia="${Boolean(isMediaFlag)}" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;user-select:none;font-size:14px;">
 ${content}
 </div>
-<div style="font-size:10px;color:#64748b;margin-top:2px;display:flex;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
+<div style="font-size:11px;color:#64748b;margin-top:2px;display:flex;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
 <span>${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
 </div>
 </div>`;
@@ -2305,14 +2303,14 @@ const menu = document.createElement("div");
 menu.className = "msg-context-menu";
 menu.style.cssText = "position:absolute;background:#fff;border:1px solid #cbd5e1;box-shadow:0 4px 12px rgba(0,0,0,0.15);border-radius:8px;z-index:9999;display:flex;flex-direction:column;min-width:130px;overflow:hidden;";
 
-let buttonsHtml = `<button onclick="forwardMessageFromMenu('${escJS(text)}', ${isMedia})" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#2563eb;border-bottom:1px solid #f1f5f9;">${t("forward")}</button>`;
+let buttonsHtml = `<button onclick="forwardMessageFromMenu('${escJS(text)}', ${isMedia})" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#2563eb;border-bottom:1px solid #f1f5f9;">${t("forward")}</button>`;
 
 if(isMe && !isMedia){
-  buttonsHtml += `<button onclick="startEditMessage('${messageId}', '${escJS(text)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
+  buttonsHtml += `<button onclick="startEditMessage('${messageId}', '${escJS(text)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
 }
 
 if(isMe){
-  buttonsHtml += `<button onclick="deleteDirectMessage('${messageId}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#dc2626;">${t("delete")}</button>`;
+  buttonsHtml += `<button onclick="deleteDirectMessage('${messageId}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#dc2626;">${t("delete")}</button>`;
 }
 
 menu.innerHTML = buttonsHtml;
@@ -2410,7 +2408,7 @@ return `
 <div onclick="executeForwardToUser('${escJS(uid)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
 ${avatar}
 <div style="flex:1"><b>${esc(name)}</b></div>
-<button class="primary" style="width:auto;padding:6px 12px;font-size:12px;margin-top:0">${t("forward")}</button>
+<button class="primary" style="width:auto;padding:6px 12px;font-size:14px;margin-top:0">${t("forward")}</button>
 </div>`;
 }).join("");
 }catch(e){
@@ -2472,7 +2470,7 @@ if(r.error)throw r.error;
 
 const comments=r.data||[];
 if(!comments.length){
-container.innerHTML=`<div style="font-size:12px;color:#64748b;text-align:center;padding:4px">${t("noComments")}</div>`;
+container.innerHTML=`<div style="font-size:14px;color:#64748b;text-align:center;padding:4px">${t("noComments")}</div>`;
 return;
 }
 
@@ -2483,7 +2481,7 @@ const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && curre
 container.innerHTML=comments.map(c=>{
 const p=profilesMapData[c.user_id]||{};
 const name=p.full_name||p.username||t("participant");
-const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:24px;height:24px;border-radius:50%;object-fit:cover">`:`<div style="width:24px;height:24px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:10px">⚔️</div>`;
+const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px">⚔️</div>`;
 const isMe = currentUser && String(c.user_id) === String(currentUser.id);
 const canManage = currentUser && (isMe || isAdminUser);
 
@@ -2491,13 +2489,13 @@ const commentId = c.id;
 const commentTextJS = escJS(c.text);
 
 return `
-<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;border:none !important;background:transparent !important;" data-comment-id="${commentId}">
+<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:14px;border:none !important;background:transparent !important;" data-comment-id="${commentId}">
 ${avatar}
 <div style="flex:1;background:transparent !important;border:none !important;padding:0">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
-<span style="font-weight:bold;color:#172033">${esc(name)}</span>
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
+<span style="font-weight:bold;font-size:14px;color:#172033">${esc(name)}</span>
 </div>
-<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;word-break:break-word;cursor:pointer;user-select:none;padding:4px 6px;border-radius:6px;background:#f8fafc;display:inline-block;max-width:100%;">
+<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;font-size:14px;word-break:break-word;cursor:pointer;user-select:none;padding:6px 8px;border-radius:8px;background:#f8fafc;display:inline-block;max-width:100%;">
 ${esc(c.text)}
 </div>
 </div>
@@ -2507,7 +2505,7 @@ ${esc(c.text)}
 container.scrollTop = container.scrollHeight;
 attachCommentLongPressListeners(sId);
 }catch(e){
-container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center">Ошибка загрузки</div>`;
+container.innerHTML=`<div style="font-size:14px;color:#dc2626;text-align:center">Ошибка загрузки</div>`;
 }
 }
 
@@ -2557,9 +2555,9 @@ menu.style.cssText = "position:absolute;background:#fff;border:1px solid #cbd5e1
 
 let buttonsHtml = "";
 if(isMe){
-  buttonsHtml += `<button onclick="startEditComment('${commentId}', '${escJS(text)}', '${escJS(duelId)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
+  buttonsHtml += `<button onclick="startEditComment('${commentId}', '${escJS(text)}', '${escJS(duelId)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
 }
-buttonsHtml += `<button onclick="deleteComment('${commentId}', '${escJS(duelId)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#dc2626;">${t("delete")}</button>`;
+buttonsHtml += `<button onclick="deleteComment('${commentId}', '${escJS(duelId)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#dc2626;">${t("delete")}</button>`;
 
 menu.innerHTML = buttonsHtml;
 document.body.appendChild(menu);
@@ -2698,6 +2696,18 @@ await loadDirectMessages();
 window.addEventListener('popstate', function(e) {
     let closedSomething = false;
     
+    // Поддержка аппаратной кнопки «Назад» для закрытия фото/видео превью
+    const globalPhotoOverlay = document.getElementById('globalPhotoOverlay');
+    const globalVideoOverlay = document.getElementById('globalVideoOverlay');
+    if (globalPhotoOverlay && globalPhotoOverlay.style.visibility === 'visible') {
+        globalPhotoOverlay.click();
+        closedSomething = true;
+    }
+    if (globalVideoOverlay && globalVideoOverlay.style.visibility === 'visible') {
+        globalVideoOverlay.click();
+        closedSomething = true;
+    }
+
     document.querySelectorAll(".duel.chat-split-top").forEach(card => {
         const box = card.querySelector(".duel-chat-box");
         if(box && !box.classList.contains("hidden")){
@@ -3379,6 +3389,7 @@ try{
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const overlay = document.createElement('div');
+        overlay.id = 'globalPhotoOverlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;cursor:pointer;';
         
         const fullImg = document.createElement('img');
@@ -3393,6 +3404,7 @@ try{
         }
 
         const videoOverlay = document.createElement('div');
+        videoOverlay.id = 'globalVideoOverlay';
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;overflow:hidden;';
         
         const fullVideo = document.createElement('video');
@@ -3472,6 +3484,7 @@ try{
                     videoOverlay.style.opacity = '1';
                     document.body.style.overflow = 'hidden';
                     fullVideo.play().catch(err => {});
+                    history.pushState({ videoViewerOpen: true }, "", window.location.href);
                     return;
                 }
             }
@@ -3481,6 +3494,7 @@ try{
                 overlay.style.visibility = 'visible';
                 overlay.style.opacity = '1';
                 document.body.style.overflow = 'hidden';
+                history.pushState({ photoViewerOpen: true }, "", window.location.href);
             }
         });
 
