@@ -635,10 +635,12 @@ let challengeFile = null;
 let openedOtherUserId=null;
 let activeChatUserId=null;
 let editingMessageId = null;
+let editingCommentId = null;
 let forwardingMessageData = null;
 
 let realtimeChannel=null;
 let backgroundSyncInterval=null;
+let presenceInterval=null; // Интервал активности (пингов)
 
 const $=id=>document.getElementById(id);
 
@@ -735,6 +737,7 @@ maxPhotoHelp:"🎥 Максимальный размер видео — 100 MB."
 tooLongTitle:"Название дуэли слишком длинное.",
 tooLongOption:"Название варианта слишком длинное.",
 deleteMessage:"Удалить сообщение?",
+deleteCommentConfirm:"Удалить этот комментарий?",
 share:"Поделиться",
 shareCopied:"🔗 Ссылка скопирована!",
 h24:"⏳ 24 часа",
@@ -865,6 +868,7 @@ maxPhotoHelp:"🎥 Dimensiunea maximă video este 100 MB.",
 tooLongTitle:"Numele duelului este prea lung.",
 tooLongOption:"Numele variantei este prea lung.",
 deleteMessage:"Ștergi mesajul?",
+deleteCommentConfirm:"Ștergi acest comentariu?",
 share:"Distribuie",
 shareCopied:"🔗 Link copiat!",
 h24:"⏳ 24 de ore",
@@ -995,6 +999,7 @@ maxPhotoHelp:"🎥 Maximum video size is 100 MB.",
 tooLongTitle:"Duel title is too long.",
 tooLongOption:"Option name is too long.",
 deleteMessage:"Delete this message?",
+deleteCommentConfirm:"Delete this comment?",
 share:"Share",
 shareCopied:"🔗 Link copied!",
 h24:"⏳ 24 hours",
@@ -1293,6 +1298,30 @@ backgroundSyncInterval = setInterval(async () => {
         await loadDirectMessages();
     }
 }, 3000);
+}
+
+// Система проверки и отправки активности (онлайн / оффлайн)
+function initUserPresence() {
+    if (!currentUser) return;
+
+    const pingOnline = async () => {
+        try {
+            await db.from("profiles")
+                .update({ last_seen: new Date().toISOString() })
+                .eq("id", currentUser.id);
+        } catch (e) {}
+    };
+
+    pingOnline();
+    if (presenceInterval) clearInterval(presenceInterval);
+    presenceInterval = setInterval(pingOnline, 20000);
+}
+
+function isUserOnline(lastSeenIsoString) {
+    if (!lastSeenIsoString) return false;
+    const lastSeenTime = new Date(lastSeenIsoString).getTime();
+    const now = Date.now();
+    return (now - lastSeenTime) < 40000;
 }
 
 function applyLanguage(){
@@ -1648,11 +1677,19 @@ $("loginButton").disabled=false;
 
 async function logout(){
 try{
+if(currentUser){
+    // Сбрасываем время активности мгновенно при выходе
+    await db.from("profiles")
+        .update({ last_seen: new Date(0).toISOString() })
+        .eq("id", currentUser.id);
+}
+
 if (window.AndroidBridge && typeof window.AndroidBridge.logoutOneSignal === 'function') {
     window.AndroidBridge.logoutOneSignal();
 }
 if(realtimeChannel) db.removeChannel(realtimeChannel);
 if(backgroundSyncInterval) clearInterval(backgroundSyncInterval);
+if(presenceInterval) clearInterval(presenceInterval);
 await db.auth.signOut();
 }catch(e){}
 
@@ -1681,7 +1718,6 @@ if(!currentUser){
     return;
 }
 
-// Нативный вызов Android Bridge для OneSignal (без дублирования веб-пушей)
 if (currentUser && currentUser.id) {
     if (window.AndroidBridge && typeof window.AndroidBridge.loginOneSignal === 'function') {
         window.AndroidBridge.loginOneSignal(currentUser.id);
@@ -1706,6 +1742,7 @@ $("auth").style.display="none";
 $("app").classList.remove("hidden");
 
 setupRealtimeSubscriptions();
+initUserPresence(); // Запуск пингов активности
 showScreen("homeScreen");
 localStorage.setItem("arena_last_screen", "homeScreen");
 
@@ -2413,6 +2450,7 @@ if(isHidden){
     box.classList.add("split-bottom");
     card.classList.add("chat-split-top");
     loadComments(box, duelId);
+    history.pushState({ duelChatOpen: true }, "", window.location.href);
 } else {
     box.classList.add("hidden");
     box.classList.remove("split-bottom");
@@ -2446,24 +2484,113 @@ container.innerHTML=comments.map(c=>{
 const p=profilesMapData[c.user_id]||{};
 const name=p.full_name||p.username||t("participant");
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:24px;height:24px;border-radius:50%;object-fit:cover">`:`<div style="width:24px;height:24px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:10px">⚔️</div>`;
-const canDelete = currentUser && (String(c.user_id) === String(currentUser.id) || isAdminUser);
+const isMe = currentUser && String(c.user_id) === String(currentUser.id);
+const canManage = currentUser && (isMe || isAdminUser);
+
+const commentId = c.id;
+const commentTextJS = escJS(c.text);
 
 return `
-<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;border:none !important;background:transparent !important;">
+<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;border:none !important;background:transparent !important;" data-comment-id="${commentId}">
 ${avatar}
 <div style="flex:1;background:transparent !important;border:none !important;padding:0">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
 <span style="font-weight:bold;color:#172033">${esc(name)}</span>
-${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}', this)" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:12px;font-weight:bold;padding:2px 4px;">✕</button>`:""}
 </div>
-<div style="color:#334155;word-break:break-word">${esc(c.text)}</div>
+<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;word-break:break-word;cursor:pointer;user-select:none;padding:4px 6px;border-radius:6px;background:#f8fafc;display:inline-block;max-width:100%;">
+${esc(c.text)}
+</div>
 </div>
 </div>
 `;
 }).join("");
 container.scrollTop = container.scrollHeight;
+attachCommentLongPressListeners(sId);
 }catch(e){
 container.innerHTML=`<div style="font-size:12px;color:#dc2626;text-align:center">Ошибка загрузки</div>`;
+}
+}
+
+function attachCommentLongPressListeners(duelId){
+document.querySelectorAll(".comment-bubble").forEach(bubble => {
+  let pressTimer = null;
+  const startPress = (e) => {
+    if(pressTimer) clearTimeout(pressTimer);
+    pressTimer = setTimeout(() => {
+      const commentId = bubble.dataset.commentId;
+      const text = bubble.dataset.text;
+      const isMe = bubble.dataset.isme === "true";
+      const canManage = bubble.dataset.canmanage === "true";
+      if(canManage){
+        openCommentContextMenu(e, commentId, text, isMe, duelId);
+      }
+    }, 500);
+  };
+
+  const cancelPress = () => {
+    if(pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+  };
+
+  bubble.onmousedown = startPress;
+  bubble.onmouseup = cancelPress;
+  bubble.onmouseleave = cancelPress;
+  
+  bubble.ontouchstart = startPress;
+  bubble.ontouchend = cancelPress;
+  bubble.ontouchmove = cancelPress;
+});
+}
+
+function openCommentContextMenu(event, commentId, text, isMe, duelId){
+document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
+if(event.cancelable) event.preventDefault();
+
+const bubble = event.currentTarget || document.querySelector(`[data-comment-id="${commentId}"]`);
+if(!bubble) return;
+
+const menu = document.createElement("div");
+menu.className = "msg-context-menu";
+menu.style.cssText = "position:absolute;background:#fff;border:1px solid #cbd5e1;box-shadow:0 4px 12px rgba(0,0,0,0.15);border-radius:8px;z-index:9999;display:flex;flex-direction:column;min-width:130px;overflow:hidden;";
+
+let buttonsHtml = "";
+if(isMe){
+  buttonsHtml += `<button onclick="startEditComment('${commentId}', '${escJS(text)}', '${escJS(duelId)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
+}
+buttonsHtml += `<button onclick="deleteComment('${commentId}', '${escJS(duelId)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:13px;font-weight:bold;color:#dc2626;">${t("delete")}</button>`;
+
+menu.innerHTML = buttonsHtml;
+document.body.appendChild(menu);
+
+const rect = bubble.getBoundingClientRect();
+menu.style.top = (rect.bottom + window.scrollY + 4) + "px";
+menu.style.left = Math.min(rect.left, window.innerWidth - 150) + "px";
+
+const closeMenu = (e) => {
+  if(!menu.contains(e.target) && !bubble.contains(e.target)){
+    menu.remove();
+    document.removeEventListener('click', closeMenu);
+    document.removeEventListener('touchstart', closeMenu);
+  }
+};
+setTimeout(() => {
+  document.addEventListener('click', closeMenu);
+  document.addEventListener('touchstart', closeMenu);
+}, 10);
+}
+
+function startEditComment(commentId, currentText, duelId){
+document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
+editingCommentId = commentId;
+const card = document.querySelector(`[data-chat-id="${duelId}"]`)?.closest(".duel");
+if(card){
+  const input = card.querySelector(".comment-input");
+  if(input){
+    input.value = currentText;
+    input.focus();
+  }
 }
 }
 
@@ -2479,8 +2606,14 @@ if(!text)return;
 if(!currentUser){ alert("Требуется авторизация"); return; }
 
 try{
-const r=await db.from("duel_comments").insert({ duel_id:sId, user_id:currentUser.id, text });
-if(r.error)throw r.error;
+if(editingCommentId){
+  const { error } = await db.from("duel_comments").update({ text }).eq("id", editingCommentId);
+  if(error) throw error;
+  editingCommentId = null;
+}else{
+  const r=await db.from("duel_comments").insert({ duel_id:sId, user_id:currentUser.id, text });
+  if(r.error)throw r.error;
+}
 input.value="";
 loadComments(card.querySelector(".duel-chat-box"), sId);
 }catch(e){
@@ -2488,16 +2621,18 @@ alert(e.message||t("connection"));
 }
 }
 
-async function deleteComment(commentId, duelId, button){
-const sId = String(duelId);
-const card = button.closest(".duel");
+async function deleteComment(commentId, duelId){
+document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
+showCustomConfirm(t("deleteCommentConfirm"), async () => {
 try{
 const r = await db.from("duel_comments").delete().eq("id", commentId);
 if(r.error) throw r.error;
-if(card) loadComments(card.querySelector(".duel-chat-box"), sId);
+const card = document.querySelector(`[data-chat-id="${duelId}"]`)?.closest(".duel");
+if(card) loadComments(card.querySelector(".duel-chat-box"), duelId);
 }catch(e){
 alert(e.message || t("connection"));
 }
+}, t("delete"));
 }
 
 async function showMessagesScreen(){
@@ -2561,10 +2696,27 @@ await loadDirectMessages();
 }
 
 window.addEventListener('popstate', function(e) {
+    let closedSomething = false;
+    
+    document.querySelectorAll(".duel.chat-split-top").forEach(card => {
+        const box = card.querySelector(".duel-chat-box");
+        if(box && !box.classList.contains("hidden")){
+            box.classList.add("hidden");
+            box.classList.remove("split-bottom");
+            card.classList.remove("chat-split-top");
+            closedSomething = true;
+        }
+    });
+
     if(!$("chatBox").classList.contains("hidden")){
         $("chatBox").classList.add("hidden");
         activeChatUserId = null;
         checkUnreadMessages();
+        closedSomething = true;
+    }
+
+    if(closedSomething){
+        history.pushState(null, "", window.location.href);
     }
 });
 
@@ -2639,7 +2791,7 @@ content.innerHTML=`<div class="empty">Ошибка загрузки</div>`;
 
 async function profilesMap(ids){
 if(!ids.length)return{};
-const r=await db.from("profiles").select("id,full_name,username,avatar_url").in("id",ids);
+const r=await db.from("profiles").select("id,full_name,username,avatar_url,last_seen").in("id",ids);
 if(r.error)return{};
 const map={};
 (r.data||[]).forEach(p=>{ map[p.id]=p; });
