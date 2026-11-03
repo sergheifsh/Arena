@@ -20,12 +20,6 @@
         enable: true,
       },
     });
-
-    try {
-      await OneSignal.Notifications.requestPermission(true);
-    } catch(e) {
-      console.log("Push permission error:", e);
-    }
   });
 </script>
 
@@ -1660,12 +1654,15 @@ if(!currentUser){
     return;
 }
 
-if(currentUser && window.OneSignalDeferred) {
+// 🔔 ЖЕЛЕЗОБЕТОННАЯ ПРИВЯЗКА ONESIGNAL К EXTERNAL ID ПОЛЬЗОВАТЕЛЯ
+if(currentUser && currentUser.id && window.OneSignalDeferred) {
     window.OneSignalDeferred.push(async function(OneSignal) {
         try {
             await OneSignal.login(currentUser.id);
             await OneSignal.Notifications.requestPermission(true);
-        } catch(err) {}
+        } catch(err) {
+            console.log("OneSignal login error:", err);
+        }
     });
 }
 
@@ -2125,7 +2122,6 @@ status.innerText = e.message || t("connection");
 }
 }
 
-// 🔔 ФУНКЦИЯ ОТПРАВКИ ПУШ-УВЕДОМЛЕНИЙ ЧЕРЕЗ ONESIGNAL REST API
 async function sendPushNotification(targetUserId, messageText) {
   if (!targetUserId) return;
   try {
@@ -2170,7 +2166,6 @@ is_read: false
 });
 if(error) throw error;
 
-// Отправляем пуш получателю медиафайла
 await sendPushNotification(activeChatUserId, "📎 Вам отправили медиафайл в чате");
 
 await loadDirectMessages();
@@ -2583,7 +2578,6 @@ $("editBanner").classList.add("hidden");
 const { error } = await db.from("direct_messages").insert({ sender_id:currentUser.id, receiver_id:activeChatUserId, text, is_media:false, is_read:false });
 if(error) throw error;
 
-// Отправляем пуш получателю текстового сообщения
 await sendPushNotification(activeChatUserId, `💬 Новое сообщение: ${text.substring(0, 50)}`);
 }
 await loadDirectMessages();
