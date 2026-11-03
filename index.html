@@ -1654,13 +1654,16 @@ if(!currentUser){
     return;
 }
 
-// 🔔 ЖЕЛЕЗОБЕТОННАЯ ПРИВЯЗКА ONESIGNAL К EXTERNAL ID ПОЛЬЗОВАТЕЛЯ
-if(currentUser && currentUser.id && window.OneSignalDeferred) {
+// 🔔 ОПТИМИЗИРОВАННАЯ ПРИВЯЗКА ONESIGNAL К EXTERNAL ID
+if (currentUser && currentUser.id && window.OneSignalDeferred) {
     window.OneSignalDeferred.push(async function(OneSignal) {
         try {
             await OneSignal.login(currentUser.id);
-            await OneSignal.Notifications.requestPermission(true);
-        } catch(err) {
+            const permission = OneSignal.Notifications.permission;
+            if (!permission) {
+                await OneSignal.Notifications.requestPermission(true);
+            }
+        } catch (err) {
             console.log("OneSignal login error:", err);
         }
     });
@@ -2338,7 +2341,13 @@ showCustomConfirm(t("deleteChatConfirm"), async () => {
 try{
 const { error } = await db.from("direct_messages").delete().or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${activeChatUserId}),and(sender_id.eq.${activeChatUserId},receiver_id.eq.${currentUser.id})`);
 if(error) throw error;
-history.back();
+
+$("chatBox").classList.add("hidden");
+activeChatUserId = null;
+await checkUnreadMessages();
+if($("messagesScreen").classList.contains("active")){
+    await showMessagesScreen();
+}
 }catch(e){
 alert(e.message || t("connection"));
 }
