@@ -2472,7 +2472,7 @@ ${avatar}
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
 <span style="font-weight:bold;color:#172033;font-size:14px">${esc(name)}</span>
 </div>
-<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;word-break:break-word;cursor:pointer;user-select:none;padding:6px 10px;border-radius:8px;background:#f8fafc;display:inline-block;max-width:100%;font-size:14px;">
+<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;word-break:break-word;cursor:pointer;user-select:none;padding:6px 10px;border-radius:8px;background:#f8fafc;display:inline-block;max-width:100%;font-size:15px;">
 ${esc(c.text)}
 </div>
 </div>
@@ -2672,12 +2672,16 @@ await loadDirectMessages();
 
 window.addEventListener('popstate', function(e) {
     let closedSomething = false;
-    
-    document.querySelectorAll('.modal.show').forEach(m => {
-        m.classList.remove('show');
-        closedSomething = true;
-    });
 
+    // 1. Сначала закрываем полноэкранный чат с пользователем
+    if(!$("chatBox").classList.contains("hidden")){
+        $("chatBox").classList.add("hidden");
+        activeChatUserId = null;
+        checkUnreadMessages();
+        closedSomething = true;
+    }
+
+    // 2. Закрываем сплит-чаты дуэлей
     document.querySelectorAll(".duel.chat-split-top").forEach(card => {
         const box = card.querySelector(".duel-chat-box");
         if(box && !box.classList.contains("hidden")){
@@ -2688,10 +2692,15 @@ window.addEventListener('popstate', function(e) {
         }
     });
 
-    if(!$("chatBox").classList.contains("hidden")){
-        $("chatBox").classList.add("hidden");
-        activeChatUserId = null;
-        checkUnreadMessages();
+    // 3. Закрываем открытые модальные окна
+    document.querySelectorAll('.modal.show').forEach(m => {
+        m.classList.remove('show');
+        closedSomething = true;
+    });
+
+    // Если ничего из вышеперечисленного не было открыто, но мы не на домашнем экране — возвращаем на домашний экран
+    if(!closedSomething && !$("homeScreen").classList.contains("active")){
+        showScreen("homeScreen");
         closedSomething = true;
     }
 
