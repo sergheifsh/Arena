@@ -187,6 +187,35 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .empty{text-align:center;padding:35px 15px;color:#64748b}
 .media-help{font-size:11px;color:#64748b;margin:4px 2px 8px}
 
+/* Стили для разделения экрана при открытии чата дуэли */
+.duel.chat-split-top {
+    transform: translateY(-25vh);
+    transition: transform 0.3s ease;
+    max-height: 45vh;
+    overflow-y: auto;
+    z-index: 96;
+    position: relative;
+}
+
+.duel-chat-box.split-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 650px;
+    margin: auto;
+    height: 50vh;
+    z-index: 95;
+    background: #fff;
+    border-top: 2px solid #2563eb;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -5px 25px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    padding: 12px 14px;
+}
+
 @media(max-width:430px){
 .arena-title{font-size:27px}
 .option-media{height:180px}
@@ -1656,7 +1685,6 @@ if(!currentUser){
     return;
 }
 
-// 🔔 ИНТЕГРАЦИЯ С НАТИВНЫМ МОСТОМ ANDROID APK ИЛИ ONE SIGNAL WEB
 if (currentUser && currentUser.id) {
     if (window.AndroidBridge && typeof window.AndroidBridge.loginOneSignal === 'function') {
         window.AndroidBridge.loginOneSignal(currentUser.id);
@@ -2050,8 +2078,8 @@ ${admin ? `<button class="admin-delete" type="button" onclick="deleteDuel('${idJ
 <button type="button" onclick="toggleDuelChat(this, '${idJS}')" style="width:100%;padding:10px;border:1px solid #dbe4f0;background:#f8fafc;color:#2563eb;border-radius:12px;font-weight:bold;font-size:13px;display:flex;align-items:center;justify-content:center;gap:6px">${t("chatButton")}</button>
 </div>
 
-<div class="duel-chat-box hidden" style="border-top:1px solid #e2e8f0;padding:12px 14px;background:#f8fafc;border-radius:0 0 20px 20px" data-chat-id="${idJS}">
-<div class="comments-list" style="margin-bottom:8px;max-height:200px;overflow-y:auto">
+<div class="duel-chat-box hidden" data-chat-id="${idJS}">
+<div class="comments-list" style="margin-bottom:8px;max-height:calc(50vh - 90px);overflow-y:auto">
 <div style="font-size:12px;color:#64748b;text-align:center">${t("loading")}</div>
 </div>
 <div style="display:flex;gap:6px">
@@ -2420,12 +2448,18 @@ const card = button.closest(".duel");
 if(!card) return;
 const box = card.querySelector(".duel-chat-box");
 if(!box) return;
+
 const isHidden = box.classList.contains("hidden");
+
 if(isHidden){
-box.classList.remove("hidden");
-loadComments(box, duelId);
-}else{
-box.classList.add("hidden");
+    box.classList.remove("hidden");
+    box.classList.add("split-bottom");
+    card.classList.add("chat-split-top");
+    loadComments(box, duelId);
+} else {
+    box.classList.add("hidden");
+    box.classList.remove("split-bottom");
+    card.classList.remove("chat-split-top");
 }
 }
 
@@ -2458,9 +2492,9 @@ const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:24px;hei
 const canDelete = currentUser && (String(c.user_id) === String(currentUser.id) || isAdminUser);
 
 return `
-<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:6px;font-size:12px">
+<div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;border:none !important;background:transparent !important;">
 ${avatar}
-<div style="flex:1;background:#fff;padding:6px 8px;border-radius:8px;border:1px solid #e2e8f0">
+<div style="flex:1;background:transparent !important;border:none !important;padding:0">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">
 <span style="font-weight:bold;color:#172033">${esc(name)}</span>
 ${canDelete?`<button onclick="deleteComment('${c.id}','${escJS(sId)}', this)" style="border:0;background:0;color:#dc2626;cursor:pointer;font-size:12px;font-weight:bold;padding:2px 4px;">✕</button>`:""}
