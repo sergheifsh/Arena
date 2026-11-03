@@ -172,7 +172,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .empty{text-align:center;padding:35px 15px;color:#64748b}
 .media-help{font-size:11px;color:#64748b;margin:4px 2px 8px}
 
-/* СТРОГОЕ РАЗДЕЛЕНИЕ ЭКРАНА 50/50 КАК НА СКРИНШОТЕ */
 .duel.chat-split-top {
     position: fixed !important;
     top: 0 !important;
@@ -1314,13 +1313,6 @@ function initUserPresence() {
     pingOnline();
     if (presenceInterval) clearInterval(presenceInterval);
     presenceInterval = setInterval(pingOnline, 20000);
-}
-
-function isUserOnline(lastSeenIsoString) {
-    if (!lastSeenIsoString) return false;
-    const lastSeenTime = new Date(lastSeenIsoString).getTime();
-    const now = Date.now();
-    return (now - lastSeenTime) < 40000;
 }
 
 function applyLanguage(){
@@ -2493,9 +2485,9 @@ return `
 ${avatar}
 <div style="flex:1;background:transparent !important;border:none !important;padding:0">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-<span style="font-weight:bold;font-size:14px;color:#172033">${esc(name)}</span>
+<span style="font-weight:bold;color:#172033;font-size:14px">${esc(name)}</span>
 </div>
-<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;font-size:14px;word-break:break-word;cursor:pointer;user-select:none;padding:6px 8px;border-radius:8px;background:#f8fafc;display:inline-block;max-width:100%;">
+<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;word-break:break-word;cursor:pointer;user-select:none;padding:6px 10px;border-radius:8px;background:#f8fafc;display:inline-block;max-width:100%;font-size:14px;">
 ${esc(c.text)}
 </div>
 </div>
@@ -2696,17 +2688,11 @@ await loadDirectMessages();
 window.addEventListener('popstate', function(e) {
     let closedSomething = false;
     
-    // Поддержка аппаратной кнопки «Назад» для закрытия фото/видео превью
-    const globalPhotoOverlay = document.getElementById('globalPhotoOverlay');
-    const globalVideoOverlay = document.getElementById('globalVideoOverlay');
-    if (globalPhotoOverlay && globalPhotoOverlay.style.visibility === 'visible') {
-        globalPhotoOverlay.click();
+    // Закрытие открытых модалок на аппаратную кнопку «Назад»
+    document.querySelectorAll('.modal.show').forEach(m => {
+        m.classList.remove('show');
         closedSomething = true;
-    }
-    if (globalVideoOverlay && globalVideoOverlay.style.visibility === 'visible') {
-        globalVideoOverlay.click();
-        closedSomething = true;
-    }
+    });
 
     document.querySelectorAll(".duel.chat-split-top").forEach(card => {
         const box = card.querySelector(".duel-chat-box");
@@ -3389,7 +3375,6 @@ try{
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const overlay = document.createElement('div');
-        overlay.id = 'globalPhotoOverlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;cursor:pointer;';
         
         const fullImg = document.createElement('img');
@@ -3404,7 +3389,6 @@ try{
         }
 
         const videoOverlay = document.createElement('div');
-        videoOverlay.id = 'globalVideoOverlay';
         videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;overflow:hidden;';
         
         const fullVideo = document.createElement('video');
@@ -3484,7 +3468,6 @@ try{
                     videoOverlay.style.opacity = '1';
                     document.body.style.overflow = 'hidden';
                     fullVideo.play().catch(err => {});
-                    history.pushState({ videoViewerOpen: true }, "", window.location.href);
                     return;
                 }
             }
@@ -3494,7 +3477,6 @@ try{
                 overlay.style.visibility = 'visible';
                 overlay.style.opacity = '1';
                 document.body.style.overflow = 'hidden';
-                history.pushState({ photoViewerOpen: true }, "", window.location.href);
             }
         });
 
