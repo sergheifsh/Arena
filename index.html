@@ -796,7 +796,7 @@ films:"🎬 Filme",
 music:"🎵 Muzică",
 games:"🎮 Jocuri",
 sport:"⚽ Sport",
-memes:"😂 Meme",
+memes:"meme",
 auto:"🚗 Auto",
 other:"✨ Altele",
 create:"⚔️ Creează duel",
@@ -2447,7 +2447,12 @@ return;
 }
 
 const userIds=[...new Set(comments.map(c=>c.user_id))];
-const profilesMapData=await profilesMap(userIds);
+const { data: profilesData } = await db.from("profiles").select("id, full_name, username, avatar_url").in("id", userIds);
+const profilesMapData = {};
+if(profilesData) {
+  profilesData.forEach(p => { profilesMapData[p.id] = p; });
+}
+
 const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
 
 container.innerHTML=comments.map(c=>{
