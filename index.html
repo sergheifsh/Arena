@@ -1065,14 +1065,14 @@ return String(v??"")
 }
 
 function resolveDisplayName(profile, userId) {
-    if (!profile) return `Пользователь (${String(userId).slice(0, 6)})`;
+    if (!profile) return "Пользователь";
     if (profile.full_name && profile.full_name.trim() !== "") {
         return profile.full_name.trim();
     }
     if (profile.username && profile.username.trim() !== "") {
         return `@${profile.username.trim()}`;
     }
-    return `Пользователь (${String(userId).slice(0, 6)})`;
+    return "Пользователь";
 }
 
 function rnd(){
@@ -1999,7 +1999,7 @@ if(authorId){
     authorName = resolveDisplayName(authorRes.data, authorId);
     authorAvatarUrl = authorRes.data?.avatar_url || "";
   }catch(err){
-    authorName = `Пользователь (${String(authorId).slice(0,6)})`;
+    authorName = "Пользователь";
   }
 }
 
