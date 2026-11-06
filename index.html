@@ -1066,12 +1066,22 @@ return String(v??"")
 
 function resolveDisplayName(profile, userId) {
     if (!profile) return "Пользователь";
-    if (profile.full_name && profile.full_name.trim() !== "") {
-        return profile.full_name.trim();
+
+    const profileName =
+        profile.full_name ||
+        profile.name ||
+        profile.display_name ||
+        profile.first_name ||
+        profile.username;
+
+    if (typeof profileName === "string" && profileName.trim() !== "") {
+        const cleanName = profileName.trim();
+
+        return profileName === profile.username && !cleanName.startsWith("@")
+            ? `@${cleanName}`
+            : cleanName;
     }
-    if (profile.username && profile.username.trim() !== "") {
-        return `@${profile.username.trim()}`;
-    }
+
     return "Пользователь";
 }
 
@@ -1834,7 +1844,7 @@ return;
 const profilesMapData = await profilesMap(ids);
 
 contentEl.innerHTML = ids.map(uid => {
-const p = profilesMapData[uid];
+const p = profilesMapData[uid] || profilesMapData[String(uid).toLowerCase()] || {};
 const name = resolveDisplayName(p, uid);
 const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 const uname = p?.username ? `@${esc(p.username)}` : "";
@@ -1995,7 +2005,7 @@ let authorAvatarUrl = "";
 let authorId = duel.user_id;
 if(authorId){
   try{
-    const authorRes = await db.from("profiles").select("full_name, username, avatar_url").eq("id", authorId).maybeSingle();
+    const authorRes = await db.from("profiles").select("*").eq("id", authorId).maybeSingle();
     authorName = resolveDisplayName(authorRes.data, authorId);
     authorAvatarUrl = authorRes.data?.avatar_url || "";
   }catch(err){
@@ -2402,7 +2412,7 @@ return;
 
 const profiles = await profilesMap(userIds);
 listContainer.innerHTML = userIds.map(uid=>{
-const p = profiles[uid] || {};
+const p = profiles[uid] || profiles[String(uid).toLowerCase()] || {};
 const name = resolveDisplayName(p, uid);
 const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 return `
@@ -2481,7 +2491,7 @@ const profilesMapData = await profilesMap(userIds);
 const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
 
 container.innerHTML=comments.map(c=>{
-const p=profilesMapData[c.user_id];
+const p=profilesMapData[c.user_id] || profilesMapData[String(c.user_id).toLowerCase()] || {};
 const name = resolveDisplayName(p, c.user_id);
 const avatar=p?.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px">⚔️</div>`;
 const isMe = currentUser && String(c.user_id) === String(currentUser.id);
@@ -2636,19 +2646,33 @@ alert(e.message || t("connection"));
 }
 
 async function profilesMap(ids){
-if(!ids || !ids.length) return {};
-try {
-const cleanIds = [...new Set(ids.map(id => String(id).trim()))];
-const r = await db.from("profiles").select("id,full_name,username,avatar_url,last_seen").in("id", cleanIds);
-if(r.error) return {};
-const map = {};
-(r.data||[]).forEach(p => { 
-    if(p && p.id) map[String(p.id)] = p; 
-});
-return map;
-} catch(e) {
-return {};
-}
+    if(!ids || !ids.length) return {};
+
+    try {
+        const cleanIds = [...new Set(ids.map(id => String(id).trim()))];
+
+        const r = await db
+            .from("profiles")
+            .select("*")
+            .in("id", cleanIds);
+
+        if(r.error) return {};
+
+        const map = {};
+
+        (r.data || []).forEach(p => {
+            if(p && p.id) {
+                const key = String(p.id).trim();
+                map[key] = p;
+                map[key.toLowerCase()] = p;
+            }
+        });
+
+        return map;
+
+    } catch(e) {
+        return {};
+    }
 }
 
 async function showMessagesScreen(){
@@ -2678,7 +2702,7 @@ messages.forEach(m => {
 const profiles = await profilesMap(userIds);
 
 box.innerHTML = userIds.map(uid => {
-const p = profiles[uid] || {};
+const p = profiles[uid] || profiles[String(uid).toLowerCase()] || {};
 const name = resolveDisplayName(p, uid);
 const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 const hasUnread = unreadMap[uid] ? `<div class="chat-badge"></div>` : "";
@@ -2808,7 +2832,7 @@ const profilesMapData=await profilesMap(userIds);
 
 let listA=[], listB=[];
 votes.forEach(v=>{
-const p=profilesMapData[v.user_id];
+const p=profilesMapData[v.user_id] || profilesMapData[String(v.user_id).toLowerCase()] || {};
 const name = resolveDisplayName(p, v.user_id);
 const avatar=p?.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px">⚔️</div>`;
 const username=p?.username?`@${esc(p.username)}`:"";
