@@ -2393,8 +2393,9 @@ try{
 const r = await db.from("direct_messages").select("*").or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order("created_at",{ascending:false});
 if(r.error) throw r.error;
 
-const userIds = [...new Set((r.data||[]).flatMap(m=>[m.sender_id,m.receiver_id]))].filter(id=>id!==currentUser.id);
-if(!userIds.length){
+const messages = r.data || [];
+const userIds = [...new Set(messages.flatMap(m=>[m.sender_id,m.receiver_id]))].filter(id=>id!==currentUser.id);
+if(!idsListHasItems(userIds)){
 listContainer.innerHTML = `<div class="empty">${t("noActiveDialogs")}</div>`;
 return;
 }
@@ -2475,11 +2476,7 @@ return;
 }
 
 const userIds=[...new Set(comments.map(c=>c.user_id))];
-const { data: profilesData } = await db.from("profiles").select("id, full_name, username, avatar_url").in("id", userIds);
-const profilesMapData = {};
-if(profilesData) {
-  profilesData.forEach(p => { profilesMapData[p.id] = p; });
-}
+const profilesMapData = await profilesMap(userIds);
 
 const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
 
