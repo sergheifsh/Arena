@@ -2394,7 +2394,7 @@ const r = await db.from("direct_messages").select("*").or(`sender_id.eq.${curren
 if(r.error) throw r.error;
 
 const messages = r.data || [];
-const userIds = [...new Set(messages.flatMap(m=>[m.sender_id,m.receiver_id]))].filter(id=>id!==currentUser.id);
+const userIds = [...new Set(messages.flatMap(m => [String(m.sender_id), String(m.receiver_id)]))].filter(id => id && id !== String(currentUser.id));
 if(!idsListHasItems(userIds)){
 listContainer.innerHTML = `<div class="empty">${t("noActiveDialogs")}</div>`;
 return;
@@ -2402,7 +2402,7 @@ return;
 
 const profiles = await profilesMap(userIds);
 listContainer.innerHTML = userIds.map(uid=>{
-const p = profiles[uid];
+const p = profiles[uid] || {};
 const name = resolveDisplayName(p, uid);
 const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 return `
@@ -2635,6 +2635,22 @@ alert(e.message || t("connection"));
 }, t("delete"));
 }
 
+async function profilesMap(ids){
+if(!ids || !ids.length) return {};
+try {
+const cleanIds = [...new Set(ids.map(id => String(id).trim()))];
+const r = await db.from("profiles").select("id,full_name,username,avatar_url,last_seen").in("id", cleanIds);
+if(r.error) return {};
+const map = {};
+(r.data||[]).forEach(p => { 
+    if(p && p.id) map[String(p.id)] = p; 
+});
+return map;
+} catch(e) {
+return {};
+}
+}
+
 async function showMessagesScreen(){
 showScreen("messagesScreen");
 const box=$("conversationsList");
@@ -2645,7 +2661,8 @@ const r=await db.from("direct_messages").select("*").or(`sender_id.eq.${currentU
 if(r.error)throw r.error;
 
 const messages = r.data || [];
-const userIds=[...new Set(messages.flatMap(m=>[m.sender_id,m.receiver_id]))].filter(id=>id!==currentUser.id);
+const userIds = [...new Set(messages.flatMap(m => [String(m.sender_id), String(m.receiver_id)]))].filter(id => id && id !== String(currentUser.id));
+
 if(!idsListHasItems(userIds)){
 box.innerHTML=`<div class="empty">${t("noActiveDialogs")}</div>`;
 return;
@@ -2653,16 +2670,17 @@ return;
 
 const unreadMap = {};
 messages.forEach(m => {
-  if(m.receiver_id === currentUser.id && !m.is_read){
-    unreadMap[m.sender_id] = true;
+  if(String(m.receiver_id) === String(currentUser.id) && !m.is_read){
+    unreadMap[String(m.sender_id)] = true;
   }
 });
 
-const profiles=await profilesMap(userIds);
-box.innerHTML=userIds.map(uid=>{
-const p=profiles[uid];
+const profiles = await profilesMap(userIds);
+
+box.innerHTML = userIds.map(uid => {
+const p = profiles[uid] || {};
 const name = resolveDisplayName(p, uid);
-const avatar=p?.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`:`<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
+const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 const hasUnread = unreadMap[uid] ? `<div class="chat-badge"></div>` : "";
 return `
 <div onclick="openChat('${escJS(uid)}', '${escJS(name)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
@@ -2814,15 +2832,6 @@ ${listB.length?listB.join(""):`<div style="color:#64748b;font-size:12px">Ник�
 }catch(e){
 content.innerHTML=`<div class="empty">Ошибка загрузки</div>`;
 }
-}
-
-async function profilesMap(ids){
-if(!ids.length)return{};
-const r=await db.from("profiles").select("id,full_name,username,avatar_url,last_seen").in("id",ids);
-if(r.error)return{};
-const map={};
-(r.data||[]).forEach(p=>{ map[p.id]=p; });
-return map;
 }
 
 async function loadDuels(){
