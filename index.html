@@ -1064,6 +1064,17 @@ return String(v??"")
 .replace(/\n/g,"\\n");
 }
 
+function resolveDisplayName(profile, userId) {
+    if (!profile) return `Пользователь (${String(userId).slice(0, 6)})`;
+    if (profile.full_name && profile.full_name.trim() !== "") {
+        return profile.full_name.trim();
+    }
+    if (profile.username && profile.username.trim() !== "") {
+        return `@${profile.username.trim()}`;
+    }
+    return `Пользователь (${String(userId).slice(0, 6)})`;
+}
+
 function rnd(){
 if(window.crypto?.getRandomValues){
 const a=new Uint32Array(2);
@@ -1754,7 +1765,7 @@ r=await db.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
 
 currentProfile=r.data||{ id:currentUser.id, full_name:t("participant"), username:"arena" };
 
-$("profileName").innerText=currentProfile.full_name||t("participant");
+$("profileName").innerText=resolveDisplayName(currentProfile, currentUser.id);
 $("profileUsername").innerText="@"+(currentProfile.username||"arena");
 $("profileBio").innerText=currentProfile.bio||"";
 
@@ -1823,13 +1834,10 @@ return;
 const profilesMapData = await profilesMap(ids);
 
 contentEl.innerHTML = ids.map(uid => {
-const p = profilesMapData[uid] || {};
-let name = p.full_name;
-if(!name || name === "Участник" || name === "Пользователь" || name.startsWith("User_")){
-  name = p.username ? `@${p.username}` : `Пользователь (${uid.slice(0,6)})`;
-}
-const avatar = p.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
-const uname = p.username ? `@${esc(p.username)}` : "";
+const p = profilesMapData[uid];
+const name = resolveDisplayName(p, uid);
+const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
+const uname = p?.username ? `@${esc(p.username)}` : "";
 
 return `
 <div onclick="closeModal('followersModal'); openUserProfile('${escJS(uid)}')" style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;cursor:pointer;">
@@ -1988,19 +1996,11 @@ let authorId = duel.user_id;
 if(authorId){
   try{
     const authorRes = await db.from("profiles").select("full_name, username, avatar_url").eq("id", authorId).maybeSingle();
-    if(authorRes.data) {
-      let rawAuthName = authorRes.data.full_name || authorRes.data.username || "";
-      if(!rawAuthName || rawAuthName === "Участник" || rawAuthName === "Пользователь" || rawAuthName.startsWith("User_")){
-        authorName = authorRes.data.username ? `@${authorRes.data.username}` : `Пользователь (${authorId.slice(0,6)})`;
-      } else {
-        authorName = rawAuthName;
-      }
-      authorAvatarUrl = authorRes.data.avatar_url || "";
-    }
-  }catch(err){}
-}
-if(!authorName){
-  authorName = "Пользователь";
+    authorName = resolveDisplayName(authorRes.data, authorId);
+    authorAvatarUrl = authorRes.data?.avatar_url || "";
+  }catch(err){
+    authorName = `Пользователь (${String(authorId).slice(0,6)})`;
+  }
 }
 
 const authorAvatarHtml = authorAvatarUrl 
@@ -2401,15 +2401,9 @@ return;
 
 const profiles = await profilesMap(userIds);
 listContainer.innerHTML = userIds.map(uid=>{
-const p = profiles[uid]||{};
-let rawName = p.full_name || p.username || "";
-let name = "";
-if(!rawName || rawName === "Участник" || rawName === "Пользователь" || rawName.startsWith("User_")){
-  name = p.username ? `@${p.username}` : `Пользователь (${uid.slice(0,6)})`;
-} else {
-  name = rawName;
-}
-const avatar = p.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
+const p = profiles[uid];
+const name = resolveDisplayName(p, uid);
+const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 return `
 <div onclick="executeForwardToUser('${escJS(uid)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
 ${avatar}
@@ -2490,15 +2484,9 @@ if(profilesData) {
 const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
 
 container.innerHTML=comments.map(c=>{
-const p=profilesMapData[c.user_id]||{};
-let rawName = p.full_name || p.username || "";
-let name = "";
-if(!rawName || rawName === "Участник" || rawName === "Пользователь" || rawName.startsWith("User_")){
-  name = p.username ? `@${p.username}` : `Пользователь (${c.user_id.slice(0,6)})`;
-} else {
-  name = rawName;
-}
-const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px">⚔️</div>`;
+const p=profilesMapData[c.user_id];
+const name = resolveDisplayName(p, c.user_id);
+const avatar=p?.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px">⚔️</div>`;
 const isMe = currentUser && String(c.user_id) === String(currentUser.id);
 const canManage = currentUser && (isMe || isAdminUser);
 
@@ -2675,16 +2663,9 @@ messages.forEach(m => {
 
 const profiles=await profilesMap(userIds);
 box.innerHTML=userIds.map(uid=>{
-const p=profiles[uid]||{};
-let rawName = p.full_name || p.username || "";
-let name = "";
-if(!rawName || rawName === "Участник" || rawName === "Пользователь" || rawName.startsWith("User_")){
-  name = p.username ? `@${p.username}` : `Пользователь (${uid.slice(0,6)})`;
-} else {
-  name = rawName;
-}
-
-const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`:`<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
+const p=profiles[uid];
+const name = resolveDisplayName(p, uid);
+const avatar=p?.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`:`<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 const hasUnread = unreadMap[uid] ? `<div class="chat-badge"></div>` : "";
 return `
 <div onclick="openChat('${escJS(uid)}', '${escJS(name)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
@@ -2812,16 +2793,10 @@ const profilesMapData=await profilesMap(userIds);
 
 let listA=[], listB=[];
 votes.forEach(v=>{
-const p=profilesMapData[v.user_id]||{};
-let rawName = p.full_name || p.username || "";
-let name = "";
-if(!rawName || rawName === "Участник" || rawName === "Пользователь" || rawName.startsWith("User_")){
-  name = p.username ? `@${p.username}` : `Пользователь (${v.user_id.slice(0,6)})`;
-} else {
-  name = rawName;
-}
-const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px">⚔️</div>`;
-const username=p.username?`@${esc(p.username)}`:"";
+const p=profilesMapData[v.user_id];
+const name = resolveDisplayName(p, v.user_id);
+const avatar=p?.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px">⚔️</div>`;
+const username=p?.username?`@${esc(p.username)}`:"";
 
 const item=`<div style="display:flex;align-items:center;gap:10px;margin:8px 0;padding:8px 10px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;">${avatar}<div style="flex:1;min-width:0"><div style="font-weight:bold;font-size:13px">${esc(name)}</div><div style="font-size:11px;color:#64748b">${username}</div></div></div>`;
 
@@ -3217,7 +3192,7 @@ box.innerHTML=uniqueUsers.length?uniqueUsers.map(p=>`
 ${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
 </div>
 <div class="search-result-main">
-<b>${esc(p.full_name||"Пользователь")}</b>
+<b>${esc(resolveDisplayName(p, p.id))}</b>
 <div style="font-size:12px;color:#64748b">@${esc(p.username||"arena")}</div>
 </div>
 </div>
@@ -3233,7 +3208,7 @@ const r=await db.from("profiles").select("*").eq("id",String(id)).maybeSingle();
 if(!r.data){ alert("Профиль не найден."); return; }
 
 const p=r.data;
-$("otherName").innerText=p.full_name||"Пользователь";
+$("otherName").innerText=resolveDisplayName(p, id);
 $("otherUsername").innerText="@"+(p.username||"arena");
 $("otherBio").innerText=p.bio||"";
 setAvatar("otherAvatar",p.avatar_url);
@@ -3352,7 +3327,7 @@ const statsHtml=`<div style="margin-bottom:12px;padding:12px;background:#fff;bor
 const rows=uniqueAdminUsers.map(u=>`
 <div class="admin-user-row">
 <div class="admin-user-main">
-<div class="admin-user-name">${esc(u.full_name||"Пользователь")}</div>
+<div class="admin-user-name">${esc(resolveDisplayName(u, u.id))}</div>
 <div style="font-size:11px;color:#64748b">@${esc(u.username||"arena")}</div>
 <div class="${u.is_blocked?"admin-blocked":"admin-active"}">${u.is_blocked?t("blocked"):t("active")}</div>
 </div>
