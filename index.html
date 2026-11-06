@@ -2394,10 +2394,10 @@ return;
 const profiles = await profilesMap(userIds);
 listContainer.innerHTML = userIds.map(uid=>{
 const p = profiles[uid]||{};
-const rawName = p.full_name || p.username || "";
-const name = (!rawName || rawName === "Участник" || rawName === "Пользователь") 
-  ? (p.username ? `@${p.username}` : `User_${uid.slice(0,6)}`) 
-  : rawName;
+let name = p.full_name;
+if(!name || name === "Участник" || name === "Пользователь" || name.startsWith("User_")){
+  name = p.username ? `@${p.username}` : `Пользователь (${uid.slice(0,6)})`;
+}
 const avatar = p.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 return `
 <div onclick="executeForwardToUser('${escJS(uid)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
@@ -2480,10 +2480,10 @@ const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && curre
 
 container.innerHTML=comments.map(c=>{
 const p=profilesMapData[c.user_id]||{};
-const rawName = p.full_name || p.username || "";
-const name = (!rawName || rawName === "Участник" || rawName === "Пользователь") 
-  ? (p.username ? `@${p.username}` : `User_${c.user_id.slice(0,6)}`) 
-  : rawName;
+let name = p.full_name;
+if(!name || name === "Участник" || name === "Пользователь" || name.startsWith("User_")){
+  name = p.username ? `@${p.username}` : `Пользователь (${c.user_id.slice(0,6)})`;
+}
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px">⚔️</div>`;
 const isMe = currentUser && String(c.user_id) === String(currentUser.id);
 const canManage = currentUser && (isMe || isAdminUser);
@@ -2662,10 +2662,11 @@ messages.forEach(m => {
 const profiles=await profilesMap(userIds);
 box.innerHTML=userIds.map(uid=>{
 const p=profiles[uid]||{};
-const rawName = p.full_name || p.username || "";
-const name = (!rawName || rawName === "Участник" || rawName === "Пользователь") 
-  ? (p.username ? `@${p.username}` : `User_${uid.slice(0,6)}`) 
-  : rawName;
+let name = p.full_name;
+if(!name || name === "Участник" || name === "Пользователь" || name.startsWith("User_")){
+  name = p.username ? `@${p.username}` : `Пользователь (${uid.slice(0,6)})`;
+}
+
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">`:`<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 const hasUnread = unreadMap[uid] ? `<div class="chat-badge"></div>` : "";
 return `
@@ -2795,10 +2796,10 @@ const profilesMapData=await profilesMap(userIds);
 let listA=[], listB=[];
 votes.forEach(v=>{
 const p=profilesMapData[v.user_id]||{};
-const rawName = p.full_name || p.username || "";
-const name = (!rawName || rawName === "Участник" || rawName === "Пользователь") 
-  ? (p.username ? `@${p.username}` : `User_${v.user_id.slice(0,6)}`) 
-  : rawName;
+let name = p.full_name;
+if(!name || name === "Участник" || name === "Пользователь" || name.startsWith("User_")){
+  name = p.username ? `@${p.username}` : `Пользователь (${v.user_id.slice(0,6)})`;
+}
 const avatar=p.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px">⚔️</div>`;
 const username=p.username?`@${esc(p.username)}`:"";
 
