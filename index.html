@@ -3366,6 +3366,29 @@ try{
 
     if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
 
+    // Перехват параметров восстановления пароля из ссылки в письме
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const searchParams = new URLSearchParams(window.location.search);
+    const accessToken = hashParams.get("access_token") || searchParams.get("access_token");
+    const refreshToken = hashParams.get("refresh_token") || searchParams.get("refresh_token");
+    const type = hashParams.get("type") || searchParams.get("type");
+
+    if (accessToken) {
+        const { data, error } = await db.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || ""
+        });
+        if (data?.user) {
+            currentUser = data.user;
+            await startApp();
+            await showProfile();
+            openEditProfile();
+            $("profileStatus").innerText = "Введите новый пароль в поле ниже";
+            hideStartup();
+            return;
+        }
+    }
+
     let hasSession = false;
     const rawStorage = localStorage.getItem("arena-supabase-auth");
     if(rawStorage){
@@ -3379,6 +3402,15 @@ try{
     else{ showAuth(); showLogin(); hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
+        if(event === "PASSWORD_RECOVERY"){
+            currentUser = session?.user || currentUser;
+            if(currentUser){
+                await startApp();
+                await showProfile();
+                openEditProfile();
+                $("profileStatus").innerText = "Введите новый пароль в поле ниже";
+            }
+        }
         if(event==="SIGNED_OUT"){
             currentUser=null; currentProfile=null; showAuth(); showLogin(); hideStartup(); return;
         }
