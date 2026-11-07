@@ -3405,11 +3405,10 @@ try{
 
     if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
 
-    const hash = window.location.hash;
-    const search = window.location.search;
-    
-    // Принудительно открываем модальное окно восстановления при любом признаке токена или recovery в URL
-    if (hash.includes("type=recovery") || hash.includes("access_token") || search.includes("type=recovery") || search.includes("access_token")) {
+    const initialUrl = window.location.href;
+    const isRecoveryUrl = initialUrl.includes("type=recovery") || initialUrl.includes("access_token");
+
+    if (isRecoveryUrl) {
         $("recoveryNewPassword").value = "";
         $("recoveryStatus").innerText = "";
         $("newPasswordModal").classList.add("show");
@@ -3424,11 +3423,12 @@ try{
         }catch(err){}
     }
 
-    if(hasSession){ await startApp(); }
-    else{ showAuth(); showLogin(); hideStartup(); }
+    if(hasSession && !isRecoveryUrl){ await startApp(); }
+    else if(!isRecoveryUrl){ showAuth(); showLogin(); hideStartup(); }
+    else { hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
-        if(event === "PASSWORD_RECOVERY" || window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery")){
+        if(event === "PASSWORD_RECOVERY" || window.location.href.includes("type=recovery") || isRecoveryUrl){
             $("recoveryNewPassword").value = "";
             $("recoveryStatus").innerText = "";
             $("newPasswordModal").classList.add("show");
@@ -3437,7 +3437,7 @@ try{
             currentUser=null; currentProfile=null; showAuth(); showLogin(); hideStartup(); return;
         }
         if(event==="TOKEN_REFRESHED"&&session){ currentUser=session.user; return; }
-        if(event==="SIGNED_IN"&&session){
+        if(event==="SIGNED_IN"&&session && !isRecoveryUrl){
             if(currentUser && currentUser.id === session.user.id) return;
             currentUser=session.user;
             if($("app").classList.contains("hidden")){ try{ await startApp(); }catch(e){} }
