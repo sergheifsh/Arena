@@ -276,24 +276,31 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
+<!-- Модальное окно восстановления пароля (через стандартную ссылку почты Supabase) -->
 <div id="forgotPasswordModal" class="modal">
 <div class="modal-box">
 <h2 data-i18n="forgotPasswordTitle">Восстановление пароля</h2>
 <div id="forgotStep1">
-<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш имейл, и туда нужно отправлять временный код потом человек создаст себе новый пароль.</p>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш email, и мы отправим вам ссылку для восстановления пароля.</p>
 <input id="forgotEmail" type="email" placeholder="Email">
-<button class="primary" type="button" onclick="sendPasswordResetCode()" data-i18n="sendCode">Отправить временный код</button>
-</div>
-<div id="forgotStep2" class="hidden" style="margin-top:10px">
-<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc2">Введите код из письма и новый пароль.</p>
-<input id="resetToken" type="text" placeholder="Код подтверждения">
-<div class="password-box">
-<input id="newPasswordInput" type="password" placeholder="Новый пароль">
-</div>
-<button class="primary" type="button" onclick="confirmPasswordReset()" data-i18n="saveNewPassword">Создать новый пароль</button>
+<button class="primary" type="button" onclick="sendPasswordResetEmail()" data-i18n="sendCode">Отправить ссылку</button>
 </div>
 <button class="secondary" type="button" onclick="closeModal('forgotPasswordModal')" style="margin-top:10px" data-i18n="cancel">Отмена</button>
 <div id="forgotStatus" class="status"></div>
+</div>
+</div>
+
+<!-- Модальное окно смены пароля при переходе по ссылке из письма -->
+<div id="resetPasswordModal" class="modal">
+<div class="modal-box">
+<h2>Создание нового пароля</h2>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px">Введите новый пароль для вашего аккаунта.</p>
+<div class="password-box">
+<input id="newPasswordInput" type="password" placeholder="Новый пароль">
+<button type="button" class="password-toggle" onclick="togglePassword('newPasswordInput',this)">👁️</button>
+</div>
+<button class="primary" type="button" onclick="confirmNewPassword()" data-i18n="saveNewPassword">Сохранить новый пароль</button>
+<div id="resetStatus" class="status"></div>
 </div>
 </div>
 
@@ -761,11 +768,10 @@ privateMessages:"💬 Личные сообщения",
 noActiveDialogs:"Нет активных диалогов",
 forgotPassword:"Забыли пароль?",
 forgotPasswordTitle:"Восстановление пароля",
-forgotDesc:"Введите ваш имейл, и туда нужно отправлять временный код потом человек создаст себе новый пароль.",
-forgotDesc2:"Введите код из письма и новый пароль.",
-sendCode:"Отправить временный код",
-saveNewPassword:"Создать новый пароль",
-resetPasswordSent:"Временный код отправлен на email 📧",
+forgotDesc:"Введите ваш email, и мы отправим вам ссылку для восстановления пароля.",
+sendCode:"Отправить ссылку",
+saveNewPassword:"Сохранить новый пароль",
+resetPasswordSent:"Ссылка для восстановления отправлена на email 📧",
 passwordResetSuccess:"Пароль успешно изменен! Войдите с новым паролем.",
 duelList:"Список дуэлей",
 acceptChallenge:"⚔️ Принять вызов",
@@ -892,11 +898,10 @@ privateMessages:"💬 Mesaje private",
 noActiveDialogs:"Nu există dialoguri active",
 forgotPassword:"Ai uitat parola?",
 forgotPasswordTitle:"Resetarea parolei",
-forgotDesc:"Introdu emailul pentru a primi codul de resetare.",
-forgotDesc2:"Introdu codul și noua parolă.",
-sendCode:"Trimite codul",
+forgotDesc:"Introdu emailul pentru a primi linkul de resetare.",
+sendCode:"Trimite linkul",
 saveNewPassword:"Salvează noua parolă",
-resetPasswordSent:"Codul a fost trimis pe email 📧",
+resetPasswordSent:"Linkul de resetare a fost trimis 📧",
 passwordResetSuccess:"Parolă schimbată cu succes!",
 duelList:"Lista duelurilor",
 acceptChallenge:"⚔️ Acceptă provocarea",
@@ -1023,11 +1028,10 @@ privateMessages:"💬 Direct Messages",
 noActiveDialogs:"No active conversations",
 forgotPassword:"Forgot password?",
 forgotPasswordTitle:"Password Recovery",
-forgotDesc:"Enter your email to receive a temporary recovery code.",
-forgotDesc2:"Enter the code from the email and your new password.",
-sendCode:"Send code",
+forgotDesc:"Enter your email to receive a recovery link.",
+sendCode:"Send link",
 saveNewPassword:"Save new password",
-resetPasswordSent:"Temporary code sent to your email 📧",
+resetPasswordSent:"Recovery link sent to your email 📧",
 passwordResetSuccess:"Password changed successfully!",
 duelList:"Duel List",
 acceptChallenge:"⚔️ Accept Challenge",
@@ -1052,7 +1056,7 @@ return d.innerHTML;
 }
 
 function escJS(v){
-return String(v??"")
+return String(v???'')
 .replace(/\\/g,"\\\\")
 .replace(/'/g,"\\'")
 .replace(/"/g,'\\"')
@@ -1381,7 +1385,6 @@ editBio:"about",
 searchInput:"searchPlaceholder",
 directMessageInput:"commentPlaceholder",
 forgotEmail:"email",
-resetToken:"Token",
 newPasswordInput:"password"
 };
 
@@ -1503,13 +1506,11 @@ return e?.message||"Ошибка";
 
 function openForgotPasswordModal(){
 $("forgotEmail").value=$("loginEmail").value.trim();
-$("forgotStep1").classList.remove("hidden");
-$("forgotStep2").classList.add("hidden");
 $("forgotStatus").innerText="";
 $("forgotPasswordModal").classList.add("show");
 }
 
-async function sendPasswordResetCode(){
+async function sendPasswordResetEmail(){
 const email=$("forgotEmail").value.trim().toLowerCase();
 const status=$("forgotStatus");
 if(!email){
@@ -1523,37 +1524,32 @@ redirectTo: window.location.origin + window.location.pathname
 });
 if(error) throw error;
 status.innerText=t("resetPasswordSent");
-$("forgotStep1").classList.add("hidden");
-$("forgotStep2").classList.remove("hidden");
+setTimeout(()=>{
+closeModal("forgotPasswordModal");
+}, 3000);
 }catch(e){
 status.innerText=authError(e);
 }
 }
 
-async function confirmPasswordReset(){
-const token=$("resetToken").value.trim();
+async function confirmNewPassword(){
 const newPass=$("newPasswordInput").value;
-const status=$("forgotStatus");
-if(!token||!newPass){
-status.innerText=t("invalid");
+const status=$("resetStatus");
+if(!newPass || newPass.length < 6){
+status.innerText=t("passwordLength");
 return;
 }
 try{
 status.innerText=t("loading");
-const { error: verifyError } = await db.auth.verifyOtp({
-email: $("forgotEmail").value.trim().toLowerCase(),
-token: token,
-type: 'recovery'
-});
-if(verifyError) throw verifyError;
-
-const { error: updateError } = await db.auth.updateUser({ password: newPass });
-if(updateError) throw updateError;
+const { error } = await db.auth.updateUser({ password: newPass });
+if(error) throw error;
 
 status.innerText=t("passwordResetSuccess");
 setTimeout(()=>{
-closeModal("forgotPasswordModal");
-showLogin();
+closeModal("resetPasswordModal");
+// Очищаем хэш из URL
+history.replaceState(null, "", window.location.pathname);
+showScreen("homeScreen");
 }, 2000);
 }catch(e){
 status.innerText=authError(e);
@@ -3413,6 +3409,12 @@ try{
     else{ showAuth(); showLogin(); hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
+        if(event==="PASSWORD_RECOVERY"){
+            $("resetStatus").innerText = "";
+            $("newPasswordInput").value = "";
+            $("resetPasswordModal").classList.add("show");
+            return;
+        }
         if(event==="SIGNED_OUT"){
             currentUser=null; currentProfile=null; showAuth(); showLogin(); hideStartup(); return;
         }
