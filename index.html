@@ -3380,6 +3380,9 @@ if(event.target.classList.contains("modal")&&event.target.id!=="customConfirmMod
 event.target.classList.remove("show");
 });
 
+// Гарантированное скрытие кружка загрузки в любом случае через 2 секунды
+setTimeout(hideStartup, 2000);
+
 document.addEventListener("DOMContentLoaded", async () => {
 try{
     let attempts = 0;
