@@ -280,9 +280,17 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div class="modal-box">
 <h2 data-i18n="forgotPasswordTitle">Восстановление пароля</h2>
 <div id="forgotStep1">
-<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш имейл для получения ссылки сброса пароля.</p>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш имейл, и туда нужно отправлять временный код потом человек создаст себе новый пароль.</p>
 <input id="forgotEmail" type="email" placeholder="Email">
-<button class="primary" type="button" onclick="sendPasswordResetCode()" data-i18n="sendCode">Отправить ссылку</button>
+<button class="primary" type="button" onclick="sendPasswordResetCode()" data-i18n="sendCode">Отправить временный код</button>
+</div>
+<div id="forgotStep2" class="hidden" style="margin-top:10px">
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc2">Введите код из письма и новый пароль.</p>
+<input id="resetToken" type="text" placeholder="Код подтверждения">
+<div class="password-box">
+<input id="newPasswordInput" type="password" placeholder="Новый пароль">
+</div>
+<button class="primary" type="button" onclick="confirmPasswordReset()" data-i18n="saveNewPassword">Создать новый пароль</button>
 </div>
 <button class="secondary" type="button" onclick="closeModal('forgotPasswordModal')" style="margin-top:10px" data-i18n="cancel">Отмена</button>
 <div id="forgotStatus" class="status"></div>
@@ -571,12 +579,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="editName">
 <input id="editUsername">
 <textarea id="editBio"></textarea>
-
-<div class="password-box" style="margin-top:10px;">
-<input id="editNewPassword" type="password" placeholder="Новый пароль (оставьте пустым, если не нужно менять)">
-<button type="button" class="password-toggle" onclick="togglePassword('editNewPassword',this)">👁️</button>
-</div>
-
 <button id="saveProfileButton" class="primary" type="button" onclick="saveProfile()"></button>
 <button id="editCancelButton" class="secondary" type="button" onclick="closeModal('editModal')"></button>
 <div id="profileStatus" class="status"></div>
@@ -759,9 +761,12 @@ privateMessages:"💬 Личные сообщения",
 noActiveDialogs:"Нет активных диалогов",
 forgotPassword:"Забыли пароль?",
 forgotPasswordTitle:"Восстановление пароля",
-forgotDesc:"Введите ваш имейл для получения ссылки сброса пароля.",
-sendCode:"Отправить ссылку",
-resetPasswordSent:"Ссылка для сброса пароля отправлена на email 📧",
+forgotDesc:"Введите ваш имейл, и туда нужно отправлять временный код потом человек создаст себе новый пароль.",
+forgotDesc2:"Введите код из письма и новый пароль.",
+sendCode:"Отправить временный код",
+saveNewPassword:"Создать новый пароль",
+resetPasswordSent:"Временный код отправлен на email 📧",
+passwordResetSuccess:"Пароль успешно изменен! Войдите с новым паролем.",
 duelList:"Список дуэлей",
 acceptChallenge:"⚔️ Принять вызов",
 acceptChallengeTitle:"Принять вызов",
@@ -887,9 +892,12 @@ privateMessages:"💬 Mesaje private",
 noActiveDialogs:"Nu există dialoguri active",
 forgotPassword:"Ai uitat parola?",
 forgotPasswordTitle:"Resetarea parolei",
-forgotDesc:"Introdu emailul pentru a primi linkul de resetare.",
-sendCode:"Trimite linkul",
-resetPasswordSent:"Linkul a fost trimis pe email 📧",
+forgotDesc:"Introdu emailul pentru a primi codul de resetare.",
+forgotDesc2:"Introdu codul și noua parolă.",
+sendCode:"Trimite codul",
+saveNewPassword:"Salvează noua parolă",
+resetPasswordSent:"Codul a fost trimis pe email 📧",
+passwordResetSuccess:"Parolă schimbată cu succes!",
 duelList:"Lista duelurilor",
 acceptChallenge:"⚔️ Acceptă provocarea",
 acceptChallengeTitle:"Acceptă provocarea",
@@ -1015,9 +1023,12 @@ privateMessages:"💬 Direct Messages",
 noActiveDialogs:"No active conversations",
 forgotPassword:"Forgot password?",
 forgotPasswordTitle:"Password Recovery",
-forgotDesc:"Enter your email to receive a password reset link.",
-sendCode:"Send link",
-resetPasswordSent:"Password reset link sent to your email 📧",
+forgotDesc:"Enter your email to receive a temporary recovery code.",
+forgotDesc2:"Enter the code from the email and your new password.",
+sendCode:"Send code",
+saveNewPassword:"Save new password",
+resetPasswordSent:"Temporary code sent to your email 📧",
+passwordResetSuccess:"Password changed successfully!",
 duelList:"Duel List",
 acceptChallenge:"⚔️ Accept Challenge",
 acceptChallengeTitle:"Accept Challenge",
@@ -1370,7 +1381,8 @@ editBio:"about",
 searchInput:"searchPlaceholder",
 directMessageInput:"commentPlaceholder",
 forgotEmail:"email",
-editNewPassword:"password"
+resetToken:"Token",
+newPasswordInput:"password"
 };
 
 Object.entries(ph).forEach(([id,key])=>setPH(id,key));
@@ -1491,6 +1503,8 @@ return e?.message||"Ошибка";
 
 function openForgotPasswordModal(){
 $("forgotEmail").value=$("loginEmail").value.trim();
+$("forgotStep1").classList.remove("hidden");
+$("forgotStep2").classList.add("hidden");
 $("forgotStatus").innerText="";
 $("forgotPasswordModal").classList.add("show");
 }
@@ -1509,8 +1523,37 @@ redirectTo: window.location.origin + window.location.pathname
 });
 if(error) throw error;
 status.innerText=t("resetPasswordSent");
-setTimeout(() => {
+$("forgotStep1").classList.add("hidden");
+$("forgotStep2").classList.remove("hidden");
+}catch(e){
+status.innerText=authError(e);
+}
+}
+
+async function confirmPasswordReset(){
+const token=$("resetToken").value.trim();
+const newPass=$("newPasswordInput").value;
+const status=$("forgotStatus");
+if(!token||!newPass){
+status.innerText=t("invalid");
+return;
+}
+try{
+status.innerText=t("loading");
+const { error: verifyError } = await db.auth.verifyOtp({
+email: $("forgotEmail").value.trim().toLowerCase(),
+token: token,
+type: 'recovery'
+});
+if(verifyError) throw verifyError;
+
+const { error: updateError } = await db.auth.updateUser({ password: newPass });
+if(updateError) throw updateError;
+
+status.innerText=t("passwordResetSuccess");
+setTimeout(()=>{
 closeModal("forgotPasswordModal");
+showLogin();
 }, 2000);
 }catch(e){
 status.innerText=authError(e);
@@ -1883,7 +1926,6 @@ function openEditProfile(){
 $("editName").value=currentProfile?.full_name||"";
 $("editUsername").value=currentProfile?.username||"";
 $("editBio").value=currentProfile?.bio||"";
-$("editNewPassword").value="";
 $("avatarInput").value="";
 $("avatarPreview").style.display="none";
 $("profileStatus").innerText="";
@@ -3243,12 +3285,9 @@ async function saveProfile(){
 const rawName=$("editName").value.trim();
 const username=$("editUsername").value.trim();
 const bio=$("editBio").value.trim();
-const newPassword=$("editNewPassword").value;
 const status=$("profileStatus");
 
 if(!rawName){ status.innerText=t("nameRequired"); return; }
-if(newPassword && newPassword.length < 6){ status.innerText=t("passwordLength"); return; }
-
 status.innerText=t("saving");
 
 try{
@@ -3261,11 +3300,6 @@ if(selectedAvatar) avatar=await upload(selectedAvatar,"avatars");
 
 const r=await db.from("profiles").update({ full_name:name, username:username||null, bio, avatar_url:avatar }).eq("id",currentUser.id).select().single();
 if(r.error)throw r.error;
-
-if(newPassword){
-    const { error: passError } = await db.auth.updateUser({ password: newPassword });
-    if(passError) throw passError;
-}
 
 currentProfile=r.data;
 await db.auth.updateUser({ data:{ full_name:name, username:username||null } });
@@ -3366,29 +3400,6 @@ try{
 
     if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
 
-    // Перехват параметров восстановления пароля из ссылки в письме
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const searchParams = new URLSearchParams(window.location.search);
-    const accessToken = hashParams.get("access_token") || searchParams.get("access_token");
-    const refreshToken = hashParams.get("refresh_token") || searchParams.get("refresh_token");
-    const type = hashParams.get("type") || searchParams.get("type");
-
-    if (accessToken) {
-        const { data, error } = await db.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken || ""
-        });
-        if (data?.user) {
-            currentUser = data.user;
-            await startApp();
-            await showProfile();
-            openEditProfile();
-            $("profileStatus").innerText = "Введите новый пароль в поле ниже";
-            hideStartup();
-            return;
-        }
-    }
-
     let hasSession = false;
     const rawStorage = localStorage.getItem("arena-supabase-auth");
     if(rawStorage){
@@ -3402,15 +3413,6 @@ try{
     else{ showAuth(); showLogin(); hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
-        if(event === "PASSWORD_RECOVERY"){
-            currentUser = session?.user || currentUser;
-            if(currentUser){
-                await startApp();
-                await showProfile();
-                openEditProfile();
-                $("profileStatus").innerText = "Введите новый пароль в поле ниже";
-            }
-        }
         if(event==="SIGNED_OUT"){
             currentUser=null; currentProfile=null; showAuth(); showLogin(); hideStartup(); return;
         }
