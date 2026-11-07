@@ -1553,7 +1553,6 @@ if(error) throw error;
 status.innerText = t("passwordUpdated");
 setTimeout(() => {
 closeModal("newPasswordModal");
-// Чистим хэш из урла
 history.replaceState(null, "", window.location.pathname);
 startApp();
 }, 2000);
@@ -3403,8 +3402,9 @@ try{
 
     if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
 
-    // Проверка перехода по ссылке восстановления пароля из email
-    if (window.location.hash.includes("type=recovery")) {
+    const hash = window.location.hash;
+    const search = window.location.search;
+    if (hash.includes("type=recovery") || hash.includes("access_token") || search.includes("type=recovery")) {
         $("recoveryNewPassword").value = "";
         $("recoveryStatus").innerText = "";
         $("newPasswordModal").classList.add("show");
@@ -3423,7 +3423,7 @@ try{
     else{ showAuth(); showLogin(); hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
-        if(event === "PASSWORD_RECOVERY"){
+        if(event === "PASSWORD_RECOVERY" || window.location.hash.includes("type=recovery")){
             $("recoveryNewPassword").value = "";
             $("recoveryStatus").innerText = "";
             $("newPasswordModal").classList.add("show");
