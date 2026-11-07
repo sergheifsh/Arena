@@ -289,6 +289,19 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
+<div id="newPasswordModal" class="modal">
+<div class="modal-box">
+<h2 data-i18n="newPasswordTitle">Установка нового пароля</h2>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="newPasswordDesc">Введите новый пароль для вашего аккаунта.</p>
+<div class="password-box">
+<input id="recoveryNewPassword" type="password" placeholder="Новый пароль">
+<button type="button" class="password-toggle" onclick="togglePassword('recoveryNewPassword',this)">👁️</button>
+</div>
+<button class="primary" type="button" onclick="submitNewPassword()" data-i18n="saveNewPassword">Сохранить пароль</button>
+<div id="recoveryStatus" class="status"></div>
+</div>
+</div>
+
 <div id="forwardSelectModal" class="modal">
 <div class="modal-box">
 <h2 style="color:#2563eb;margin-bottom:15px" data-i18n="forward">Переслать сообщение</h2>
@@ -572,11 +585,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="editUsername">
 <textarea id="editBio"></textarea>
 
-<div class="password-box" style="margin-top:10px;">
-<input id="editNewPassword" type="password" placeholder="Новый пароль (оставьте пустым, если не нужно менять)">
-<button type="button" class="password-toggle" onclick="togglePassword('editNewPassword',this)">👁️</button>
-</div>
-
 <button id="saveProfileButton" class="primary" type="button" onclick="saveProfile()"></button>
 <button id="editCancelButton" class="secondary" type="button" onclick="closeModal('editModal')"></button>
 <div id="profileStatus" class="status"></div>
@@ -772,7 +780,11 @@ deleteChat:"Удалить чат",
 deleteChatConfirm:"Удалить этот чат полностью?",
 forward:"Переслать",
 deleteAccount:"Удалить аккаунт",
-deleteAccountConfirm:"Вы действительно хотите удалить аккаунт?"
+deleteAccountConfirm:"Вы действительно хотите удалить аккаунт?",
+newPasswordTitle:"Установка нового пароля",
+newPasswordDesc:"Введите новый пароль для вашего аккаунта.",
+saveNewPassword:"Сохранить пароль",
+passwordUpdated:"Пароль успешно изменен! 🔒"
 },
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
@@ -900,7 +912,11 @@ deleteChat:"Șterge chatul",
 deleteChatConfirm:"Ștergi acest chat complet?",
 forward:"Trimite mai departe",
 deleteAccount:"Șterge contul",
-deleteAccountConfirm:"Sigur doriți să ștergeți contul?"
+deleteAccountConfirm:"Sigur doriți să ștergeți contul?",
+newPasswordTitle:"Setare parolă nouă",
+newPasswordDesc:"Introduceți o parolă nouă pentru contul dvs.",
+saveNewPassword:"Salvează parola",
+passwordUpdated:"Parola a fost modificată cu succes! 🔒"
 },
 en:{
 subtitle:"Who wins? You decide.",
@@ -1028,7 +1044,11 @@ deleteChat:"Delete Chat",
 deleteChatConfirm:"Delete this entire chat?",
 forward:"Forward",
 deleteAccount:"Delete account",
-deleteAccountConfirm:"Are you sure you want to delete your account?"
+deleteAccountConfirm:"Are you sure you want to delete your account?",
+newPasswordTitle:"Set New Password",
+newPasswordDesc:"Enter a new password for your account.",
+saveNewPassword:"Save Password",
+passwordUpdated:"Password successfully changed! 🔒"
 }
 };
 
@@ -1370,7 +1390,7 @@ editBio:"about",
 searchInput:"searchPlaceholder",
 directMessageInput:"commentPlaceholder",
 forgotEmail:"email",
-editNewPassword:"password"
+recoveryNewPassword:"password"
 };
 
 Object.entries(ph).forEach(([id,key])=>setPH(id,key));
@@ -1514,6 +1534,31 @@ closeModal("forgotPasswordModal");
 }, 2000);
 }catch(e){
 status.innerText=authError(e);
+}
+}
+
+async function submitNewPassword(){
+const pass = $("recoveryNewPassword").value;
+const status = $("recoveryStatus");
+
+if(!pass || pass.length < 6){
+status.innerText = t("passwordLength");
+return;
+}
+
+status.innerText = t("saving");
+try{
+const { error } = await db.auth.updateUser({ password: pass });
+if(error) throw error;
+status.innerText = t("passwordUpdated");
+setTimeout(() => {
+closeModal("newPasswordModal");
+// Чистим хэш из урла
+history.replaceState(null, "", window.location.pathname);
+startApp();
+}, 2000);
+}catch(e){
+status.innerText = authError(e);
 }
 }
 
@@ -1883,7 +1928,6 @@ function openEditProfile(){
 $("editName").value=currentProfile?.full_name||"";
 $("editUsername").value=currentProfile?.username||"";
 $("editBio").value=currentProfile?.bio||"";
-$("editNewPassword").value="";
 $("avatarInput").value="";
 $("avatarPreview").style.display="none";
 $("profileStatus").innerText="";
@@ -3243,11 +3287,9 @@ async function saveProfile(){
 const rawName=$("editName").value.trim();
 const username=$("editUsername").value.trim();
 const bio=$("editBio").value.trim();
-const newPassword=$("editNewPassword").value;
 const status=$("profileStatus");
 
 if(!rawName){ status.innerText=t("nameRequired"); return; }
-if(newPassword && newPassword.length < 6){ status.innerText=t("passwordLength"); return; }
 
 status.innerText=t("saving");
 
@@ -3261,11 +3303,6 @@ if(selectedAvatar) avatar=await upload(selectedAvatar,"avatars");
 
 const r=await db.from("profiles").update({ full_name:name, username:username||null, bio, avatar_url:avatar }).eq("id",currentUser.id).select().single();
 if(r.error)throw r.error;
-
-if(newPassword){
-    const { error: passError } = await db.auth.updateUser({ password: newPassword });
-    if(passError) throw passError;
-}
 
 currentProfile=r.data;
 await db.auth.updateUser({ data:{ full_name:name, username:username||null } });
@@ -3366,6 +3403,13 @@ try{
 
     if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
 
+    // Проверка перехода по ссылке восстановления пароля из email
+    if (window.location.hash.includes("type=recovery")) {
+        $("recoveryNewPassword").value = "";
+        $("recoveryStatus").innerText = "";
+        $("newPasswordModal").classList.add("show");
+    }
+
     let hasSession = false;
     const rawStorage = localStorage.getItem("arena-supabase-auth");
     if(rawStorage){
@@ -3379,6 +3423,11 @@ try{
     else{ showAuth(); showLogin(); hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
+        if(event === "PASSWORD_RECOVERY"){
+            $("recoveryNewPassword").value = "";
+            $("recoveryStatus").innerText = "";
+            $("newPasswordModal").classList.add("show");
+        }
         if(event==="SIGNED_OUT"){
             currentUser=null; currentProfile=null; showAuth(); showLogin(); hideStartup(); return;
         }
