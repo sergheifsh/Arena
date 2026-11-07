@@ -1509,7 +1509,7 @@ return;
 try{
 status.innerText=t("loading");
 const { error } = await db.auth.resetPasswordForEmail(email, {
-redirectTo: window.location.origin + window.location.pathname
+redirectTo: "https://sergherish.github.io/"
 });
 if(error) throw error;
 status.innerText=t("resetPasswordSent");
@@ -3368,7 +3368,6 @@ try{
 
     if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
 
-    // Перехватываем токен восстановления из ссылки Supabase (и в hash, и в search)
     const hashStr = window.location.hash;
     const searchStr = window.location.search;
     const isRecovery = hashStr.includes("type=recovery") || 
@@ -3376,48 +3375,68 @@ try{
                        hashStr.includes("access_token") || 
                        hashStr.includes("token_hash=");
 
-    if (isRecovery) {
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    let hasSession = false;
-    const rawStorage = localStorage.getItem("arena-supabase-auth");
-    if(rawStorage){
-        try{
-            const parsed = JSON.parse(rawStorage);
-            if(parsed?.user){ currentUser = parsed.user; hasSession = true; }
-        }catch(err){}
-    }
-
-    db.auth.onAuthStateChange(async(event,session)=>{
-        if(event === "PASSWORD_RECOVERY" || event === "SIGNED_IN"){
-            if(session?.user){
+    db.auth.onAuthStateChange(async(event, session) => {
+        if (event === "PASSWORD_RECOVERY" || (isRecovery && session)) {
+            if (session?.user) {
                 currentUser = session.user;
                 hideStartup();
                 await startApp();
+                await showProfile();
                 return;
             }
         }
-        if(event==="SIGNED_OUT"){
-            currentUser=null; currentProfile=null; showAuth(); showLogin(); hideStartup(); return;
+        if (event === "SIGNED_OUT") {
+            currentUser = null; 
+            currentProfile = null; 
+            showAuth(); 
+            showLogin(); 
+            hideStartup(); 
+            return;
         }
-        if(event==="TOKEN_REFRESHED"&&session){ currentUser=session.user; return; }
+        if (event === "TOKEN_REFRESHED" && session) { 
+            currentUser = session.user; 
+            return; 
+        }
+        if (event === "SIGNED_IN" && session) {
+            if (currentUser && currentUser.id === session.user.id) return;
+            currentUser = session.user;
+            if ($("app").classList.contains("hidden")) { 
+                try { await startApp(); } catch(e){} 
+            }
+        }
     });
 
     const { data: { session } } = await db.auth.getSession();
-    if(session?.user){
+    
+    if (session?.user) {
         currentUser = session.user;
-        hasSession = true;
+        if (isRecovery) {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            hideStartup();
+            await startApp();
+            await showProfile();
+        } else {
+            await startApp();
+        }
+    } else if (!isRecovery) {
+        const rawStorage = localStorage.getItem("arena-supabase-auth");
+        if (rawStorage) {
+            try {
+                const parsed = JSON.parse(rawStorage);
+                if (parsed?.user) { 
+                    currentUser = parsed.user; 
+                    await startApp(); 
+                    return; 
+                }
+            } catch(err) {}
+        }
+        showAuth(); 
+        showLogin(); 
+        hideStartup();
     }
-
-    if(hasSession){ 
-        await startApp(); 
-    } else{ 
-        showAuth(); showLogin(); hideStartup(); 
-    }
-}catch(e){
+} catch(e) {
     showAuth();
-    $("authStatus").innerText=t("connection");
+    $("authStatus").innerText = t("connection");
     hideStartup();
 }
 });
