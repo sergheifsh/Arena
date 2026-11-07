@@ -292,9 +292,9 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="newPasswordModal" class="modal">
 <div class="modal-box">
 <h2 data-i18n="newPasswordTitle">Установка нового пароля</h2>
-<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="newPasswordDesc">Введите новый пароль для вашего аккаунта.</p>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="newPasswordDesc">Введите новый пароль для вашего аккаунта (минимум 6 символов).</p>
 <div class="password-box">
-<input id="recoveryNewPassword" type="password" placeholder="Новый пароль">
+<input id="recoveryNewPassword" type="password" placeholder="Новый пароль (мин. 6 символов)">
 <button type="button" class="password-toggle" onclick="togglePassword('recoveryNewPassword',this)">👁️</button>
 </div>
 <button class="primary" type="button" onclick="submitNewPassword()" data-i18n="saveNewPassword">Сохранить пароль</button>
@@ -782,7 +782,7 @@ forward:"Переслать",
 deleteAccount:"Удалить аккаунт",
 deleteAccountConfirm:"Вы действительно хотите удалить аккаунт?",
 newPasswordTitle:"Установка нового пароля",
-newPasswordDesc:"Введите новый пароль для вашего аккаунта.",
+newPasswordDesc:"Введите новый пароль для вашего аккаунта (минимум 6 символов).",
 saveNewPassword:"Сохранить пароль",
 passwordUpdated:"Пароль успешно изменен! 🔒"
 },
@@ -914,7 +914,7 @@ forward:"Trimite mai departe",
 deleteAccount:"Șterge contul",
 deleteAccountConfirm:"Sigur doriți să ștergeți contul?",
 newPasswordTitle:"Setare parolă nouă",
-newPasswordDesc:"Introduceți o parolă nouă pentru contul dvs.",
+newPasswordDesc:"Introduceți o parolă nouă pentru contul dvs. (minim 6 caractere).",
 saveNewPassword:"Salvează parola",
 passwordUpdated:"Parola a fost modificată cu succes! 🔒"
 },
@@ -1046,7 +1046,7 @@ forward:"Forward",
 deleteAccount:"Delete account",
 deleteAccountConfirm:"Are you sure you want to delete your account?",
 newPasswordTitle:"Set New Password",
-newPasswordDesc:"Enter a new password for your account.",
+newPasswordDesc:"Enter a new password for your account (at least 6 characters).",
 saveNewPassword:"Save Password",
 passwordUpdated:"Password successfully changed! 🔒"
 }
@@ -1367,7 +1367,10 @@ saveProfileButton:"save",
 editCancelButton:"cancel",
 otherBackButton:"back",
 messagesTitle:"privateMessages",
-deleteAccountButton:"deleteAccount"
+deleteAccountButton:"deleteAccount",
+newPasswordTitle:"newPasswordTitle",
+newPasswordDesc:"newPasswordDesc",
+saveNewPassword:"saveNewPassword"
 };
 
 Object.entries(texts).forEach(([id,key])=>setText(id,key));
@@ -3404,7 +3407,9 @@ try{
 
     const hash = window.location.hash;
     const search = window.location.search;
-    if (hash.includes("type=recovery") || hash.includes("access_token") || search.includes("type=recovery")) {
+    
+    // Принудительно открываем модальное окно восстановления при любом признаке токена или recovery в URL
+    if (hash.includes("type=recovery") || hash.includes("access_token") || search.includes("type=recovery") || search.includes("access_token")) {
         $("recoveryNewPassword").value = "";
         $("recoveryStatus").innerText = "";
         $("newPasswordModal").classList.add("show");
@@ -3423,7 +3428,7 @@ try{
     else{ showAuth(); showLogin(); hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
-        if(event === "PASSWORD_RECOVERY" || window.location.hash.includes("type=recovery")){
+        if(event === "PASSWORD_RECOVERY" || window.location.hash.includes("type=recovery") || window.location.search.includes("type=recovery")){
             $("recoveryNewPassword").value = "";
             $("recoveryStatus").innerText = "";
             $("newPasswordModal").classList.add("show");
