@@ -289,19 +289,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<div id="newPasswordModal" class="modal">
-<div class="modal-box">
-<h2 data-i18n="newPasswordTitle">Установка нового пароля</h2>
-<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="newPasswordDesc">Введите новый пароль для вашего аккаунта (минимум 6 символов).</p>
-<div class="password-box">
-<input id="recoveryNewPassword" type="password" placeholder="Новый пароль (мин. 6 символов)">
-<button type="button" class="password-toggle" onclick="togglePassword('recoveryNewPassword',this)">👁️</button>
-</div>
-<button class="primary" type="button" onclick="submitNewPassword()" data-i18n="saveNewPassword">Сохранить пароль</button>
-<div id="recoveryStatus" class="status"></div>
-</div>
-</div>
-
 <div id="forwardSelectModal" class="modal">
 <div class="modal-box">
 <h2 style="color:#2563eb;margin-bottom:15px" data-i18n="forward">Переслать сообщение</h2>
@@ -585,6 +572,12 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="editUsername">
 <textarea id="editBio"></textarea>
 
+<!-- Поля для замены пароля внутри профиля (без глаза, всегда скрыты) -->
+<div style="margin-top:12px;border-top:1px solid #dbe4f0;padding-top:10px;">
+    <input id="profileNewPassword" type="password" placeholder="Новый пароль (мин. 6 символов)" autocomplete="new-password">
+    <input id="profileConfirmPassword" type="password" placeholder="Повторите новый пароль" autocomplete="new-password">
+</div>
+
 <button id="saveProfileButton" class="primary" type="button" onclick="saveProfile()"></button>
 <button id="editCancelButton" class="secondary" type="button" onclick="closeModal('editModal')"></button>
 <div id="profileStatus" class="status"></div>
@@ -780,11 +773,7 @@ deleteChat:"Удалить чат",
 deleteChatConfirm:"Удалить этот чат полностью?",
 forward:"Переслать",
 deleteAccount:"Удалить аккаунт",
-deleteAccountConfirm:"Вы действительно хотите удалить аккаунт?",
-newPasswordTitle:"Установка нового пароля",
-newPasswordDesc:"Введите новый пароль для вашего аккаунта (минимум 6 символов).",
-saveNewPassword:"Сохранить пароль",
-passwordUpdated:"Пароль успешно изменен! 🔒"
+deleteAccountConfirm:"Вы действительно хотите удалить аккаунт?"
 },
 ro:{
 subtitle:"Cine câștigă? Tu decizi.",
@@ -912,11 +901,7 @@ deleteChat:"Șterge chatul",
 deleteChatConfirm:"Ștergi acest chat complet?",
 forward:"Trimite mai departe",
 deleteAccount:"Șterge contul",
-deleteAccountConfirm:"Sigur doriți să ștergeți contul?",
-newPasswordTitle:"Setare parolă nouă",
-newPasswordDesc:"Introduceți o parolă nouă pentru contul dvs. (minim 6 caractere).",
-saveNewPassword:"Salvează parola",
-passwordUpdated:"Parola a fost modificată cu succes! 🔒"
+deleteAccountConfirm:"Sigur doriți să ștergeți contul?"
 },
 en:{
 subtitle:"Who wins? You decide.",
@@ -1044,11 +1029,7 @@ deleteChat:"Delete Chat",
 deleteChatConfirm:"Delete this entire chat?",
 forward:"Forward",
 deleteAccount:"Delete account",
-deleteAccountConfirm:"Are you sure you want to delete your account?",
-newPasswordTitle:"Set New Password",
-newPasswordDesc:"Enter a new password for your account (at least 6 characters).",
-saveNewPassword:"Save Password",
-passwordUpdated:"Password successfully changed! 🔒"
+deleteAccountConfirm:"Are you sure you want to delete your account?"
 }
 };
 
@@ -1367,10 +1348,7 @@ saveProfileButton:"save",
 editCancelButton:"cancel",
 otherBackButton:"back",
 messagesTitle:"privateMessages",
-deleteAccountButton:"deleteAccount",
-newPasswordTitle:"newPasswordTitle",
-newPasswordDesc:"newPasswordDesc",
-saveNewPassword:"saveNewPassword"
+deleteAccountButton:"deleteAccount"
 };
 
 Object.entries(texts).forEach(([id,key])=>setText(id,key));
@@ -1392,8 +1370,7 @@ editUsername:"username",
 editBio:"about",
 searchInput:"searchPlaceholder",
 directMessageInput:"commentPlaceholder",
-forgotEmail:"email",
-recoveryNewPassword:"password"
+forgotEmail:"email"
 };
 
 Object.entries(ph).forEach(([id,key])=>setPH(id,key));
@@ -1537,30 +1514,6 @@ closeModal("forgotPasswordModal");
 }, 2000);
 }catch(e){
 status.innerText=authError(e);
-}
-}
-
-async function submitNewPassword(){
-const pass = $("recoveryNewPassword").value;
-const status = $("recoveryStatus");
-
-if(!pass || pass.length < 6){
-status.innerText = t("passwordLength");
-return;
-}
-
-status.innerText = t("saving");
-try{
-const { error } = await db.auth.updateUser({ password: pass });
-if(error) throw error;
-status.innerText = t("passwordUpdated");
-setTimeout(() => {
-closeModal("newPasswordModal");
-history.replaceState(null, "", window.location.pathname);
-startApp();
-}, 2000);
-}catch(e){
-status.innerText = authError(e);
 }
 }
 
@@ -1930,6 +1883,8 @@ function openEditProfile(){
 $("editName").value=currentProfile?.full_name||"";
 $("editUsername").value=currentProfile?.username||"";
 $("editBio").value=currentProfile?.bio||"";
+$("profileNewPassword").value="";
+$("profileConfirmPassword").value="";
 $("avatarInput").value="";
 $("avatarPreview").style.display="none";
 $("profileStatus").innerText="";
@@ -3291,7 +3246,21 @@ const username=$("editUsername").value.trim();
 const bio=$("editBio").value.trim();
 const status=$("profileStatus");
 
+const newPass = $("profileNewPassword").value;
+const confirmPass = $("profileConfirmPassword").value;
+
 if(!rawName){ status.innerText=t("nameRequired"); return; }
+
+if(newPass || confirmPass){
+    if(newPass.length < 6){
+        status.innerText = t("passwordLength");
+        return;
+    }
+    if(newPass !== confirmPass){
+        status.innerText = "Пароли не совпадают!";
+        return;
+    }
+}
 
 status.innerText=t("saving");
 
@@ -3305,6 +3274,11 @@ if(selectedAvatar) avatar=await upload(selectedAvatar,"avatars");
 
 const r=await db.from("profiles").update({ full_name:name, username:username||null, bio, avatar_url:avatar }).eq("id",currentUser.id).select().single();
 if(r.error)throw r.error;
+
+if(newPass){
+    const passRes = await db.auth.updateUser({ password: newPass });
+    if(passRes.error) throw passRes.error;
+}
 
 currentProfile=r.data;
 await db.auth.updateUser({ data:{ full_name:name, username:username||null } });
@@ -3405,15 +3379,6 @@ try{
 
     if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
 
-    const initialUrl = window.location.href;
-    const isRecoveryUrl = initialUrl.includes("type=recovery") || initialUrl.includes("access_token");
-
-    if (isRecoveryUrl) {
-        $("recoveryNewPassword").value = "";
-        $("recoveryStatus").innerText = "";
-        $("newPasswordModal").classList.add("show");
-    }
-
     let hasSession = false;
     const rawStorage = localStorage.getItem("arena-supabase-auth");
     if(rawStorage){
@@ -3423,21 +3388,15 @@ try{
         }catch(err){}
     }
 
-    if(hasSession && !isRecoveryUrl){ await startApp(); }
-    else if(!isRecoveryUrl){ showAuth(); showLogin(); hideStartup(); }
-    else { hideStartup(); }
+    if(hasSession){ await startApp(); }
+    else{ showAuth(); showLogin(); hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
-        if(event === "PASSWORD_RECOVERY" || window.location.href.includes("type=recovery") || isRecoveryUrl){
-            $("recoveryNewPassword").value = "";
-            $("recoveryStatus").innerText = "";
-            $("newPasswordModal").classList.add("show");
-        }
         if(event==="SIGNED_OUT"){
             currentUser=null; currentProfile=null; showAuth(); showLogin(); hideStartup(); return;
         }
         if(event==="TOKEN_REFRESHED"&&session){ currentUser=session.user; return; }
-        if(event==="SIGNED_IN"&&session && !isRecoveryUrl){
+        if(event==="SIGNED_IN"&&session){
             if(currentUser && currentUser.id === session.user.id) return;
             currentUser=session.user;
             if($("app").classList.contains("hidden")){ try{ await startApp(); }catch(e){} }
