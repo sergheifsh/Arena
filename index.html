@@ -279,25 +279,23 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="forgotPasswordModal" class="modal">
 <div class="modal-box">
 <h2 data-i18n="forgotPasswordTitle">Восстановление пароля</h2>
-<div id="forgotStep1">
 <p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш email, и мы отправим вам ссылку для восстановления пароля.</p>
 <input id="forgotEmail" type="email" placeholder="Email">
-<button class="primary" type="button" onclick="sendPasswordResetEmail()" data-i18n="sendCode">Отправить ссылку</button>
-</div>
+<button class="primary" type="button" onclick="sendPasswordResetLink()" data-i18n="sendCode">Отправить ссылку</button>
 <button class="secondary" type="button" onclick="closeModal('forgotPasswordModal')" style="margin-top:10px" data-i18n="cancel">Отмена</button>
 <div id="forgotStatus" class="status"></div>
 </div>
 </div>
 
+<!-- Модальное окно для ввода нового пароля по ссылке из письма -->
 <div id="resetPasswordModal" class="modal">
 <div class="modal-box">
-<h2>Создание нового пароля</h2>
-<p style="font-size:13px;color:#64748b;margin-bottom:10px">Введите новый пароль для вашего аккаунта.</p>
+<h2>Новый пароль</h2>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px">Введите новый пароль для вашего аккаунта (минимум 6 символов).</p>
 <div class="password-box">
 <input id="newPasswordInput" type="password" placeholder="Новый пароль">
-<button type="button" class="password-toggle" onclick="togglePassword('newPasswordInput',this)">👁️</button>
 </div>
-<button class="primary" type="button" onclick="confirmNewPassword()" data-i18n="saveNewPassword">Сохранить новый пароль</button>
+<button class="primary" type="button" onclick="saveNewPasswordByLink()">Сохранить новый пароль</button>
 <div id="resetStatus" class="status"></div>
 </div>
 </div>
@@ -768,7 +766,6 @@ forgotPassword:"Забыли пароль?",
 forgotPasswordTitle:"Восстановление пароля",
 forgotDesc:"Введите ваш email, и мы отправим вам ссылку для восстановления пароля.",
 sendCode:"Отправить ссылку",
-saveNewPassword:"Сохранить новый пароль",
 resetPasswordSent:"Ссылка для восстановления отправлена на email 📧",
 passwordResetSuccess:"Пароль успешно изменен! Войдите с новым паролем.",
 duelList:"Список дуэлей",
@@ -898,8 +895,7 @@ forgotPassword:"Ai uitat parola?",
 forgotPasswordTitle:"Resetarea parolei",
 forgotDesc:"Introdu emailul pentru a primi linkul de resetare.",
 sendCode:"Trimite linkul",
-saveNewPassword:"Salvează noua parolă",
-resetPasswordSent:"Linkul de resetare a fost trimis 📧",
+resetPasswordSent:"Linkul a fost trimis pe email 📧",
 passwordResetSuccess:"Parolă schimbată cu succes!",
 duelList:"Lista duelurilor",
 acceptChallenge:"⚔️ Acceptă provocarea",
@@ -1028,7 +1024,6 @@ forgotPassword:"Forgot password?",
 forgotPasswordTitle:"Password Recovery",
 forgotDesc:"Enter your email to receive a recovery link.",
 sendCode:"Send link",
-saveNewPassword:"Save new password",
 resetPasswordSent:"Recovery link sent to your email 📧",
 passwordResetSuccess:"Password changed successfully!",
 duelList:"Duel List",
@@ -1054,7 +1049,7 @@ return d.innerHTML;
 }
 
 function escJS(v){
-return String(v???'')
+return String(v??"")
 .replace(/\\/g,"\\\\")
 .replace(/'/g,"\\'")
 .replace(/"/g,'\\"')
@@ -1458,11 +1453,8 @@ b.innerText=i.type==="password"?"👁️":"🙈";
 }
 
 function hideStartup(){
-const s = $("startupScreen");
-if(s) {
-    s.classList.add("hide");
-    setTimeout(()=>s.style.display="none",220);
-}
+$("startupScreen").classList.add("hide");
+setTimeout(()=>$("startupScreen").style.display="none",220);
 }
 
 function initDB(){
@@ -1511,7 +1503,7 @@ $("forgotStatus").innerText="";
 $("forgotPasswordModal").classList.add("show");
 }
 
-async function sendPasswordResetEmail(){
+async function sendPasswordResetLink(){
 const email=$("forgotEmail").value.trim().toLowerCase();
 const status=$("forgotStatus");
 if(!email){
@@ -1525,15 +1517,13 @@ redirectTo: window.location.origin + window.location.pathname
 });
 if(error) throw error;
 status.innerText=t("resetPasswordSent");
-setTimeout(()=>{
-closeModal("forgotPasswordModal");
-}, 3000);
+setTimeout(() => closeModal("forgotPasswordModal"), 2500);
 }catch(e){
 status.innerText=authError(e);
 }
 }
 
-async function confirmNewPassword(){
+async function saveNewPasswordByLink(){
 const newPass=$("newPasswordInput").value;
 const status=$("resetStatus");
 if(!newPass || newPass.length < 6){
@@ -1546,10 +1536,11 @@ const { error } = await db.auth.updateUser({ password: newPass });
 if(error) throw error;
 
 status.innerText=t("passwordResetSuccess");
-setTimeout(()=>{
+setTimeout(async ()=>{
 closeModal("resetPasswordModal");
-history.replaceState(null, "", window.location.pathname);
-showScreen("homeScreen");
+await db.auth.signOut();
+showAuth();
+showLogin();
 }, 2000);
 }catch(e){
 status.innerText=authError(e);
@@ -3380,9 +3371,6 @@ if(event.target.classList.contains("modal")&&event.target.id!=="customConfirmMod
 event.target.classList.remove("show");
 });
 
-// Гарантированное скрытие кружка загрузки в любом случае через 2 секунды
-setTimeout(hideStartup, 2000);
-
 document.addEventListener("DOMContentLoaded", async () => {
 try{
     let attempts = 0;
@@ -3412,9 +3400,9 @@ try{
     else{ showAuth(); showLogin(); hideStartup(); }
 
     db.auth.onAuthStateChange(async(event,session)=>{
-        if(event==="PASSWORD_RECOVERY"){
-            $("resetStatus").innerText = "";
+        if(event === "PASSWORD_RECOVERY"){
             $("newPasswordInput").value = "";
+            $("resetStatus").innerText = "";
             $("resetPasswordModal").classList.add("show");
             return;
         }
@@ -3529,7 +3517,7 @@ try{
                 const videoEl = videoTrig.tagName === 'VIDEO' ? videoTrig : videoTrig.previousElementSibling;
                 const videoSrc = videoTrig.dataset.videoSrc || videoEl?.src;
                 if (videoSrc) {
-                    fullVideo.src = videoSrc.replace('#t=0.001', '', '');
+                    fullVideo.src = videoSrc.replace('#t=0.001', '');
                     videoOverlay.style.visibility = 'visible';
                     videoOverlay.style.opacity = '1';
                     document.body.style.overflow = 'hidden';
