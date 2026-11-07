@@ -572,10 +572,9 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="editUsername">
 <textarea id="editBio"></textarea>
 
-<!-- Поля для замены пароля внутри профиля (без глаза, всегда скрыты) -->
-<div style="margin-top:12px;border-top:1px solid #dbe4f0;padding-top:10px;">
-    <input id="profileNewPassword" type="password" placeholder="Новый пароль (мин. 6 символов)" autocomplete="new-password">
-    <input id="profileConfirmPassword" type="password" placeholder="Повторите новый пароль" autocomplete="new-password">
+<div class="password-box" style="margin-top:10px;">
+<input id="editNewPassword" type="password" placeholder="Новый пароль (оставьте пустым, если не нужно менять)">
+<button type="button" class="password-toggle" onclick="togglePassword('editNewPassword',this)">👁️</button>
 </div>
 
 <button id="saveProfileButton" class="primary" type="button" onclick="saveProfile()"></button>
@@ -1370,7 +1369,8 @@ editUsername:"username",
 editBio:"about",
 searchInput:"searchPlaceholder",
 directMessageInput:"commentPlaceholder",
-forgotEmail:"email"
+forgotEmail:"email",
+editNewPassword:"password"
 };
 
 Object.entries(ph).forEach(([id,key])=>setPH(id,key));
@@ -1883,8 +1883,7 @@ function openEditProfile(){
 $("editName").value=currentProfile?.full_name||"";
 $("editUsername").value=currentProfile?.username||"";
 $("editBio").value=currentProfile?.bio||"";
-$("profileNewPassword").value="";
-$("profileConfirmPassword").value="";
+$("editNewPassword").value="";
 $("avatarInput").value="";
 $("avatarPreview").style.display="none";
 $("profileStatus").innerText="";
@@ -3244,23 +3243,11 @@ async function saveProfile(){
 const rawName=$("editName").value.trim();
 const username=$("editUsername").value.trim();
 const bio=$("editBio").value.trim();
+const newPassword=$("editNewPassword").value;
 const status=$("profileStatus");
 
-const newPass = $("profileNewPassword").value;
-const confirmPass = $("profileConfirmPassword").value;
-
 if(!rawName){ status.innerText=t("nameRequired"); return; }
-
-if(newPass || confirmPass){
-    if(newPass.length < 6){
-        status.innerText = t("passwordLength");
-        return;
-    }
-    if(newPass !== confirmPass){
-        status.innerText = "Пароли не совпадают!";
-        return;
-    }
-}
+if(newPassword && newPassword.length < 6){ status.innerText=t("passwordLength"); return; }
 
 status.innerText=t("saving");
 
@@ -3275,9 +3262,9 @@ if(selectedAvatar) avatar=await upload(selectedAvatar,"avatars");
 const r=await db.from("profiles").update({ full_name:name, username:username||null, bio, avatar_url:avatar }).eq("id",currentUser.id).select().single();
 if(r.error)throw r.error;
 
-if(newPass){
-    const passRes = await db.auth.updateUser({ password: newPass });
-    if(passRes.error) throw passRes.error;
+if(newPassword){
+    const { error: passError } = await db.auth.updateUser({ password: newPassword });
+    if(passError) throw passError;
 }
 
 currentProfile=r.data;
