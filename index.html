@@ -276,7 +276,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно восстановления пароля (через стандартную ссылку почты Supabase) -->
 <div id="forgotPasswordModal" class="modal">
 <div class="modal-box">
 <h2 data-i18n="forgotPasswordTitle">Восстановление пароля</h2>
@@ -290,7 +289,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно смены пароля при переходе по ссылке из письма -->
 <div id="resetPasswordModal" class="modal">
 <div class="modal-box">
 <h2>Создание нового пароля</h2>
@@ -1460,8 +1458,11 @@ b.innerText=i.type==="password"?"👁️":"🙈";
 }
 
 function hideStartup(){
-$("startupScreen").classList.add("hide");
-setTimeout(()=>$("startupScreen").style.display="none",220);
+const s = $("startupScreen");
+if(s) {
+    s.classList.add("hide");
+    setTimeout(()=>s.style.display="none",220);
+}
 }
 
 function initDB(){
@@ -1547,7 +1548,6 @@ if(error) throw error;
 status.innerText=t("passwordResetSuccess");
 setTimeout(()=>{
 closeModal("resetPasswordModal");
-// Очищаем хэш из URL
 history.replaceState(null, "", window.location.pathname);
 showScreen("homeScreen");
 }, 2000);
@@ -3526,7 +3526,7 @@ try{
                 const videoEl = videoTrig.tagName === 'VIDEO' ? videoTrig : videoTrig.previousElementSibling;
                 const videoSrc = videoTrig.dataset.videoSrc || videoEl?.src;
                 if (videoSrc) {
-                    fullVideo.src = videoSrc.replace('#t=0.001', '');
+                    fullVideo.src = videoSrc.replace('#t=0.001', '', '');
                     videoOverlay.style.visibility = 'visible';
                     videoOverlay.style.opacity = '1';
                     document.body.style.overflow = 'hidden';
