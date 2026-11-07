@@ -3520,7 +3520,7 @@ try{
             e.stopPropagation();
             if (fullVideo.duration) fullVideo.currentTime = (progressBar.value / 100) * fullVideo.duration;
         };
-        fullVideo.onclick = () => { if (fullVideo.paused) fullVideo.play(); else fullVideo.play(); };
+        fullVideo.onclick = () => { if (fullVideo.paused) fullVideo.play(); else fullVideo.pause(); };
 
         document.body.appendChild(videoOverlay);
 
