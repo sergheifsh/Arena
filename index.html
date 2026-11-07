@@ -765,6 +765,7 @@ forgotPassword:"Забыли пароль?",
 forgotPasswordTitle:"Восстановление пароля",
 forgotDesc:"Введите ваш email, чтобы получить ссылку для сброса пароля.",
 resetPasswordSent:"Ссылка для сброса отправлена на email 📧",
+passwordResetSuccess:"Пароль изменен с успехом!",
 duelList:"Список дуэлей",
 acceptChallenge:"⚔️ Принять вызов",
 acceptChallengeTitle:"Принять вызов",
@@ -3367,6 +3368,18 @@ try{
 
     if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
 
+    // Перехватываем токен восстановления из ссылки Supabase (и в hash, и в search)
+    const hashStr = window.location.hash;
+    const searchStr = window.location.search;
+    const isRecovery = hashStr.includes("type=recovery") || 
+                       searchStr.includes("type=recovery") || 
+                       hashStr.includes("access_token") || 
+                       hashStr.includes("token_hash=");
+
+    if (isRecovery) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     let hasSession = false;
     const rawStorage = localStorage.getItem("arena-supabase-auth");
     if(rawStorage){
@@ -3377,16 +3390,25 @@ try{
     }
 
     db.auth.onAuthStateChange(async(event,session)=>{
+        if(event === "PASSWORD_RECOVERY" || event === "SIGNED_IN"){
+            if(session?.user){
+                currentUser = session.user;
+                hideStartup();
+                await startApp();
+                return;
+            }
+        }
         if(event==="SIGNED_OUT"){
             currentUser=null; currentProfile=null; showAuth(); showLogin(); hideStartup(); return;
         }
         if(event==="TOKEN_REFRESHED"&&session){ currentUser=session.user; return; }
-        if(event==="SIGNED_IN"&&session){
-            if(currentUser && currentUser.id === session.user.id) return;
-            currentUser=session.user;
-            if($("app").classList.contains("hidden")){ try{ await startApp(); }catch(e){} }
-        }
     });
+
+    const { data: { session } } = await db.auth.getSession();
+    if(session?.user){
+        currentUser = session.user;
+        hasSession = true;
+    }
 
     if(hasSession){ 
         await startApp(); 
