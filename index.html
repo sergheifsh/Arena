@@ -279,24 +279,20 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="forgotPasswordModal" class="modal">
 <div class="modal-box">
 <h2 data-i18n="forgotPasswordTitle">Восстановление пароля</h2>
-<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш email, и мы отправим вам ссылку для восстановления пароля.</p>
+<div id="forgotStep1">
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc">Введите ваш имейл для получения ссылки сброса пароля.</p>
 <input id="forgotEmail" type="email" placeholder="Email">
-<button class="primary" type="button" onclick="sendPasswordResetLink()" data-i18n="sendCode">Отправить ссылку</button>
-<button class="secondary" type="button" onclick="closeModal('forgotPasswordModal')" style="margin-top:10px" data-i18n="cancel">Отмена</button>
-<div id="forgotStatus" class="status"></div>
+<button class="primary" type="button" onclick="sendPasswordResetCode()" data-i18n="sendCode">Отправить ссылку</button>
 </div>
-</div>
-
-<!-- Модальное окно для ввода нового пароля по ссылке из письма -->
-<div id="resetPasswordModal" class="modal">
-<div class="modal-box">
-<h2>Новый пароль</h2>
-<p style="font-size:13px;color:#64748b;margin-bottom:10px">Введите новый пароль для вашего аккаунта (минимум 6 символов).</p>
+<div id="forgotStep2" class="hidden" style="margin-top:10px">
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="forgotDesc2">Введите новый пароль для вашего аккаунта.</p>
 <div class="password-box">
 <input id="newPasswordInput" type="password" placeholder="Новый пароль">
 </div>
-<button class="primary" type="button" onclick="saveNewPasswordByLink()">Сохранить новый пароль</button>
-<div id="resetStatus" class="status"></div>
+<button class="primary" type="button" onclick="confirmPasswordReset()" data-i18n="saveNewPassword">Создать новый пароль</button>
+</div>
+<button class="secondary" type="button" onclick="closeModal('forgotPasswordModal')" style="margin-top:10px" data-i18n="cancel">Отмена</button>
+<div id="forgotStatus" class="status"></div>
 </div>
 </div>
 
@@ -730,7 +726,7 @@ connection:"Ошибка подключения к серверу.",
 enterCredentials:"Введите email и пароль.",
 passwordLength:"Пароль должен содержать минимум 6 символов.",
 creatingAccount:"Создаём аккаунт...",
-checkingEmail:"Аккаунт создан. Проверь почту для подтверждения 📧",
+checkingAccount:"Аккаунт создан. Проверь почту для подтверждения 📧",
 loggingIn:"Входим...",
 uploading:"Загружаем медиа...",
 creatingDuel:"Создаём дуэль... ⚔️",
@@ -764,9 +760,11 @@ privateMessages:"💬 Личные сообщения",
 noActiveDialogs:"Нет активных диалогов",
 forgotPassword:"Забыли пароль?",
 forgotPasswordTitle:"Восстановление пароля",
-forgotDesc:"Введите ваш email, и мы отправим вам ссылку для восстановления пароля.",
+forgotDesc:"Введите ваш имейл для получения ссылки сброса пароля.",
+forgotDesc2:"Введите новый пароль для вашего аккаунта.",
 sendCode:"Отправить ссылку",
-resetPasswordSent:"Ссылка для восстановления отправлена на email 📧",
+saveNewPassword:"Создать новый пароль",
+resetPasswordSent:"Ссылка для сброса отправлена на email 📧",
 passwordResetSuccess:"Пароль успешно изменен! Войдите с новым паролем.",
 duelList:"Список дуэлей",
 acceptChallenge:"⚔️ Принять вызов",
@@ -894,8 +892,10 @@ noActiveDialogs:"Nu există dialoguri active",
 forgotPassword:"Ai uitat parola?",
 forgotPasswordTitle:"Resetarea parolei",
 forgotDesc:"Introdu emailul pentru a primi linkul de resetare.",
+forgotDesc2:"Introdu noua parolă pentru contul tău.",
 sendCode:"Trimite linkul",
-resetPasswordSent:"Linkul a fost trimis pe email 📧",
+saveNewPassword:"Creează o nouă parolă",
+resetPasswordSent:"Linkul de resetare a fost trimis pe email 📧",
 passwordResetSuccess:"Parolă schimbată cu succes!",
 duelList:"Lista duelurilor",
 acceptChallenge:"⚔️ Acceptă provocarea",
@@ -1022,9 +1022,11 @@ privateMessages:"💬 Direct Messages",
 noActiveDialogs:"No active conversations",
 forgotPassword:"Forgot password?",
 forgotPasswordTitle:"Password Recovery",
-forgotDesc:"Enter your email to receive a recovery link.",
+forgotDesc:"Enter your email to receive a password reset link.",
+forgotDesc2:"Enter a new password for your account.",
 sendCode:"Send link",
-resetPasswordSent:"Recovery link sent to your email 📧",
+saveNewPassword:"Create new password",
+resetPasswordSent:"Reset link sent to your email 📧",
 passwordResetSuccess:"Password changed successfully!",
 duelList:"Duel List",
 acceptChallenge:"⚔️ Accept Challenge",
@@ -1499,11 +1501,13 @@ return e?.message||"Ошибка";
 
 function openForgotPasswordModal(){
 $("forgotEmail").value=$("loginEmail").value.trim();
+$("forgotStep1").classList.remove("hidden");
+$("forgotStep2").classList.add("hidden");
 $("forgotStatus").innerText="";
 $("forgotPasswordModal").classList.add("show");
 }
 
-async function sendPasswordResetLink(){
+async function sendPasswordResetCode(){
 const email=$("forgotEmail").value.trim().toLowerCase();
 const status=$("forgotStatus");
 if(!email){
@@ -1517,15 +1521,16 @@ redirectTo: window.location.origin + window.location.pathname
 });
 if(error) throw error;
 status.innerText=t("resetPasswordSent");
-setTimeout(() => closeModal("forgotPasswordModal"), 2500);
+$("forgotStep1").classList.add("hidden");
+$("forgotStep2").classList.remove("hidden");
 }catch(e){
 status.innerText=authError(e);
 }
 }
 
-async function saveNewPasswordByLink(){
+async function confirmPasswordReset(){
 const newPass=$("newPasswordInput").value;
-const status=$("resetStatus");
+const status=$("forgotStatus");
 if(!newPass || newPass.length < 6){
 status.innerText=t("passwordLength");
 return;
@@ -1537,7 +1542,7 @@ if(error) throw error;
 
 status.innerText=t("passwordResetSuccess");
 setTimeout(async ()=>{
-closeModal("resetPasswordModal");
+closeModal("forgotPasswordModal");
 await db.auth.signOut();
 showAuth();
 showLogin();
@@ -3402,8 +3407,10 @@ try{
     db.auth.onAuthStateChange(async(event,session)=>{
         if(event === "PASSWORD_RECOVERY"){
             $("newPasswordInput").value = "";
-            $("resetStatus").innerText = "";
-            $("resetPasswordModal").classList.add("show");
+            $("forgotStatus").innerText = "";
+            $("forgotStep1").classList.add("hidden");
+            $("forgotStep2").classList.remove("hidden");
+            $("forgotPasswordModal").classList.add("show");
             return;
         }
         if(event==="SIGNED_OUT"){
