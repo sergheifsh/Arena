@@ -43,6 +43,8 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .auth-box input:focus,.search-box input:focus,.modal-box input:focus,.modal-box textarea:focus{border-color:#2563eb}
 .auth-box button:not(.password-toggle),.primary{width:100%;padding:13px;margin-top:8px;border:0;border-radius:11px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;font-weight:bold}
 .auth-switch{text-align:center;margin-top:13px;color:#2563eb;cursor:pointer}
+.auth-policy-link{text-align:center;margin-top:10px}
+.auth-policy-link a{font-size:12px;color:#64748b;text-decoration:underline}
 .password-box{position:relative}
 .password-box input{padding-right:55px!important}
 .password-toggle{position:absolute!important;right:5px;top:5px;width:45px!important;height:42px;padding:5px!important;margin:0!important;background:transparent!important;color:#2563eb!important;border:0}
@@ -259,6 +261,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button id="loginButton" type="button" onclick="login()"></button>
 <div style="text-align:right;margin-top:6px"><span style="font-size:12px;color:#2563eb;cursor:pointer" onclick="openForgotPasswordModal()" data-i18n="forgotPassword">Забыли пароль?</span></div>
 <div id="registerSwitch" class="auth-switch" onclick="showRegister()"></div>
+<div class="auth-policy-link"><a href="privacy.html" data-i18n="privacyPolicy">Политика конфиденциальности</a></div>
 </div>
 
 <div id="registerBox" class="hidden">
@@ -270,6 +273,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 <button id="registerButton" type="button" onclick="register()"></button>
 <div id="loginSwitch" class="auth-switch" onclick="showLogin()"></div>
+<div class="auth-policy-link"><a href="privacy.html" data-i18n="privacyPolicy">Политика конфиденциальности</a></div>
 </div>
 
 <div id="authStatus" class="status"></div>
@@ -677,6 +681,7 @@ login:"Войти",
 register:"Создать аккаунт",
 noAccount:"Нет аккаунта? Регистрация",
 haveAccount:"Уже есть аккаунт? Войти",
+privacyPolicy:"Политика конфиденциальности",
 name:"Твоё имя",
 email:"Email",
 password:"Пароль",
@@ -812,6 +817,7 @@ login:"Intră",
 register:"Creează cont",
 noAccount:"Nu ai cont? Înregistrare",
 haveAccount:"Ai deja un cont? Intră",
+privacyPolicy:"Politica de confidențialitate",
 name:"Numele tău",
 email:"Email",
 password:"Parolă",
@@ -947,6 +953,7 @@ login:"Log in",
 register:"Create account",
 noAccount:"No account? Register",
 haveAccount:"Already have an account? Log in",
+privacyPolicy:"Privacy Policy",
 name:"Your name",
 email:"Email",
 password:"Password",
@@ -2284,11 +2291,10 @@ if(m.is_media || m.text?.startsWith("http")){
 }
 
 const msgId = m.id;
-const msgTextJS = escJS(m.text);
 const isMediaFlag = m.is_media || m.text?.startsWith("http");
 
 return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};position:relative;" data-msg-id="${msgId}">
-<div class="msg-bubble" data-msg-id="${msgId}" data-text="${esc(msgTextJS)}" data-isme="${isMe}" data-ismedia="${Boolean(isMediaFlag)}" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;user-select:none;">
+<div class="msg-bubble" data-msg-id="${msgId}" data-raw-text="${esc(m.text)}" data-isme="${isMe}" data-ismedia="${Boolean(isMediaFlag)}" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;user-select:none;">
 ${content}
 </div>
 <div style="font-size:11px;color:#64748b;margin-top:2px;display:flex;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
@@ -2313,7 +2319,7 @@ document.querySelectorAll(".msg-bubble").forEach(bubble => {
     if(pressTimer) clearTimeout(pressTimer);
     pressTimer = setTimeout(() => {
       const msgId = bubble.dataset.msgId;
-      const text = bubble.dataset.text;
+      const text = bubble.dataset.rawText ?? "";
       const isMe = bubble.dataset.isme === "true";
       const isMedia = bubble.dataset.ismedia === "true";
       openMessageContextMenu(e, msgId, text, isMe, isMedia);
@@ -2490,12 +2496,14 @@ if(!box) return;
 const isHidden = box.classList.contains("hidden");
 
 if(isHidden){
+    editingCommentId = null;
     box.classList.remove("hidden");
     box.classList.add("split-bottom");
     card.classList.add("chat-split-top");
     loadComments(box, duelId);
     history.pushState({ duelChatOpen: true }, "", window.location.href);
 } else {
+    editingCommentId = null;
     box.classList.add("hidden");
     box.classList.remove("split-bottom");
     card.classList.remove("chat-split-top");
@@ -2533,7 +2541,6 @@ const isMe = currentUser && String(c.user_id) === String(currentUser.id);
 const canManage = currentUser && (isMe || isAdminUser);
 
 const commentId = c.id;
-const commentTextJS = escJS(c.text);
 
 return `
 <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:14px;border:none !important;background:transparent !important;" data-comment-id="${commentId}">
@@ -2542,7 +2549,7 @@ ${avatar}
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
 <span style="font-weight:bold;color:#172033;font-size:14px">${esc(name)}</span>
 </div>
-<div class="comment-bubble" data-comment-id="${commentId}" data-text="${esc(commentTextJS)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;word-break:break-word;cursor:pointer;user-select:none;padding:6px 10px;border-radius:8px;background:#f8fafc;display:inline-block;max-width:100%;">
+<div class="comment-bubble" data-comment-id="${commentId}" data-raw-text="${esc(c.text)}" data-isme="${Boolean(isMe)}" data-canmanage="${Boolean(canManage)}" style="color:#334155;word-break:break-word;cursor:pointer;user-select:none;padding:6px 10px;border-radius:8px;background:#f8fafc;display:inline-block;max-width:100%;">
 ${esc(c.text)}
 </div>
 </div>
@@ -2563,7 +2570,7 @@ document.querySelectorAll(".comment-bubble").forEach(bubble => {
     if(pressTimer) clearTimeout(pressTimer);
     pressTimer = setTimeout(() => {
       const commentId = bubble.dataset.commentId;
-      const text = bubble.dataset.text;
+      const text = bubble.dataset.rawText ?? "";
       const isMe = bubble.dataset.isme === "true";
       const canManage = bubble.dataset.canmanage === "true";
       if(canManage){
@@ -2602,11 +2609,21 @@ menu.style.cssText = "position:absolute;background:#fff;border:1px solid #cbd5e1
 
 let buttonsHtml = "";
 if(isMe){
-  buttonsHtml += `<button onclick="startEditComment('${commentId}', '${escJS(text)}', '${escJS(duelId)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
+  const editBtn = document.createElement("button");
+  editBtn.type = "button";
+  editBtn.textContent = t("edit");
+  editBtn.style.cssText = "padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;";
+  editBtn.onclick = () => startEditComment(commentId, text, duelId);
+  menu.appendChild(editBtn);
 }
-buttonsHtml += `<button onclick="deleteComment('${commentId}', '${escJS(duelId)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#dc2626;">${t("delete")}</button>`;
 
-menu.innerHTML = buttonsHtml;
+const delBtn = document.createElement("button");
+delBtn.type = "button";
+delBtn.textContent = t("delete");
+delBtn.style.cssText = "padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#dc2626;";
+delBtn.onclick = () => deleteComment(commentId, duelId);
+menu.appendChild(delBtn);
+
 document.body.appendChild(menu);
 
 const rect = bubble.getBoundingClientRect();
@@ -2629,7 +2646,7 @@ setTimeout(() => {
 function startEditComment(commentId, currentText, duelId){
 document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
 editingCommentId = commentId;
-const card = document.querySelector(`[data-chat-id="${duelId}"]`)?.closest(".duel");
+const card = document.querySelector(`[data-chat-id="${CSS.escape(String(duelId))}"]`)?.closest(".duel");
 if(card){
   const input = card.querySelector(".comment-input");
   if(input){
@@ -2652,7 +2669,8 @@ if(!currentUser){ alert("Требуется авторизация"); return; }
 
 try{
 if(editingCommentId){
-  const { error } = await db.from("duel_comments").update({ text }).eq("id", editingCommentId);
+  const targetId = editingCommentId;
+  const { error } = await db.from("duel_comments").update({ text }).eq("id", targetId).eq("user_id", currentUser.id);
   if(error) throw error;
   editingCommentId = null;
 }else{
@@ -2660,7 +2678,7 @@ if(editingCommentId){
   if(r.error)throw r.error;
 }
 input.value="";
-loadComments(card.querySelector(".duel-chat-box"), sId);
+await loadComments(card.querySelector(".duel-chat-box"), sId);
 }catch(e){
 alert(e.message||t("connection"));
 }
@@ -2672,8 +2690,9 @@ showCustomConfirm(t("deleteCommentConfirm"), async () => {
 try{
 const r = await db.from("duel_comments").delete().eq("id", commentId);
 if(r.error) throw r.error;
-const card = document.querySelector(`[data-chat-id="${duelId}"]`)?.closest(".duel");
-if(card) loadComments(card.querySelector(".duel-chat-box"), duelId);
+if(String(editingCommentId) === String(commentId)) editingCommentId = null;
+const card = document.querySelector(`[data-chat-id="${CSS.escape(String(duelId))}"]`)?.closest(".duel");
+if(card) await loadComments(card.querySelector(".duel-chat-box"), duelId);
 }catch(e){
 alert(e.message || t("connection"));
 }
@@ -2802,6 +2821,7 @@ window.addEventListener('popstate', function(e) {
     document.querySelectorAll(".duel.chat-split-top").forEach(card => {
         const box = card.querySelector(".duel-chat-box");
         if(box && !box.classList.contains("hidden")){
+            editingCommentId = null;
             box.classList.add("hidden");
             box.classList.remove("split-bottom");
             card.classList.remove("chat-split-top");
