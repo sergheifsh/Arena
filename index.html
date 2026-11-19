@@ -288,6 +288,24 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
+<!-- Модальное окно установки нового пароля после перехода по ссылке из письма -->
+<div id="resetPasswordModal" class="modal" style="z-index: 10001;">
+<div class="modal-box">
+<h2 data-i18n="newPasswordTitle">Новый пароль</h2>
+<p style="font-size:13px;color:#64748b;margin-bottom:10px" data-i18n="newPasswordDesc">Придумайте новый пароль (минимум 6 символов).</p>
+<div class="password-box">
+<input id="recoveryNewPassword" type="password" autocomplete="new-password" placeholder="Новый пароль">
+<button type="button" class="password-toggle" onclick="togglePassword('recoveryNewPassword',this)">👁️</button>
+</div>
+<div class="password-box">
+<input id="recoveryConfirmPassword" type="password" autocomplete="new-password" placeholder="Повторите новый пароль">
+<button type="button" class="password-toggle" onclick="togglePassword('recoveryConfirmPassword',this)">👁️</button>
+</div>
+<button id="resetPasswordSubmitBtn" class="primary" type="button" onclick="submitRecoveredPassword()" data-i18n="saveNewPassword">Сохранить новый пароль</button>
+<div id="resetPasswordStatus" class="status"></div>
+</div>
+</div>
+
 <div id="forwardSelectModal" class="modal">
 <div class="modal-box">
 <h2 style="color:#2563eb;margin-bottom:15px" data-i18n="forward">Переслать сообщение</h2>
@@ -627,6 +645,7 @@ let currentProfile=null;
 let currentCategory="all";
 let language=localStorage.getItem("arena_language")||"ru";
 let isDuelsLoading=false;
+let isRecoveryMode=false;
 
 let selectedImageA=null;
 let selectedImageB=null;
@@ -764,8 +783,15 @@ noActiveDialogs:"Нет активных диалогов",
 forgotPassword:"Забыли пароль?",
 forgotPasswordTitle:"Восстановление пароля",
 forgotDesc:"Введите ваш email, чтобы получить ссылку для сброса пароля.",
+sendCode:"Отправить ссылку",
 resetPasswordSent:"Ссылка для сброса отправлена на email 📧",
-passwordResetSuccess:"Пароль изменен с успехом!",
+newPasswordTitle:"Новый пароль",
+newPasswordDesc:"Придумайте новый пароль (минимум 6 символов).",
+newPasswordPlaceholder:"Новый пароль",
+confirmPasswordPlaceholder:"Повторите новый пароль",
+passwordsMismatch:"Пароли не совпадают.",
+saveNewPassword:"Сохранить новый пароль",
+passwordResetSuccess:"Пароль успешно изменён!",
 duelList:"Список дуэлей",
 acceptChallenge:"⚔️ Принять вызов",
 acceptChallengeTitle:"Принять вызов",
@@ -857,7 +883,7 @@ connection:"Eroare de conectare la server.",
 enterCredentials:"Introdu emailul și parola.",
 passwordLength:"Parola trebuie să conțină cel puțin 6 caractere.",
 creatingAccount:"Creăm contul...",
-checkingAccount:"Cont creat. Verifică emailul.",
+checkingEmail:"Cont creat. Verifică emailul.",
 loggingIn:"Intrăm...",
 uploading:"Încărcăm media...",
 creatingDuel:"Creăm duelul... ⚔️",
@@ -892,7 +918,14 @@ noActiveDialogs:"Nu există dialoguri active",
 forgotPassword:"Ai uitat parola?",
 forgotPasswordTitle:"Resetarea parolei",
 forgotDesc:"Introdu emailul pentru a primi linkul de resetare.",
+sendCode:"Trimite linkul",
 resetPasswordSent:"Linkul de resetare a fost trimis pe email 📧",
+newPasswordTitle:"Parolă nouă",
+newPasswordDesc:"Introdu o parolă nouă (minim 6 caractere).",
+newPasswordPlaceholder:"Parolă nouă",
+confirmPasswordPlaceholder:"Repetă parola nouă",
+passwordsMismatch:"Parolele nu coincid.",
+saveNewPassword:"Salvează parola nouă",
 passwordResetSuccess:"Parolă schimbată cu succes!",
 duelList:"Lista duelurilor",
 acceptChallenge:"⚔️ Acceptă provocarea",
@@ -985,7 +1018,7 @@ connection:"Connection error.",
 enterCredentials:"Enter email and password.",
 passwordLength:"Password must contain at least 6 characters.",
 creatingAccount:"Creating account...",
-checkingAccount:"Account created. Check your email.",
+checkingEmail:"Account created. Check your email.",
 loggingIn:"Logging in...",
 uploading:"Uploading media...",
 creatingDuel:"Creating duel... ⚔️",
@@ -1020,7 +1053,14 @@ noActiveDialogs:"No active conversations",
 forgotPassword:"Forgot password?",
 forgotPasswordTitle:"Password Recovery",
 forgotDesc:"Enter your email to receive a recovery link.",
+sendCode:"Send link",
 resetPasswordSent:"Recovery link sent to your email 📧",
+newPasswordTitle:"New Password",
+newPasswordDesc:"Enter a new password (minimum 6 characters).",
+newPasswordPlaceholder:"New password",
+confirmPasswordPlaceholder:"Repeat new password",
+passwordsMismatch:"Passwords do not match.",
+saveNewPassword:"Save new password",
 passwordResetSuccess:"Password changed successfully!",
 duelList:"Duel List",
 acceptChallenge:"⚔️ Accept Challenge",
@@ -1374,7 +1414,9 @@ editBio:"about",
 searchInput:"searchPlaceholder",
 directMessageInput:"commentPlaceholder",
 forgotEmail:"email",
-editNewPassword:"password"
+editNewPassword:"password",
+recoveryNewPassword:"newPasswordPlaceholder",
+recoveryConfirmPassword:"confirmPasswordPlaceholder"
 };
 
 Object.entries(ph).forEach(([id,key])=>setPH(id,key));
@@ -1468,7 +1510,7 @@ autoRefreshToken:true,
 persistSession:true,
 detectSessionInUrl:true,
 storageKey:"arena-supabase-auth",
-flowType:"pkce"
+flowType:"implicit"
 }
 }
 );
@@ -1516,6 +1558,44 @@ if(error) throw error;
 status.innerText=t("resetPasswordSent");
 }catch(e){
 status.innerText=authError(e);
+}
+}
+
+function openResetPasswordModal(){
+$("recoveryNewPassword").value="";
+$("recoveryConfirmPassword").value="";
+$("resetPasswordStatus").innerText="";
+$("resetPasswordModal").classList.add("show");
+}
+
+async function submitRecoveredPassword(){
+const pass=$("recoveryNewPassword").value;
+const confirmPass=$("recoveryConfirmPassword").value;
+const status=$("resetPasswordStatus");
+
+if(!pass || pass.length < 6){
+status.innerText=t("passwordLength");
+return;
+}
+if(pass !== confirmPass){
+status.innerText=t("passwordsMismatch");
+return;
+}
+
+$("resetPasswordSubmitBtn").disabled=true;
+status.innerText=t("saving");
+
+try{
+const { error } = await db.auth.updateUser({ password: pass });
+if(error) throw error;
+
+isRecoveryMode = false;
+closeModal("resetPasswordModal");
+alert(t("passwordResetSuccess"));
+}catch(e){
+status.innerText=authError(e);
+}finally{
+$("resetPasswordSubmitBtn").disabled=false;
 }
 }
 
@@ -2730,6 +2810,7 @@ window.addEventListener('popstate', function(e) {
     });
 
     document.querySelectorAll('.modal.show').forEach(m => {
+        if(m.id === "resetPasswordModal") return;
         m.classList.remove('show');
         closedSomething = true;
     });
@@ -3349,7 +3430,7 @@ if(modal)modal.classList.remove("show");
 }
 
 document.addEventListener("click",event=>{
-if(event.target.classList.contains("modal")&&event.target.id!=="customConfirmModal")
+if(event.target.classList.contains("modal")&&event.target.id!=="customConfirmModal"&&event.target.id!=="resetPasswordModal")
 event.target.classList.remove("show");
 });
 
@@ -3367,27 +3448,34 @@ try{
 
     $("searchInput")?.addEventListener("input",searchUsers);
 
-    if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
-
     const hashStr = window.location.hash;
     const searchStr = window.location.search;
     const isRecovery = hashStr.includes("type=recovery") || 
                        searchStr.includes("type=recovery") || 
-                       hashStr.includes("access_token") || 
+                       hashStr.includes("access_token=") || 
                        hashStr.includes("token_hash=");
 
+    if (isRecovery) {
+        isRecoveryMode = true;
+    }
+
+    if(!initDB()){ hideStartup(); showAuth(); showLogin(); return; }
+
     db.auth.onAuthStateChange(async(event, session) => {
-        if (event === "PASSWORD_RECOVERY" || (isRecovery && session)) {
+        if (event === "PASSWORD_RECOVERY" || (isRecoveryMode && session?.user)) {
+            isRecoveryMode = true;
             if (session?.user) {
                 currentUser = session.user;
-                if (isRecovery) {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                }
-                hideStartup();
-                await startApp();
-                await showProfile();
-                return;
             }
+            if (window.location.hash || window.location.search.includes("type=recovery")) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            hideStartup();
+            if ($("app").classList.contains("hidden")) {
+                await startApp();
+            }
+            openResetPasswordModal();
+            return;
         }
         if (event === "SIGNED_OUT") {
             currentUser = null; 
@@ -3402,10 +3490,13 @@ try{
             return; 
         }
         if (event === "SIGNED_IN" && session) {
-            if (currentUser && currentUser.id === session.user.id) return;
+            if (currentUser && currentUser.id === session.user.id && !$("app").classList.contains("hidden")) return;
             currentUser = session.user;
             if ($("app").classList.contains("hidden")) { 
                 try { await startApp(); } catch(e){} 
+            }
+            if (isRecoveryMode) {
+                openResetPasswordModal();
             }
         }
     });
@@ -3414,15 +3505,15 @@ try{
     
     if (session?.user) {
         currentUser = session.user;
-        if (isRecovery) {
+        if (isRecoveryMode) {
             window.history.replaceState({}, document.title, window.location.pathname);
             hideStartup();
             await startApp();
-            await showProfile();
+            openResetPasswordModal();
         } else {
             await startApp();
         }
-    } else if (!isRecovery) {
+    } else if (!isRecoveryMode) {
         const rawStorage = localStorage.getItem("arena-supabase-auth");
         if (rawStorage) {
             try {
@@ -3437,6 +3528,14 @@ try{
         showAuth(); 
         showLogin(); 
         hideStartup();
+    } else {
+        setTimeout(() => {
+            if ($("app").classList.contains("hidden") && $("auth").style.display !== "flex") {
+                hideStartup();
+                showAuth();
+                showLogin();
+            }
+        }, 3000);
     }
 } catch(e) {
     showAuth();
