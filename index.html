@@ -1151,6 +1151,27 @@ const s=String(seconds).padStart(2,"0");
 return{text:`⏳ ${h}:${m}:${s}`,ended:false};
 }
 
+function formatDayDivider(dateStr){
+if(!dateStr) return "";
+const d=new Date(dateStr);
+if(Number.isNaN(d.getTime())) return "";
+
+const now=new Date();
+const startOfToday=new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+const startOfMsgDay=new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+const diffDays=Math.round((startOfToday-startOfMsgDay)/86400000);
+
+if(diffDays===0){
+return language==="ro"?"Azi":language==="en"?"Today":"Сегодня";
+}
+if(diffDays===1){
+return language==="ro"?"Ieri":language==="en"?"Yesterday":"Вчера";
+}
+
+const locale=language==="ro"?"ro-RO":language==="en"?"en-GB":"ru-RU";
+return d.toLocaleDateString(locale,{day:"2-digit",month:"2-digit",year:"numeric"});
+}
+
 function startCountdownTimers(){
 setInterval(()=>{
 document.querySelectorAll(".duel-time[data-expires]").forEach(el=>{
@@ -2274,7 +2295,24 @@ await db.from("direct_messages").update({ is_read: true }).eq("id", msg.id);
 
 const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 150;
 
-container.innerHTML=messages.map(m=>{
+let lastDayKey = "";
+const htmlParts = [];
+
+for(const m of messages){
+const d = new Date(m.created_at);
+const validDate = !Number.isNaN(d.getTime());
+const dayKey = validDate ? `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}` : "";
+
+if(dayKey && dayKey !== lastDayKey){
+lastDayKey = dayKey;
+htmlParts.push(`
+<div style="text-align:center;margin:12px 0 10px;">
+  <span style="display:inline-block;background:#f1f5f9;color:#64748b;font-size:11px;font-weight:bold;padding:4px 12px;border-radius:12px;border:1px solid #e2e8f0;">
+    ${esc(formatDayDivider(m.created_at))}
+  </span>
+</div>`);
+}
+
 const isMe=m.sender_id===currentUser.id;
 let content = esc(m.text);
 if(m.is_media || m.text?.startsWith("http")){
@@ -2292,16 +2330,19 @@ if(m.is_media || m.text?.startsWith("http")){
 
 const msgId = m.id;
 const isMediaFlag = m.is_media || m.text?.startsWith("http");
+const timeText = validDate ? d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
 
-return `<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};position:relative;" data-msg-id="${msgId}">
+htmlParts.push(`<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};position:relative;" data-msg-id="${msgId}">
 <div class="msg-bubble" data-msg-id="${msgId}" data-raw-text="${esc(m.text)}" data-isme="${isMe}" data-ismedia="${Boolean(isMediaFlag)}" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;user-select:none;">
 ${content}
 </div>
 <div style="font-size:11px;color:#64748b;margin-top:2px;display:flex;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
-<span>${new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+<span>${timeText}</span>
 </div>
-</div>`;
-}).join("");
+</div>`);
+}
+
+container.innerHTML=htmlParts.join("");
 
 if (isAtBottom) {
     container.scrollTop = container.scrollHeight;
