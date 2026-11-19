@@ -25,6 +25,10 @@ button{cursor:pointer}
 @keyframes spin{to{transform:rotate(360deg)}}
 #startupScreen.hide{opacity:0;visibility:hidden;pointer-events:none;transition:.2s}
 
+#arenaToastContainer{position:fixed;top:calc(16px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(92vw,420px);z-index:100002;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.arena-toast{background:#172033;color:#fff;padding:12px 16px;border-radius:14px;font-size:14px;font-weight:bold;text-align:center;box-shadow:0 10px 25px rgba(15,23,42,0.25);opacity:0;transform:translateY(-10px);transition:opacity .22s ease,transform .22s ease}
+.arena-toast.show{opacity:1;transform:translateY(0)}
+
 #ptrIndicator{position:absolute;top:-50px;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:center;transition:transform 0.2s;z-index:30}
 .ptr-spinner{width:24px;height:24px;border:3px solid #dbeafe;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite}
 
@@ -237,6 +241,8 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </head>
 
 <body>
+
+<div id="arenaToastContainer"></div>
 
 <div id="startupScreen">
 <div class="startup-box">
@@ -671,6 +677,26 @@ let realtimeChannel=null;
 let presenceInterval=null;
 
 const $=id=>document.getElementById(id);
+
+function showToast(message, duration = 2400){
+if(!message) return;
+const container = $("arenaToastContainer");
+if(!container) return;
+
+const toast = document.createElement("div");
+toast.className = "arena-toast";
+toast.textContent = String(message);
+container.appendChild(toast);
+
+requestAnimationFrame(() => {
+toast.classList.add("show");
+});
+
+setTimeout(() => {
+toast.classList.remove("show");
+setTimeout(() => toast.remove(), 240);
+}, duration);
+}
 
 const T={
 ru:{
@@ -1619,7 +1645,7 @@ if(error) throw error;
 
 isRecoveryMode = false;
 closeModal("resetPasswordModal");
-alert(t("passwordResetSuccess"));
+showToast(t("passwordResetSuccess"));
 }catch(e){
 status.innerText=authError(e);
 }finally{
@@ -1633,9 +1659,9 @@ try{
 const { error } = await db.from("profiles").delete().eq("id", currentUser.id);
 if(error) console.warn(error);
 await logout();
-alert("Аккаунт удален.");
+showToast("Аккаунт удален.");
 }catch(e){
-alert(e.message || t("connection"));
+showToast(e.message || t("connection"));
 }
 }, t("delete"));
 }
@@ -1791,7 +1817,7 @@ await loadProfile();
 }catch(e){}
 
 if(currentProfile?.is_blocked){
-alert(t("blockedAccount"));
+showToast(t("blockedAccount"));
 await db.auth.signOut();
 currentUser=null;
 currentProfile=null;
@@ -1961,7 +1987,7 @@ try {
 } catch (err) {
   textarea.remove();
 }
-prompt("Скопируйте ссылку на дуэль:", url);
+showToast(url);
 }
 
 async function openSharedDuel(){
@@ -2004,7 +2030,7 @@ $("editModal").classList.add("show");
 function previewAvatar(event){
 const file=event.target.files?.[0];
 if(!file)return;
-if(file.size>100*1024*1024){ alert(t("maxPhoto")); event.target.value=""; return; }
+if(file.size>100*1024*1024){ showToast(t("maxPhoto")); event.target.value=""; return; }
 if(!file.type.startsWith("image/"))return;
 selectedAvatar=file;
 const reader=new FileReader();
@@ -2200,7 +2226,7 @@ $("challengeModal").classList.add("show");
 function previewChallengeMedia(event){
 const file = event.target.files?.[0];
 if(!file) return;
-if(file.size > 100*1024*1024){ alert(t("maxPhoto")); event.target.value=""; return; }
+if(file.size > 100*1024*1024){ showToast(t("maxPhoto")); event.target.value=""; return; }
 
 challengeFile = file;
 const reader = new FileReader();
@@ -2246,7 +2272,7 @@ if(r.error) throw r.error;
 
 closeModal("challengeModal");
 await loadDuels();
-alert("Вы успешно приняли вызов! Дуэль запущена ⚔️");
+showToast("Вы успешно приняли вызов! Дуэль запущена ⚔️");
 }catch(e){
 status.innerText = e.message || t("connection");
 }
@@ -2255,7 +2281,7 @@ status.innerText = e.message || t("connection");
 async function sendDirectMedia(event){
 const file = event.target.files?.[0];
 if(!file || !activeChatUserId || !currentUser) return;
-if(file.size > 100*1024*1024){ alert(t("maxPhoto")); return; }
+if(file.size > 100*1024*1024){ showToast(t("maxPhoto")); return; }
 
 try{
 const folder = file.type.startsWith("video/") ? "videos" : "duels";
@@ -2272,7 +2298,7 @@ if(error) throw error;
 
 await loadDirectMessages();
 }catch(e){
-alert(e.message || t("connection"));
+showToast(e.message || t("connection"));
 }
 }
 
@@ -2448,7 +2474,7 @@ const { error } = await db.from("direct_messages").delete().eq("id", messageId);
 if(error) throw error;
 await loadDirectMessages();
 }catch(e){
-alert(e.message || t("connection"));
+showToast(e.message || t("connection"));
 }
 }, t("delete"));
 }
@@ -2467,7 +2493,7 @@ if($("messagesScreen").classList.contains("active")){
     await showMessagesScreen();
 }
 }catch(e){
-alert(e.message || t("connection"));
+showToast(e.message || t("connection"));
 }
 }, t("delete"));
 }
@@ -2522,9 +2548,9 @@ is_read: false
 if(error) throw error;
 closeModal("forwardSelectModal");
 forwardingMessageData = null;
-alert("Сообщение успешно переслано! 📨");
+showToast("Сообщение успешно переслано! 📨");
 }catch(e){
-alert(e.message || t("connection"));
+showToast(e.message || t("connection"));
 }
 }
 
@@ -2706,7 +2732,7 @@ if(!input) return;
 
 const text=input.value.trim();
 if(!text)return;
-if(!currentUser){ alert("Требуется авторизация"); return; }
+if(!currentUser){ showToast("Требуется авторизация"); return; }
 
 try{
 if(editingCommentId){
@@ -2721,7 +2747,7 @@ if(editingCommentId){
 input.value="";
 await loadComments(card.querySelector(".duel-chat-box"), sId);
 }catch(e){
-alert(e.message||t("connection"));
+showToast(e.message||t("connection"));
 }
 }
 
@@ -2735,7 +2761,7 @@ if(String(editingCommentId) === String(commentId)) editingCommentId = null;
 const card = document.querySelector(`[data-chat-id="${CSS.escape(String(duelId))}"]`)?.closest(".duel");
 if(card) await loadComments(card.querySelector(".duel-chat-box"), duelId);
 }catch(e){
-alert(e.message || t("connection"));
+showToast(e.message || t("connection"));
 }
 }, t("delete"));
 }
@@ -2904,7 +2930,7 @@ if(error) throw error;
 }
 await loadDirectMessages();
 }catch(e){
-alert(e.message||t("connection"));
+showToast(e.message||t("connection"));
 }
 }
 
@@ -3028,7 +3054,7 @@ throw insert.error;
 }
 await updateDuelVoteCard(card,duelId,choice);
 }catch(e){
-alert(e.message||t("connection"));
+showToast(e.message||t("connection"));
 buttons.forEach(b=>b.disabled=false);
 }
 }
@@ -3081,7 +3107,7 @@ await loadDuels();
 await updateStats();
 if($("profileScreen")?.classList.contains("active")) await loadMyDuels();
 }catch(e){
-alert(e.message||t("connection"));
+showToast(e.message||t("connection"));
 }
 }, t("delete"));
 }
@@ -3110,7 +3136,7 @@ $("duelModal").classList.add("show");
 function previewDuelMedia(side,event,type){
 const file=event.target.files?.[0];
 if(!file)return;
-if(file.size>100*1024*1024){ alert(t("maxPhoto")); event.target.value=""; return; }
+if(file.size>100*1024*1024){ showToast(t("maxPhoto")); event.target.value=""; return; }
 
 const reader=new FileReader();
 reader.onload=e=>{
@@ -3142,7 +3168,7 @@ reader.readAsDataURL(file);
 function previewChallengeCreateMedia(event){
 const file=event.target.files?.[0];
 if(!file)return;
-if(file.size>100*1024*1024){ alert(t("maxPhoto")); event.target.value=""; return; }
+if(file.size>100*1024*1024){ showToast(t("maxPhoto")); event.target.value=""; return; }
 challengeCreateFile=file;
 const reader=new FileReader();
 reader.onload=e=>{
@@ -3243,7 +3269,7 @@ closeModal("duelModal");
 await loadDuels();
 await updateStats();
 if($("profileScreen").classList.contains("active")) await loadMyDuels();
-alert(t("created"));
+showToast(t("created"));
 }catch(e){
 status.innerText=e.message||t("connection");
 }
@@ -3332,7 +3358,7 @@ openedOtherUserId=String(id);
 showScreen("otherProfileScreen");
 
 const r=await db.from("profiles").select("*").eq("id",String(id)).maybeSingle();
-if(!r.data){ alert("Профиль не найден."); return; }
+if(!r.data){ showToast("Профиль не найден."); return; }
 
 const p=r.data;
 $("otherName").innerText=resolveDisplayName(p, id);
@@ -3377,7 +3403,7 @@ const r=await db.from("follows").select("id").eq("follower_id",currentUser.id).e
 let op;
 if(r.data){ op=await db.from("follows").delete().eq("id",r.data.id); }
 else{ op=await db.from("follows").insert({ follower_id:currentUser.id, following_id:String(id) }); }
-if(op.error){ alert(op.error.message); return; }
+if(op.error){ showToast(op.error.message); return; }
 
 await updateFollowButton(String(id));
 $("otherFollowersCount").innerText=await count("follows","following_id",String(id));
@@ -3415,7 +3441,7 @@ currentProfile=r.data;
 await db.auth.updateUser({ data:{ full_name:name, username:username||null } });
 await loadProfile();
 closeModal("editModal");
-alert("Профиль успешно сохранен!");
+showToast("Профиль успешно сохранен!");
 }catch(e){
 status.innerText=e.message||t("connection");
 }
@@ -3438,7 +3464,7 @@ try{ box.appendChild(await duelCard(duel)); }catch(e){}
 
 async function openAdminPanel(){
 const isAdminUser = (currentProfile?.is_admin===true)||(currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
-if(!isAdminUser){ alert("Нет прав администратора"); return; }
+if(!isAdminUser){ showToast("Нет прав администратора"); return; }
 $("adminPanel").classList.toggle("hidden");
 if(!$("adminPanel").classList.contains("hidden")) await loadAdminUsers();
 }
@@ -3480,7 +3506,7 @@ const actionButtonText = blocked ? t("unblockAction") : t("blockAction");
 
 showCustomConfirm(question, async () => {
 const r=await db.rpc("admin_set_blocked",{ target_user_id:id, blocked_value:!blocked });
-if(r.error){ alert(r.error.message); return; }
+if(r.error){ showToast(r.error.message); return; }
 await loadAdminUsers();
 }, actionButtonText);
 }
