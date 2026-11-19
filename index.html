@@ -655,6 +655,7 @@ let currentProfile=null;
 let currentCategory="all";
 let language=localStorage.getItem("arena_language")||"ru";
 let isDuelsLoading=false;
+let duelsLoadPromise=null;
 let isRecoveryMode=false;
 
 let selectedImageA=null;
@@ -1320,6 +1321,26 @@ badge.classList.remove("show");
 }catch(e){}
 }
 
+async function prependDuelIfMissing(duel){
+if(!duel || !duel.id) return;
+const feed = $("duelsFeed");
+if(!feed) return;
+if(!$("homeScreen").classList.contains("active")) return;
+if(currentCategory !== "all" && currentCategory !== duel.category) return;
+
+if(isDuelsLoading && duelsLoadPromise){
+try{ await duelsLoadPromise; }catch(e){}
+}
+
+const duelId = String(duel.id);
+if(feed.querySelector(`[data-duel-id="${CSS.escape(duelId)}"]`)) return;
+
+feed.querySelectorAll(".empty, .status").forEach(el => el.remove());
+const card = await duelCard(duel);
+if(feed.querySelector(`[data-duel-id="${CSS.escape(duelId)}"]`)) return;
+feed.prepend(card);
+}
+
 function setupRealtimeSubscriptions(){
 if(!db) return;
 if(realtimeChannel) db.removeChannel(realtimeChannel);
@@ -1346,6 +1367,18 @@ realtimeChannel = db.channel("arena_realtime_channel")
     }
 })
 .on("postgres_changes", { event: "*", schema: "public", table: "duels" }, async (payload) => {
+    if(payload.eventType === "DELETE"){
+        const deletedId = payload.old?.id;
+        if(!deletedId) return;
+        document.querySelectorAll(`[data-duel-id="${CSS.escape(String(deletedId))}"]`).forEach(el => el.remove());
+        return;
+    }
+    if(payload.eventType === "INSERT"){
+        const newDuel = payload.new;
+        if(!newDuel) return;
+        await prependDuelIfMissing(newDuel);
+        return;
+    }
     const updated = payload.new;
     if(!updated) return;
     const cards = document.querySelectorAll(`[data-duel-id="${CSS.escape(String(updated.id))}"]`);
@@ -1354,22 +1387,6 @@ realtimeChannel = db.channel("arena_realtime_channel")
         if(parent){
             const newCard = await duelCard(updated);
             parent.replaceChild(newCard, card);
-        }
-    }
-})
-.on("postgres_changes", { event: "DELETE", schema: "public", table: "duels" }, (payload) => {
-    const deletedId = payload.old?.id;
-    if(!deletedId) return;
-    document.querySelectorAll(`[data-duel-id="${CSS.escape(String(deletedId))}"]`).forEach(el => el.remove());
-})
-.on("postgres_changes", { event: "INSERT", schema: "public", table: "duels" }, async (payload) => {
-    const newDuel = payload.new;
-    if(!newDuel) return;
-    if($("homeScreen").classList.contains("active") && (currentCategory === "all" || currentCategory === newDuel.category)) {
-        const feed = $("duelsFeed");
-        if(feed) {
-            const card = await duelCard(newDuel);
-            feed.prepend(card);
         }
     }
 })
@@ -2010,6 +2027,7 @@ if(r.error||!r.data)return;
 
 showScreen("homeScreen");
 const card=await duelCard(r.data);
+if(feed.querySelector(`[data-duel-id="${CSS.escape(String(duelId))}"]`)) return;
 feed.prepend(card);
 card.scrollIntoView({ behavior:"smooth", block:"center" });
 }catch(e){}
@@ -2982,13 +3000,16 @@ content.innerHTML=`<div class="empty">Ошибка загрузки</div>`;
 }
 
 async function loadDuels(){
-if(isDuelsLoading)return;
+if(isDuelsLoading && duelsLoadPromise){
+    return duelsLoadPromise;
+}
 isDuelsLoading=true;
 const box=$("duelsFeed");
 if(!box){ isDuelsLoading=false; return; }
 
 box.innerHTML=`<div class="status">${esc(t("loading"))} ⏳</div>`;
 
+duelsLoadPromise=(async ()=>{
 try{
 let q=db.from("duels").select("*").order("created_at",{ascending:false}).limit(50);
 if(currentCategory!=="all") q=q.eq("category",currentCategory);
@@ -3004,10 +3025,14 @@ return;
 
 const seenIds = new Set();
 for(const duel of r.data){
-if(seenIds.has(duel.id)) continue;
-seenIds.add(duel.id);
+const dId = String(duel.id);
+if(seenIds.has(dId) || box.querySelector(`[data-duel-id="${CSS.escape(dId)}"]`)) continue;
+seenIds.add(dId);
 try{
-box.appendChild(await duelCard(duel));
+const card = await duelCard(duel);
+if(!box.querySelector(`[data-duel-id="${CSS.escape(dId)}"]`)){
+box.appendChild(card);
+}
 }catch(e){}
 }
 await openSharedDuel();
@@ -3015,7 +3040,11 @@ await openSharedDuel();
 box.innerHTML=`<div class="empty">${esc(e.message||"Ошибка загрузки")}</div>`;
 }finally{
 isDuelsLoading=false;
+duelsLoadPromise=null;
 }
+})();
+
+return duelsLoadPromise;
 }
 
 function selectCategory(category,button){
@@ -3262,11 +3291,15 @@ votes_a:0,
 votes_b:0
 };
 
-const r=await db.from("duels").insert(payload);
+const r=await db.from("duels").insert(payload).select("*").maybeSingle();
 if(r.error)throw r.error;
 
 closeModal("duelModal");
+if(r.data){
+await prependDuelIfMissing(r.data);
+}else{
 await loadDuels();
+}
 await updateStats();
 if($("profileScreen").classList.contains("active")) await loadMyDuels();
 showToast(t("created"));
