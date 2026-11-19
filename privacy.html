@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ARENA — Privacy Policy</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;width:100%;overflow-x:hidden}
+body{background:#eef5ff;font-family:Arial,sans-serif;color:#172033;line-height:1.55;-webkit-tap-highlight-color:transparent}
+button,select{font:inherit}
+button{cursor:pointer}
+
+.wrap{max-width:650px;margin:0 auto;min-height:100vh;background:#fff;box-shadow:0 0 25px #1e40af1a;padding-bottom:36px}
+
+header{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid #dbe4f0;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{color:#2563eb;font-weight:900;font-size:19px;text-decoration:none;display:inline-flex;flex-direction:column;line-height:1.15}
+.brand small{color:#64748b;letter-spacing:2px;font-size:9px}
+
+.lang-switch{display:flex;gap:6px}
+.lang-btn{border:1px solid #dbe4f0;background:#f8fafc;color:#475569;padding:6px 10px;border-radius:10px;font-size:12px;font-weight:bold}
+.lang-btn.active{background:#2563eb;border-color:#2563eb;color:#fff}
+
+.content{padding:20px 16px}
+h1{font-size:23px;font-weight:900;color:#172033;margin-bottom:8px}
+.meta{background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:12px 14px;margin:14px 0 18px;font-size:13px;color:#334155}
+.meta p{margin:4px 0}
+
+h2{font-size:17px;font-weight:bold;color:#2563eb;margin:20px 0 8px}
+p{font-size:14px;color:#334155;margin-bottom:10px}
+ul{padding-left:20px;margin-bottom:12px}
+li{font-size:14px;color:#334155;margin-bottom:6px}
+code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-size:12px;color:#0f172a}
+
+.back-btn{display:block;width:100%;margin-top:22px;padding:13px;border:0;border-radius:12px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;font-weight:bold;text-align:center;text-decoration:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header>
+<a class="brand" href="./">⚔️ ARENA<small>WHO BEATS WHO?</small></a>
+<div class="lang-switch">
+<button type="button" class="lang-btn" data-lang="ru" onclick="setLang('ru')">🇷🇺 RU</button>
+<button type="button" class="lang-btn" data-lang="ro" onclick="setLang('ro')">🇷🇴 RO</button>
+<button type="button" class="lang-btn" data-lang="en" onclick="setLang('en')">🇬🇧 EN</button>
+</div>
+</header>
+
+<main id="policyContent" class="content"></main>
+</div>
+
+<script>
+"use strict";
+
+const POLICY_TEXT = {
+ru: `
+<h1>Политика конфиденциальности приложения ARENA</h1>
+<div class="meta">
+<p><strong>Дата последнего обновления:</strong> 19 ноября 2026 года</p>
+<p><strong>Приложение / Сервис:</strong> ARENA — Who Beats Who?</p>
+<p><strong>Адрес сервиса:</strong> <code>https://sergheifsh.github.io</code></p>
+<p><strong>Контактный email:</strong> <code>feederfsh@gmail.com</code></p>
+</div>
+
+<p>Настоящая Политика конфиденциальности описывает, какие данные собираются, используются и хранятся при использовании веб-приложения и мобильного клиента <strong>ARENA</strong> («Сервис»).</p>
+
+<h2>1. Какие данные мы обрабатываем</h2>
+<p>При регистрации, входе и использовании Сервиса могут обрабатываться следующие данные:</p>
+<ul>
+<li><strong>Данные учётной записи:</strong> адрес электронной почты, имя, имя пользователя (<code>username</code>), биография («О себе»), аватар, а также учётные данные и токены аутентификации.</li>
+<li><strong>Пользовательский контент:</strong> создаваемые дуэли, названия вариантов, загруженные фото и видео (включая медиафайлы для «вызовов» и вложения в личных чатах), комментарии в чатах дуэлей и сообщения в личных переписках.</li>
+<li><strong>Активность и взаимодействия:</strong> голоса в дуэлях, подписки на других участников, отметки о прочтении сообщений, время последней активности (<code>last_seen</code>) и выбранный язык интерфейса (<code>ru</code>, <code>ro</code>, <code>en</code>).</li>
+<li><strong>Технические данные и локальное хранилище:</strong> данные сессии, последний открытый экран и языковые настройки, сохраняемые локально в <code>localStorage</code> браузера или WebView, а также технические идентификаторы для пуш-уведомлений (если подключён мост уведомлений, например через OneSignal).</li>
+</ul>
+
+<h2>2. Цели обработки данных</h2>
+<p>Мы используем данные для того, чтобы:</p>
+<ul>
+<li>создавать и поддерживать аккаунты, выполнять вход, выход и восстановление пароля через почту;</li>
+<li>показывать ленту дуэлей, учитывать голоса, формировать рейтинг «Топ арены» и обеспечивать поиск участников;</li>
+<li>обеспечивать работу чатов дуэлей и личных сообщений;</li>
+<li>поддерживать работу профилей, подписок и выбранного языка;</li>
+<li>обеспечивать безопасность, выявлять нарушения и применять меры модерации (включая блокировку нарушителей и удаление запрещённого контента).</li>
+</ul>
+
+<h2>3. Хранение данных и сторонние сервисы</h2>
+<ul>
+<li>Для хранения данных профилей, дуэлей, голосов, комментариев, личных сообщений, а также для авторизации и хранения медиафайлов используется платформа <strong>Supabase</strong>.</li>
+<li><strong>Публичность контента:</strong> дуэли, профили участников, аватары, голоса, статистика и комментарии в чатах дуэлей видны другим пользователям Сервиса. Личные сообщения предназначены для участников диалога, но могут проверяться при жалобах и нарушениях правил.</li>
+<li><strong>Локальное хранение:</strong> часть технических данных (например, токен сессии и выбранный язык) сохраняется на устройстве в локальном хранилище.</li>
+</ul>
+
+<h2>4. Права пользователя и удаление данных</h2>
+<p>Пользователь может:</p>
+<ul>
+<li>редактировать данные профиля, аватар и пароль в интерфейсе приложения;</li>
+<li>удалять созданные им дуэли, сообщения и комментарии в рамках доступных функций;</li>
+<li><strong>удалить аккаунт:</strong> в профиле доступна кнопка удаления аккаунта, а также можно направить запрос на удаление аккаунта и данных на <code>feederfsh@gmail.com</code>.</li>
+</ul>
+
+<h2>5. Безопасность и модерация</h2>
+<p>Мы принимаем разумные меры для защиты данных, однако ни один способ передачи или хранения данных в интернете не гарантирует абсолютной безопасности. Запрещена публикация материалов, нарушающих закон, авторские права или права третьих лиц, а также спам и оскорбления. Нарушители и запрещённый контент могут быть заблокированы или удалены.</p>
+
+<h2>6. Изменения политики и контакты</h2>
+<p>Мы можем обновлять эту Политику; актуальная версия размещается по адресу Сервиса (<code>https://sergheifsh.github.io</code>). По вопросам конфиденциальности и удаления данных обращайтесь: <strong><code>feederfsh@gmail.com</code></strong>.</p>
+
+<a class="back-btn" href="./">← Вернуться в ARENA</a>
+`,
+ro: `
+<h1>Politica de confidențialitate a aplicației ARENA</h1>
+<div class="meta">
+<p><strong>Data ultimei actualizări:</strong> 19 noiembrie 2026</p>
+<p><strong>Aplicație / Serviciu:</strong> ARENA — Who Beats Who?</p>
+<p><strong>Adresa serviciului:</strong> <code>https://sergheifsh.github.io</code></p>
+<p><strong>Email de contact:</strong> <code>feederfsh@gmail.com</code></p>
+</div>
+
+<p>Prezenta Politică de confidențialitate descrie ce date sunt colectate, utilizate și stocate la folosirea aplicației web și a clientului mobil <strong>ARENA</strong> („Serviciul”).</p>
+
+<h2>1. Ce date prelucrăm</h2>
+<p>La înregistrare, autentificare și utilizarea Serviciului pot fi prelucrate următoarele date:</p>
+<ul>
+<li><strong>Datele contului:</strong> adresa de e-mail, numele, numele de utilizator (<code>username</code>), descrierea profilului („Despre mine”), avatarul, precum și datele și tokenurile de autentificare.</li>
+<li><strong>Conținutul generat de utilizatori:</strong> duelurile create, denumirile variantelor, fotografiile și videoclipurile încărcate (inclusiv fișierele media pentru provocări și atașamentele din chat-urile private), comentariile din chat-ul duelurilor și mesajele private.</li>
+<li><strong>Activitate și interacțiuni:</strong> voturile din dueluri, urmăririle altor participanți, marcajele de citire a mesajelor, ultima activitate (<code>last_seen</code>) și limba selectată a interfeței (<code>ru</code>, <code>ro</code>, <code>en</code>).</li>
+<li><strong>Date tehnice și stocare locală:</strong> datele sesiunii, ultimul ecran deschis și setările de limbă păstrate local în <code>localStorage</code> (în browser sau WebView), precum și identificatori tehnici pentru notificări push (dacă este conectată o punte de notificări, de exemplu prin OneSignal).</li>
+</ul>
+
+<h2>2. Scopul prelucrării datelor</h2>
+<p>Utilizăm datele pentru a:</p>
+<ul>
+<li>crea și menține conturile, a realiza autentificarea, deconectarea și resetarea parolei prin e-mail;</li>
+<li>afișa fluxul de dueluri, a contabiliza voturile, a forma clasamentul „Top Arena” și a asigura căutarea participanților;</li>
+<li>asigura funcționarea chat-ului duelurilor și a mesajelor private;</li>
+<li>susține profilurile, urmăririle și limba aleasă;</li>
+<li>asigura securitatea, a identifica abuzurile și a aplica măsuri de moderare (inclusiv blocarea conturilor și ștergerea conținutului interzis).</li>
+</ul>
+
+<h2>3. Stocarea datelor și servicii terțe</h2>
+<ul>
+<li>Pentru stocarea datelor de profil, a duelurilor, voturilor, comentariilor, mesajelor private, precum și pentru autentificare și găzduirea fișierelor media este utilizată platforma <strong>Supabase</strong>.</li>
+<li><strong>Caracterul public al conținutului:</strong> duelurile, profilurile participanților, avatarele, voturile, statisticile și comentariile din chat-ul duelurilor sunt vizibile altor utilizatori ai Serviciului. Mesajele private sunt destinate participanților la dialog, dar pot fi analizate în caz de sesizări și încălcări ale regulilor.</li>
+<li><strong>Stocare locală:</strong> o parte din datele tehnice (precum tokenul sesiunii și limba selectată) sunt păstrate pe dispozitiv în stocarea locală.</li>
+</ul>
+
+<h2>4. Drepturile utilizatorului și ștergerea datelor</h2>
+<p>Utilizatorul are dreptul să:</p>
+<ul>
+<li>modifice datele profilului, avatarul și parola din interfața aplicației;</li>
+<li>șteargă duelurile, mesajele și comentariile create de el în limitele funcționalităților disponibile;</li>
+<li><strong>șteargă contul:</strong> în profil există butonul de ștergere a contului, iar solicitările de ștergere a contului și a datelor pot fi trimise și la <code>feederfsh@gmail.com</code>.</li>
+</ul>
+
+<h2>5. Securitate și moderare</h2>
+<p>Aplicăm măsuri rezonabile pentru protejarea datelor, însă nicio metodă de transmitere sau stocare pe internet nu garantează securitate absolută. Este interzisă publicarea materialelor care încalcă legea, drepturile de autor sau drepturile terților, precum și spamul și jignirile. Conturile și conținutul care încalcă aceste reguli pot fi blocate sau șterse.</p>
+
+<h2>6. Modificări ale politicii și contacte</h2>
+<p>Putem actualiza această Politică; versiunea curentă este publicată la adresa Serviciului (<code>https://sergheifsh.github.io</code>). Pentru întrebări privind confidențialitatea și ștergerea datelor, scrieți la: <strong><code>feederfsh@gmail.com</code></strong>.</p>
+
+<a class="back-btn" href="./">← Înapoi la ARENA</a>
+`,
+en: `
+<h1>Privacy Policy for ARENA</h1>
+<div class="meta">
+<p><strong>Last updated:</strong> November 19, 2026</p>
+<p><strong>App / Service:</strong> ARENA — Who Beats Who?</p>
+<p><strong>Service URL:</strong> <code>https://sergheifsh.github.io</code></p>
+<p><strong>Contact email:</strong> <code>feederfsh@gmail.com</code></p>
+</div>
+
+<p>This Privacy Policy describes how data is collected, used, and stored when using the <strong>ARENA</strong> web application and mobile client (the “Service”).</p>
+
+<h2>1. Data We Process</h2>
+<p>When registering, signing in, and using the Service, we may process the following data:</p>
+<ul>
+<li><strong>Account data:</strong> email address, name, username (<code>username</code>), profile bio (“About me”), avatar, as well as authentication credentials and session tokens.</li>
+<li><strong>User content:</strong> created duels, option titles, uploaded photos and videos (including media for open challenges and attachments in direct chats), comments in duel chats, and direct messages.</li>
+<li><strong>Activity and interactions:</strong> duel votes, following other users, message read status, last seen timestamp (<code>last_seen</code>), and selected interface language (<code>ru</code>, <code>ro</code>, <code>en</code>).</li>
+<li><strong>Technical data and local storage:</strong> session data, last opened screen, and language preferences stored locally in <code>localStorage</code> (in a browser or WebView), as well as technical identifiers for push notifications (if a notification bridge such as OneSignal is connected).</li>
+</ul>
+
+<h2>2. How We Use Data</h2>
+<p>We use data to:</p>
+<ul>
+<li>create and maintain accounts, handle sign-in, sign-out, and email password recovery;</li>
+<li>display the duels feed, count votes, build the “Arena Top” leaderboard, and provide user search;</li>
+<li>power duel chats and direct messaging between users;</li>
+<li>support profiles, follows, and language preferences;</li>
+<li>maintain security, detect abuse, and enforce moderation (including blocking violators and removing prohibited content).</li>
+</ul>
+
+<h2>3. Data Storage and Third-Party Services</h2>
+<ul>
+<li><strong>Supabase</strong> is used to store profile data, duels, votes, comments, direct messages, as well as handle authentication and host uploaded media files.</li>
+<li><strong>Content visibility:</strong> duels, user profiles, avatars, votes, stats, and duel chat comments are visible to other users of the Service. Direct messages are intended for participants in the conversation, though they may be reviewed in cases of reports and rule violations.</li>
+<li><strong>Local storage:</strong> certain technical data (such as the session token and selected language) is stored on the user’s device in local storage.</li>
+</ul>
+
+<h2>4. User Rights and Data Deletion</h2>
+<p>Users can:</p>
+<ul>
+<li>edit profile details, avatar, and password within the app interface;</li>
+<li>delete duels, messages, and comments they created within available features;</li>
+<li><strong>delete their account:</strong> an account deletion button is available in the profile, or users can request account and data deletion by emailing <code>feederfsh@gmail.com</code>.</li>
+</ul>
+
+<h2>5. Security and Moderation</h2>
+<p>We take reasonable measures to protect data, although no method of internet transmission or storage is completely secure. Posting content that violates the law, copyright, or third-party rights, as well as spam and harassment, is prohibited. Accounts and content violating these rules may be blocked or removed.</p>
+
+<h2>6. Policy Updates and Contact</h2>
+<p>We may update this Policy from time to time; the current version is posted at the Service URL (<code>https://sergheifsh.github.io</code>). For questions about privacy and data deletion, contact: <strong><code>feederfsh@gmail.com</code></strong>.</p>
+
+<a class="back-btn" href="./">← Back to ARENA</a>
+`
+};
+
+function setLang(lang) {
+  const safeLang = ["ru", "ro", "en"].includes(lang) ? lang : "ru";
+  localStorage.setItem("arena_language", safeLang);
+  document.documentElement.lang = safeLang;
+  document.getElementById("policyContent").innerHTML = POLICY_TEXT[safeLang];
+  document.querySelectorAll(".lang-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.lang === safeLang);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("arena_language") || "ru";
+  setLang(saved);
+});
+</script>
+</body>
+</html>
