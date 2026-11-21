@@ -195,8 +195,8 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
     width: 100% !important;
     max-width: 650px !important;
     margin: 0 auto !important;
-    height: 50vh !important;
-    max-height: 50vh !important;
+    height: 48vh !important;
+    max-height: 48vh !important;
     overflow-y: auto !important;
     z-index: 96 !important;
     transform: none !important;
@@ -212,8 +212,8 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
     width: 100% !important;
     max-width: 650px !important;
     margin: 0 auto !important;
-    height: 50vh !important;
-    max-height: 50vh !important;
+    height: 52vh !important;
+    max-height: 52vh !important;
     z-index: 95 !important;
     background: #fff !important;
     border-top: 1px solid #dbe4f0 !important;
@@ -221,13 +221,13 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
     box-shadow: 0 -5px 25px rgba(0,0,0,0.15) !important;
     display: flex !important;
     flex-direction: column !important;
-    padding: 12px 14px !important;
+    padding: 12px 14px calc(24px + env(safe-area-inset-bottom)) !important;
 }
 
 .duel-chat-box.split-bottom .comments-list {
     flex: 1 !important;
     overflow-y: auto !important;
-    max-height: calc(50vh - 80px) !important;
+    max-height: calc(52vh - 110px) !important;
 }
 
 @media(max-width:430px){
@@ -400,7 +400,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button onclick="cancelEditMessage()" style="border:0;background:0;color:#dc2626;font-weight:bold;cursor:pointer">✕ Отмена</button>
 </div>
 
-<div style="display:flex;gap:6px;align-items:center;padding-bottom:calc(10px + env(safe-area-inset-bottom));">
+<div style="display:flex;gap:6px;align-items:center;padding-bottom:calc(16px + env(safe-area-inset-bottom));">
 <label style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:10px;cursor:pointer;font-size:16px" title="Прикрепить медиа">📎<input id="chatMediaInput" type="file" accept="image/*,video/*" onchange="sendDirectMedia(event)"></label>
 <input type="text" id="directMessageInput" placeholder="Введите сообщение..." style="flex:1;padding:12px;border:1px solid #cbd5e1;border-radius:10px;outline:0;font-size:14px;" onkeydown="if(event.key==='Enter')sendDirectMessage()">
 <button type="button" onclick="sendDirectMessage()" class="primary" style="width:auto;margin-top:0;padding:12px 18px;" data-i18n="send">Отправить</button>
@@ -461,7 +461,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div class="profile-buttons">
 <button id="otherFollowButton" class="follow-button" type="button"></button>
 <button id="otherMessageButton" type="button" onclick="openChatWithUser(openedOtherUserId, $('otherName').innerText)" style="background:#2563eb;color:#fff;border:0;border-radius:10px;padding:11px;font-weight:bold">💬 Написать</button>
-<button id="otherBackButton" type="button" onclick="showScreen('homeScreen')"></button>
+<button id="otherBackButton" type="button" onclick="navigateBackInApp()"></button>
 </div>
 
 </div>
@@ -534,14 +534,14 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <span id="videoAText">🎥 Видео варианта A</span>
 <input id="duelVideoA" type="file" accept="video/*" onchange="previewDuelMedia('A',event,'video')">
 </label>
-<div id="previewVideoA" class="image-preview"><video id="previewVideoAElement" playsinline></video></div>
+<div id="previewVideoA" class="image-preview"><video id="previewVideoAElement" autoplay muted loop playsinline></video></div>
 
 <input id="duelVideoOptionB" placeholder="Видео вариант B">
 <label class="photo-button">
 <span id="videoBText">🎥 Видео варианта B</span>
 <input id="duelVideoB" type="file" accept="video/*" onchange="previewDuelMedia('B',event,'video')">
 </label>
-<div id="previewVideoB" class="image-preview"><video id="previewVideoBElement" playsinline></video></div>
+<div id="previewVideoB" class="image-preview"><video id="previewVideoBElement" autoplay muted loop playsinline></video></div>
 <div class="media-help" data-i18n="maxPhotoHelp"></div>
 </div>
 
@@ -553,7 +553,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </label>
 <div id="previewChallengeA" class="image-preview">
 <img id="previewChallengeImg" alt="Preview" style="display:none">
-<video id="previewChallengeVid" playsinline style="display:none"></video>
+<video id="previewChallengeVid" autoplay muted loop playsinline style="display:none"></video>
 </div>
 <div class="media-help" data-i18n="challengeCreateHelp">Слот B останется пустым, и любой пользователь сможет принять вызов!</div>
 </div>
@@ -577,7 +577,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </label>
 <div id="challengePreview" class="image-preview">
 <img id="challengePreviewImg" alt="Preview" style="display:none">
-<video id="challengePreviewVid" playsinline style="display:none"></video>
+<video id="challengePreviewVid" autoplay muted loop playsinline style="display:none"></video>
 </div>
 <button class="primary" type="button" onclick="submitChallenge()" data-i18n="confirmChallenge">Отправить свой вариант</button>
 <button class="secondary" type="button" onclick="closeModal('challengeModal')" data-i18n="cancel">Отмена</button>
@@ -676,6 +676,8 @@ let forwardingMessageData = null;
 
 let realtimeChannel=null;
 let presenceInterval=null;
+let screenHistoryStack=["homeScreen"];
+let isHandlingPopState=false;
 
 const $=id=>document.getElementById(id);
 
@@ -1800,6 +1802,7 @@ await db.auth.signOut();
 
 currentUser=null;
 currentProfile=null;
+screenHistoryStack=["homeScreen"];
 localStorage.removeItem("arena_last_screen");
 showAuth();
 showLogin();
@@ -1848,7 +1851,9 @@ $("app").classList.remove("hidden");
 
 setupRealtimeSubscriptions();
 initUserPresence();
-showScreen("homeScreen");
+screenHistoryStack=["homeScreen"];
+showScreen("homeScreen", { skipHistoryPush: true });
+history.replaceState({ arenaRoot: true }, "", window.location.href);
 localStorage.setItem("arena_last_screen", "homeScreen");
 
 Promise.allSettled([loadDuels(), checkUnreadMessages()]);
@@ -1860,10 +1865,109 @@ hideStartup();
 }
 }
 
-function showScreen(id){
+function showScreen(id, options = {}){
+if(!$(id)) return;
+const currentActive = document.querySelector(".screen.active")?.id || "homeScreen";
 document.querySelectorAll(".screen").forEach(e=>e.classList.remove("active"));
-if($(id))$(id).classList.add("active");
+$(id).classList.add("active");
 localStorage.setItem("arena_last_screen",id);
+
+if(!isHandlingPopState){
+    if(id === "homeScreen"){
+        screenHistoryStack = ["homeScreen"];
+    } else if(currentActive !== id){
+        if(screenHistoryStack[screenHistoryStack.length - 1] !== currentActive){
+            screenHistoryStack.push(currentActive);
+        }
+        screenHistoryStack.push(id);
+    }
+    if(!options.skipHistoryPush){
+        history.pushState({ arenaScreen: id }, "", window.location.href);
+    }
+}
+}
+
+function navigateBackInApp(){
+    let closedSomething = false;
+
+    const photoOverlay = document.getElementById('globalPhotoOverlay');
+    if(photoOverlay && photoOverlay.style.visibility === 'visible'){
+        photoOverlay.style.opacity = '0';
+        setTimeout(() => { photoOverlay.style.visibility = 'hidden'; fullImg.src = ''; }, 300);
+        document.body.style.overflow = '';
+        closedSomething = true;
+    }
+
+    const videoOverlay = document.getElementById('globalVideoOverlay');
+    if(videoOverlay && videoOverlay.style.visibility === 'visible'){
+        const v = videoOverlay.querySelector('video');
+        if(v){
+            v.pause();
+            v.src = '';
+        }
+        videoOverlay.style.opacity = '0';
+        setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
+        document.body.style.overflow = '';
+        closedSomething = true;
+    }
+
+    if(closedSomething){
+        return true;
+    }
+
+    document.querySelectorAll('.modal.show').forEach(m => {
+        if(m.id === "resetPasswordModal") return;
+        m.classList.remove('show');
+        closedSomething = true;
+    });
+
+    if(closedSomething){
+        return true;
+    }
+
+    if($("chatBox") && !$("chatBox").classList.contains("hidden")){
+        $("chatBox").classList.add("hidden");
+        activeChatUserId = null;
+        editingMessageId = null;
+        if($("editBanner")) $("editBanner").classList.add("hidden");
+        checkUnreadMessages();
+        return true;
+    }
+
+    document.querySelectorAll(".duel.chat-split-top").forEach(card => {
+        const box = card.querySelector(".duel-chat-box");
+        if(box && !box.classList.contains("hidden")){
+            editingCommentId = null;
+            box.classList.add("hidden");
+            box.classList.remove("split-bottom");
+            card.classList.remove("chat-split-top");
+            closedSomething = true;
+        }
+    });
+
+    if(closedSomething){
+        return true;
+    }
+
+    const activeScreen = document.querySelector(".screen.active")?.id || "homeScreen";
+    if(activeScreen !== "homeScreen"){
+        let targetScreen = "homeScreen";
+        if(screenHistoryStack.length > 1){
+            screenHistoryStack.pop();
+            const candidate = screenHistoryStack[screenHistoryStack.length - 1];
+            if(candidate && candidate !== activeScreen && $(candidate)){
+                targetScreen = candidate;
+            }
+        }
+        if(targetScreen === activeScreen){
+            targetScreen = "homeScreen";
+            screenHistoryStack = ["homeScreen"];
+        }
+        showScreen(targetScreen, { skipHistoryPush: true });
+        return true;
+    }
+
+    return false;
 }
 
 async function loadProfile(){
@@ -1932,6 +2036,7 @@ const contentEl = $("followersModalContent");
 titleEl.innerText = type === 'followers' ? t("followers") : t("following");
 contentEl.innerHTML = `<div class="status">${t("loading")}</div>`;
 modal.classList.add("show");
+history.pushState({ modalOpen: "followersModal" }, "", window.location.href);
 
 try {
 let queryCol = type === 'followers' ? 'following_id' : 'follower_id';
@@ -2043,6 +2148,7 @@ $("avatarPreview").style.display="none";
 $("profileStatus").innerText="";
 selectedAvatar=null;
 $("editModal").classList.add("show");
+history.pushState({ modalOpen: "editModal" }, "", window.location.href);
 }
 
 function previewAvatar(event){
@@ -2128,8 +2234,8 @@ let mediaA="", mediaB="";
 let labelA="", labelB="";
 
 if(video){
-  mediaA=duel.video_a ? `<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_a)}#t=0.001" preload="metadata" playsinline webkit-playsinline></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_a)}"></div></div>` : `<div class="option-placeholder video-placeholder">🎥</div>`;
-  mediaB=duel.video_b ? `<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_b)}#t=0.001" preload="metadata" playsinline webkit-playsinline></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_b)}"></div></div>` : `<div class="option-placeholder video-placeholder">🎥</div>`;
+  mediaA=duel.video_a ? `<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_a)}#t=0.001" autoplay muted loop preload="metadata" playsinline webkit-playsinline></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_a)}"></div></div>` : `<div class="option-placeholder video-placeholder">🎥</div>`;
+  mediaB=duel.video_b ? `<div style="position:relative;width:100%;height:100%;"><video src="${esc(duel.video_b)}#t=0.001" autoplay muted loop preload="metadata" playsinline webkit-playsinline></video><div class="video-overlay-trigger" data-video-src="${esc(duel.video_b)}"></div></div>` : `<div class="option-placeholder video-placeholder">🎥</div>`;
   labelA=duel.video_option_a||duel.option_a||"A";
   labelB=duel.video_option_b||duel.option_b||"B";
 }else{
@@ -2239,6 +2345,7 @@ $("challengePreview").style.display = "none";
 challengeFile = null;
 $("challengeStatus").innerText = "";
 $("challengeModal").classList.add("show");
+history.pushState({ modalOpen: "challengeModal" }, "", window.location.href);
 }
 
 function previewChallengeMedia(event){
@@ -2524,6 +2631,7 @@ const modal = $("forwardSelectModal");
 const listContainer = $("forwardConversationsList");
 listContainer.innerHTML = `<div class="status">${t("loading")}</div>`;
 modal.classList.add("show");
+history.pushState({ modalOpen: "forwardSelectModal" }, "", window.location.href);
 
 try{
 const r = await db.from("direct_messages").select("*").or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order("created_at",{ascending:false});
@@ -2877,56 +2985,12 @@ await loadDirectMessages();
 }
 
 window.addEventListener('popstate', function(e) {
-    let closedSomething = false;
-
-    const photoOverlay = document.getElementById('globalPhotoOverlay');
-    if(photoOverlay && photoOverlay.style.visibility === 'visible'){
-        photoOverlay.style.opacity = '0';
-        setTimeout(() => { photoOverlay.style.visibility = 'hidden'; }, 300);
-        document.body.style.overflow = '';
-        closedSomething = true;
-    }
-    const videoOverlay = document.getElementById('globalVideoOverlay');
-    if(videoOverlay && videoOverlay.style.visibility === 'visible'){
-        const v = videoOverlay.querySelector('video');
-        if(v) v.pause();
-        videoOverlay.style.opacity = '0';
-        setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
-        document.body.style.overflow = '';
-        closedSomething = true;
-    }
-
-    if(!$("chatBox").classList.contains("hidden")){
-        $("chatBox").classList.add("hidden");
-        activeChatUserId = null;
-        checkUnreadMessages();
-        closedSomething = true;
-    }
-
-    document.querySelectorAll(".duel.chat-split-top").forEach(card => {
-        const box = card.querySelector(".duel-chat-box");
-        if(box && !box.classList.contains("hidden")){
-            editingCommentId = null;
-            box.classList.add("hidden");
-            box.classList.remove("split-bottom");
-            card.classList.remove("chat-split-top");
-            closedSomething = true;
-        }
-    });
-
-    document.querySelectorAll('.modal.show').forEach(m => {
-        if(m.id === "resetPasswordModal") return;
-        m.classList.remove('show');
-        closedSomething = true;
-    });
-
-    if(!closedSomething && !$("homeScreen").classList.contains("active")){
-        showScreen("homeScreen");
-        closedSomething = true;
-    }
-
-    if(closedSomething){
-        history.pushState(null, "", window.location.href);
+    isHandlingPopState = true;
+    try{
+        const handled = navigateBackInApp();
+        history.pushState({ arenaGuard: true, handled: Boolean(handled) }, "", window.location.href);
+    } finally {
+        setTimeout(() => { isHandlingPopState = false; }, 0);
     }
 });
 
@@ -2957,6 +3021,7 @@ const duelId=String(id);
 const content=$("votersModalContent");
 content.innerHTML=`<div class="empty">${t("loading")}</div>`;
 $("votersModal").classList.add("show");
+history.pushState({ modalOpen: "votersModal" }, "", window.location.href);
 
 try{
 const r=await db.from("duel_votes").select("choice, user_id").eq("duel_id",duelId);
@@ -3160,6 +3225,7 @@ $("duelDuration").value="48";
 toggleDuelType();
 $("duelStatus").innerText="";
 $("duelModal").classList.add("show");
+history.pushState({ modalOpen: "duelModal" }, "", window.location.href);
 }
 
 function previewDuelMedia(side,event,type){
@@ -3759,6 +3825,7 @@ try{
                 const videoSrc = videoTrig.dataset.videoSrc || videoEl?.src;
                 if (videoSrc) {
                     fullVideo.src = videoSrc.replace('#t=0.001', '');
+                    fullVideo.muted = false;
                     videoOverlay.style.visibility = 'visible';
                     videoOverlay.style.opacity = '1';
                     document.body.style.overflow = 'hidden';
