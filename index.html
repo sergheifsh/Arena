@@ -1808,6 +1808,20 @@ showAuth();
 showLogin();
 }
 
+function ensureBackAnchor(){
+try{
+if(!history.state || !history.state.arenaAnchor){
+history.replaceState({ arenaAnchor: true, screen: "homeScreen" }, "", window.location.href);
+}
+}catch(e){}
+}
+
+function pushBackStep(payload){
+try{
+history.pushState(Object.assign({ arenaStep: true }, payload || {}), "", window.location.href);
+}catch(e){}
+}
+
 async function startApp(){
 try{
 if(!currentUser){
@@ -1853,7 +1867,7 @@ setupRealtimeSubscriptions();
 initUserPresence();
 screenHistoryStack=["homeScreen"];
 showScreen("homeScreen", { skipHistoryPush: true });
-history.replaceState({ arenaRoot: true }, "", window.location.href);
+ensureBackAnchor();
 localStorage.setItem("arena_last_screen", "homeScreen");
 
 Promise.allSettled([loadDuels(), checkUnreadMessages()]);
@@ -1881,21 +1895,25 @@ if(!isHandlingPopState){
         }
         screenHistoryStack.push(id);
     }
-    if(!options.skipHistoryPush){
-        history.pushState({ arenaScreen: id }, "", window.location.href);
+    if(!options.skipHistoryPush && id !== "homeScreen"){
+        pushBackStep({ arenaScreen: id });
     }
 }
 }
 
 function navigateBackInApp(){
-    let closedSomething = false;
+    document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
 
     const photoOverlay = document.getElementById('globalPhotoOverlay');
     if(photoOverlay && photoOverlay.style.visibility === 'visible'){
+        const imgEl = photoOverlay.querySelector('img');
         photoOverlay.style.opacity = '0';
-        setTimeout(() => { photoOverlay.style.visibility = 'hidden'; fullImg.src = ''; }, 300);
+        setTimeout(() => {
+            photoOverlay.style.visibility = 'hidden';
+            if(imgEl) imgEl.src = '';
+        }, 300);
         document.body.style.overflow = '';
-        closedSomething = true;
+        return true;
     }
 
     const videoOverlay = document.getElementById('globalVideoOverlay');
@@ -1908,20 +1926,13 @@ function navigateBackInApp(){
         videoOverlay.style.opacity = '0';
         setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
         document.body.style.overflow = '';
-        closedSomething = true;
-    }
-
-    if(closedSomething){
         return true;
     }
 
-    document.querySelectorAll('.modal.show').forEach(m => {
-        if(m.id === "resetPasswordModal") return;
-        m.classList.remove('show');
-        closedSomething = true;
-    });
-
-    if(closedSomething){
+    const openModals = Array.from(document.querySelectorAll('.modal.show')).filter(m => m.id !== "resetPasswordModal");
+    if(openModals.length > 0){
+        const topModal = openModals[openModals.length - 1];
+        topModal.classList.remove('show');
         return true;
     }
 
@@ -1934,29 +1945,28 @@ function navigateBackInApp(){
         return true;
     }
 
-    document.querySelectorAll(".duel.chat-split-top").forEach(card => {
-        const box = card.querySelector(".duel-chat-box");
-        if(box && !box.classList.contains("hidden")){
-            editingCommentId = null;
-            box.classList.add("hidden");
-            box.classList.remove("split-bottom");
-            card.classList.remove("chat-split-top");
-            closedSomething = true;
-        }
-    });
-
-    if(closedSomething){
+    const openDuelChats = Array.from(document.querySelectorAll(".duel.chat-split-top"));
+    if(openDuelChats.length > 0){
+        openDuelChats.forEach(card => {
+            const box = card.querySelector(".duel-chat-box");
+            if(box && !box.classList.contains("hidden")){
+                editingCommentId = null;
+                box.classList.add("hidden");
+                box.classList.remove("split-bottom");
+                card.classList.remove("chat-split-top");
+            }
+        });
         return true;
     }
 
     const activeScreen = document.querySelector(".screen.active")?.id || "homeScreen";
     if(activeScreen !== "homeScreen"){
         let targetScreen = "homeScreen";
-        if(screenHistoryStack.length > 1){
-            screenHistoryStack.pop();
-            const candidate = screenHistoryStack[screenHistoryStack.length - 1];
-            if(candidate && candidate !== activeScreen && $(candidate)){
-                targetScreen = candidate;
+        while(screenHistoryStack.length > 0){
+            const popped = screenHistoryStack.pop();
+            if(popped && popped !== activeScreen && $(popped)){
+                targetScreen = popped;
+                break;
             }
         }
         if(targetScreen === activeScreen){
@@ -2036,7 +2046,7 @@ const contentEl = $("followersModalContent");
 titleEl.innerText = type === 'followers' ? t("followers") : t("following");
 contentEl.innerHTML = `<div class="status">${t("loading")}</div>`;
 modal.classList.add("show");
-history.pushState({ modalOpen: "followersModal" }, "", window.location.href);
+pushBackStep({ modalOpen: "followersModal" });
 
 try {
 let queryCol = type === 'followers' ? 'following_id' : 'follower_id';
@@ -2148,7 +2158,7 @@ $("avatarPreview").style.display="none";
 $("profileStatus").innerText="";
 selectedAvatar=null;
 $("editModal").classList.add("show");
-history.pushState({ modalOpen: "editModal" }, "", window.location.href);
+pushBackStep({ modalOpen: "editModal" });
 }
 
 function previewAvatar(event){
@@ -2345,7 +2355,7 @@ $("challengePreview").style.display = "none";
 challengeFile = null;
 $("challengeStatus").innerText = "";
 $("challengeModal").classList.add("show");
-history.pushState({ modalOpen: "challengeModal" }, "", window.location.href);
+pushBackStep({ modalOpen: "challengeModal" });
 }
 
 function previewChallengeMedia(event){
@@ -2631,7 +2641,7 @@ const modal = $("forwardSelectModal");
 const listContainer = $("forwardConversationsList");
 listContainer.innerHTML = `<div class="status">${t("loading")}</div>`;
 modal.classList.add("show");
-history.pushState({ modalOpen: "forwardSelectModal" }, "", window.location.href);
+pushBackStep({ modalOpen: "forwardSelectModal" });
 
 try{
 const r = await db.from("direct_messages").select("*").or(`sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`).order("created_at",{ascending:false});
@@ -2694,7 +2704,7 @@ if(isHidden){
     box.classList.add("split-bottom");
     card.classList.add("chat-split-top");
     loadComments(box, duelId);
-    history.pushState({ duelChatOpen: true }, "", window.location.href);
+    pushBackStep({ duelChatOpen: true });
 } else {
     editingCommentId = null;
     box.classList.add("hidden");
@@ -2974,7 +2984,7 @@ async function openChat(userId, userName){
 activeChatUserId=userId;
 $("activeChatUser").innerText=userName;
 $("chatBox").classList.remove("hidden");
-history.pushState({ chatOpen: true }, "", window.location.href);
+pushBackStep({ chatOpen: true });
 
 try{
 await db.from("direct_messages").update({ is_read: true }).eq("sender_id", userId).eq("receiver_id", currentUser.id);
@@ -2985,10 +2995,15 @@ await loadDirectMessages();
 }
 
 window.addEventListener('popstate', function(e) {
+    if(isHandlingPopState) return;
     isHandlingPopState = true;
     try{
         const handled = navigateBackInApp();
-        history.pushState({ arenaGuard: true, handled: Boolean(handled) }, "", window.location.href);
+        if(handled){
+            ensureBackAnchor();
+        } else if(window.AndroidBridge && typeof window.AndroidBridge.onBackPressedHandled === 'function'){
+            window.AndroidBridge.onBackPressedHandled(false);
+        }
     } finally {
         setTimeout(() => { isHandlingPopState = false; }, 0);
     }
@@ -3021,7 +3036,7 @@ const duelId=String(id);
 const content=$("votersModalContent");
 content.innerHTML=`<div class="empty">${t("loading")}</div>`;
 $("votersModal").classList.add("show");
-history.pushState({ modalOpen: "votersModal" }, "", window.location.href);
+pushBackStep({ modalOpen: "votersModal" });
 
 try{
 const r=await db.from("duel_votes").select("choice, user_id").eq("duel_id",duelId);
@@ -3225,7 +3240,7 @@ $("duelDuration").value="48";
 toggleDuelType();
 $("duelStatus").innerText="";
 $("duelModal").classList.add("show");
-history.pushState({ modalOpen: "duelModal" }, "", window.location.href);
+pushBackStep({ modalOpen: "duelModal" });
 }
 
 function previewDuelMedia(side,event,type){
@@ -3622,6 +3637,8 @@ event.target.classList.remove("show");
 
 document.addEventListener("DOMContentLoaded", async () => {
 try{
+    ensureBackAnchor();
+
     let attempts = 0;
     while (!window.supabase && attempts < 20) {
         await new Promise(r => setTimeout(r, 100));
@@ -3654,7 +3671,7 @@ try{
                 currentUser = session.user;
             }
             if (window.location.hash || window.location.search.includes("type=recovery")) {
-                window.history.replaceState({}, document.title, window.location.pathname);
+                window.history.replaceState({ arenaAnchor: true }, document.title, window.location.pathname);
             }
             hideStartup();
             if ($("app").classList.contains("hidden")) {
@@ -3692,7 +3709,7 @@ try{
     if (session?.user) {
         currentUser = session.user;
         if (isRecoveryMode) {
-            window.history.replaceState({}, document.title, window.location.pathname);
+            window.history.replaceState({ arenaAnchor: true }, document.title, window.location.pathname);
             hideStartup();
             await startApp();
             openResetPasswordModal();
@@ -3830,7 +3847,7 @@ try{
                     videoOverlay.style.opacity = '1';
                     document.body.style.overflow = 'hidden';
                     fullVideo.play().catch(err => {});
-                    history.pushState({ videoOpen: true }, "", window.location.href);
+                    pushBackStep({ videoOpen: true });
                     return;
                 }
             }
@@ -3840,7 +3857,7 @@ try{
                 overlay.style.visibility = 'visible';
                 overlay.style.opacity = '1';
                 document.body.style.overflow = 'hidden';
-                history.pushState({ photoOpen: true }, "", window.location.href);
+                pushBackStep({ photoOpen: true });
             }
         });
 
