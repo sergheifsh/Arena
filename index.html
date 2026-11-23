@@ -659,15 +659,17 @@ active_chat_updated_at: new Date().toISOString()
 }
 
 function startActiveChatHeartbeat(peerId){
-stopActiveChatHeartbeat();
+if(activeChatHeartbeat){
+clearInterval(activeChatHeartbeat);
+activeChatHeartbeat = null;
+}
+if(!peerId) return;
 syncActiveChatPresence(peerId);
 activeChatHeartbeat = setInterval(() => {
 if(activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden")){
 syncActiveChatPresence(activeChatUserId);
-} else {
-stopActiveChatHeartbeat();
 }
-}, 1000);
+}, 2000);
 }
 
 function stopActiveChatHeartbeat(){
