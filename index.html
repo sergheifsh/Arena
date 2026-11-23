@@ -69,7 +69,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .create-duel{margin:14px;border-radius:17px;background:linear-gradient(135deg,#eff6ff,#f8fafc);border:1px solid #bfdbfe;padding:15px}
 .create-duel button{width:100%;border:0;background:0;color:#2563eb;font-weight:bold;padding:8px;font-size:15px}
 
-.duel{margin:10px 12px 18px;border:1px solid #dbe4f0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 5px 18px #0f172a12;overflow-anchor:none;}
+.duel{margin:10px 12px 18px;border:1px solid #dbe4f0;border-radius:20px;overflow:hidden;background:#fff;box-shadow:0 5px 18px #0f172a12;overflow-anchor:none}
 .duel-head{padding:13px 14px;display:flex;justify-content:space-between;gap:10px;align-items:center}
 .duel-category{background:#eff6ff;color:#2563eb;padding:6px 9px;border-radius:10px;font-size:11px;font-weight:bold}
 .duel-type{background:#172033;color:#fff;padding:6px 9px;border-radius:10px;font-size:11px;font-weight:bold;display:flex;align-items:center;gap:4px}
@@ -86,13 +86,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .option-media img{width:100%;height:100%;object-fit:cover;cursor:pointer}
 .option-media video{width:100%;height:100%;object-fit:cover;background:#000}
 
-.video-overlay-trigger {
-    position: absolute;
-    inset: 0;
-    z-index: 5;
-    background: transparent;
-    cursor: pointer;
-}
+.video-overlay-trigger{position:absolute;inset:0;z-index:5;background:transparent;cursor:pointer}
 
 .option-placeholder{font-size:38px;color:#64748b}
 .video-placeholder{font-size:46px}
@@ -155,7 +149,7 @@ header{position:sticky;top:0;z-index:20;height:calc(62px + env(safe-area-inset-t
 .admin-block-button{background:#fee2e2;color:#b91c1c}
 .admin-unblock-button{background:#dcfce7;color:#166534}
 
-nav{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(650px,calc(100% - 24px));height:68px;background:#fff;border:1px solid #dbe4f0;border-radius:20px;display:flex;align-items:center;justify-around;z-index:50;box-shadow:0 10px 25px #0f172a15}
+nav{position:fixed;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(650px,calc(100% - 24px));height:68px;background:#fff;border:1px solid #dbe4f0;border-radius:20px;display:flex;align-items:center;justify-content:space-around;z-index:50;box-shadow:0 10px 25px #0f172a15}
 nav button{position:relative;flex:1;height:100%;border:0;background:transparent;color:#64748b;font-size:16px}
 nav button span{font-size:10px}
 nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radius:50%;background:#2563eb;color:#fff;font-size:30px;box-shadow:0 6px 18px #2563eb55}
@@ -178,57 +172,16 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 .empty{text-align:center;padding:35px 15px;color:#64748b}
 .media-help{font-size:11px;color:#64748b;margin:4px 2px 8px}
 
-.comment-bubble {
-    font-size: 17px !important;
-    line-height: 1.45 !important;
-}
-.msg-bubble {
-    font-size: 17px !important;
-    line-height: 1.45 !important;
-}
+.comment-bubble,.msg-bubble{font-size:17px!important;line-height:1.45!important}
 
-.duel.chat-split-top {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    max-width: 650px !important;
-    margin: 0 auto !important;
-    height: 48vh !important;
-    max-height: 48vh !important;
-    overflow-y: auto !important;
-    z-index: 96 !important;
-    transform: none !important;
-    border-radius: 0 0 20px 20px !important;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
-}
+.read-ticks{font-size:12px;letter-spacing:-2px;font-weight:bold;color:#94a3b8}
+.read-ticks.read{color:#2563eb}
 
-.duel-chat-box.split-bottom {
-    position: fixed !important;
-    bottom: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
-    width: 100% !important;
-    max-width: 650px !important;
-    margin: 0 auto !important;
-    height: 52vh !important;
-    max-height: 52vh !important;
-    z-index: 95 !important;
-    background: #fff !important;
-    border-top: 1px solid #dbe4f0 !important;
-    border-radius: 20px 20px 0 0 !important;
-    box-shadow: 0 -5px 25px rgba(0,0,0,0.15) !important;
-    display: flex !important;
-    flex-direction: column !important;
-    padding: 12px 14px calc(24px + env(safe-area-inset-bottom)) !important;
-}
+.duel.chat-split-top{position:fixed!important;top:0!important;left:0!important;right:0!important;width:100%!important;max-width:650px!important;margin:0 auto!important;height:48vh!important;max-height:48vh!important;overflow-y:auto!important;z-index:96!important;transform:none!important;border-radius:0 0 20px 20px!important;box-shadow:0 10px 25px rgba(0,0,0,0.15)!important}
 
-.duel-chat-box.split-bottom .comments-list {
-    flex: 1 !important;
-    overflow-y: auto !important;
-    max-height: calc(52vh - 110px) !important;
-}
+.duel-chat-box.split-bottom{position:fixed!important;bottom:0!important;left:0!important;right:0!important;width:100%!important;max-width:650px!important;margin:0 auto!important;height:52vh!important;max-height:52vh!important;z-index:95!important;background:#fff!important;border-top:1px solid #dbe4f0!important;border-radius:20px 20px 0 0!important;box-shadow:0 -5px 25px rgba(0,0,0,0.15)!important;display:flex!important;flex-direction:column!important;padding:12px 14px calc(24px + env(safe-area-inset-bottom))!important}
+
+.duel-chat-box.split-bottom .comments-list{flex:1!important;overflow-y:auto!important;max-height:calc(52vh - 110px)!important}
 
 @media(max-width:430px){
 .arena-title{font-size:27px}
@@ -286,7 +239,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно «Забыли пароль» (отправка ссылки) -->
 <div id="forgotPasswordModal" class="modal">
 <div class="modal-box">
 <h2 data-i18n="forgotPasswordTitle">Восстановление пароля</h2>
@@ -298,7 +250,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно установки нового пароля после перехода по ссылке из письма -->
 <div id="resetPasswordModal" class="modal" style="z-index: 10001;">
 <div class="modal-box">
 <h2 data-i18n="newPasswordTitle">Новый пароль</h2>
@@ -339,7 +290,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </header>
 
 <div id="homeScreen" class="screen active">
-
 <div class="arena-top">
 <div id="arenaTitle" class="arena-title"></div>
 <div id="arenaSubtitle" class="arena-subtitle"></div>
@@ -359,7 +309,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="duelsFeed">
 <div class="status" id="duelsStatus"></div>
 </div>
-
 </div>
 
 <div id="topScreen" class="screen">
@@ -390,14 +339,14 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="chatBox" class="hidden" style="position:fixed;inset:0;background:#fff;z-index:90;display:flex;flex-direction:column;padding:15px;max-width:650px;margin:auto;">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-top:env(safe-area-inset-top);">
 <h3 id="activeChatUser" style="margin:0;font-size:16px;color:#172033;flex:1;text-align:center;padding:0 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></h3>
-<button class="secondary" onclick="deleteCurrentChat()" style="margin-top:0;width:auto;color:#dc2626;background:#fee2e2;" data-i18n="deleteChat">Удалить чат</button>
+<button type="button" class="secondary" onclick="deleteCurrentChat()" style="margin-top:0;width:auto;color:#dc2626;background:#fee2e2;" data-i18n="deleteChat">Удалить чат</button>
 </div>
 
 <div id="chatMessages" style="flex:1;overflow-y:auto;background:#fff;padding:4px 0;margin-bottom:10px"></div>
 
 <div id="editBanner" class="hidden" style="background:#eff6ff;border:1px solid #bfdbfe;padding:8px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;font-size:12px">
 <span id="editBannerText" style="color:#2563eb;font-weight:bold;">Редактирование сообщения...</span>
-<button onclick="cancelEditMessage()" style="border:0;background:0;color:#dc2626;font-weight:bold;cursor:pointer">✕ Отмена</button>
+<button type="button" onclick="cancelEditMessage()" style="border:0;background:0;color:#dc2626;font-weight:bold;cursor:pointer">✕ Отмена</button>
 </div>
 
 <div style="display:flex;gap:6px;align-items:center;padding-bottom:calc(16px + env(safe-area-inset-bottom));">
@@ -410,7 +359,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <div id="profileScreen" class="screen">
 <div class="profile">
 <div class="profile-head">
-
 <div id="profileAvatar" class="profile-big-avatar">⚔️</div>
 <div id="profileName" class="profile-name"></div>
 <div id="profileUsername" class="profile-username">@arena</div>
@@ -418,8 +366,8 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <div class="profile-stats">
 <div class="stat"><span id="myDuelsCount" class="stat-number">0</span><span id="myDuelsLabel" class="stat-label"></span></div>
-<div class="stat" onclick="openFollowersModal(currentUser.id, 'followers')"><span id="myFollowersCount" class="stat-number">0</span><span id="myFollowersLabel" class="stat-label"></span></div>
-<div class="stat" onclick="openFollowersModal(currentUser.id, 'following')"><span id="myFollowingCount" class="stat-number">0</span><span id="myFollowingLabel" class="stat-label"></span></div>
+<div class="stat" onclick="if(currentUser)openFollowersModal(currentUser.id, 'followers')"><span id="myFollowersCount" class="stat-number">0</span><span id="myFollowersLabel" class="stat-label"></span></div>
+<div class="stat" onclick="if(currentUser)openFollowersModal(currentUser.id, 'following')"><span id="myFollowingCount" class="stat-number">0</span><span id="myFollowingLabel" class="stat-label"></span></div>
 </div>
 
 <div class="profile-buttons">
@@ -434,19 +382,16 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <br>
 <div id="adminContent"></div>
 </div>
-
 </div>
 
 <h3 id="myDuelsTitle" style="margin:18px 0 10px" data-i18n="duelList"></h3>
 <div id="myDuels"></div>
-
 </div>
 </div>
 
 <div id="otherProfileScreen" class="screen">
 <div class="profile">
 <div class="profile-head">
-
 <div id="otherAvatar" class="profile-big-avatar">⚔️</div>
 <div id="otherName" class="profile-name"></div>
 <div id="otherUsername" class="profile-username">@arena</div>
@@ -454,21 +399,19 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <div class="profile-stats">
 <div class="stat"><span id="otherDuelsCount" class="stat-number">0</span><span class="stat-label">⚔️</span></div>
-<div class="stat" onclick="openFollowersModal(openedOtherUserId, 'followers')"><span id="otherFollowersCount" class="stat-number">0</span><span id="otherFollowersLabel" class="stat-label"></span></div>
-<div class="stat" onclick="openFollowersModal(openedOtherUserId, 'following')"><span id="otherFollowingCount" class="stat-number">0</span><span id="otherFollowingLabel" class="stat-label"></span></div>
+<div class="stat" onclick="if(openedOtherUserId)openFollowersModal(openedOtherUserId, 'followers')"><span id="otherFollowersCount" class="stat-number">0</span><span id="otherFollowersLabel" class="stat-label"></span></div>
+<div class="stat" onclick="if(openedOtherUserId)openFollowersModal(openedOtherUserId, 'following')"><span id="otherFollowingCount" class="stat-number">0</span><span id="otherFollowingLabel" class="stat-label"></span></div>
 </div>
 
 <div class="profile-buttons">
 <button id="otherFollowButton" class="follow-button" type="button"></button>
-<button id="otherMessageButton" type="button" onclick="openChatWithUser(openedOtherUserId, $('otherName').innerText)" style="background:#2563eb;color:#fff;border:0;border-radius:10px;padding:11px;font-weight:bold">💬 Написать</button>
+<button id="otherMessageButton" type="button" onclick="if(openedOtherUserId)openChatWithUser(openedOtherUserId, $('otherName').innerText)" style="background:#2563eb;color:#fff;border:0;border-radius:10px;padding:11px;font-weight:bold">💬 Написать</button>
 <button id="otherBackButton" type="button" onclick="navigateBackInApp()"></button>
 </div>
-
 </div>
 
 <h3 id="otherDuelsTitle" style="margin:18px 0 10px" data-i18n="duelList"></h3>
 <div id="otherDuels"></div>
-
 </div>
 </div>
 
@@ -479,14 +422,11 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <button type="button" onclick="showMessagesScreen()" style="position:relative">💬<div id="navMessagesBadge" class="nav-badge"></div><br><span data-nav="messages"></span></button>
 <button type="button" onclick="showProfile()">👤<br><span data-nav="profile"></span></button>
 </nav>
-
 </div>
 
 <div id="duelModal" class="modal">
 <div class="modal-box">
-
 <h2 id="duelModalTitle"></h2>
-
 <input id="duelTitle">
 
 <select id="duelCategory">
@@ -560,9 +500,7 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 
 <button id="duelSubmitButton" class="primary" type="button" onclick="createDuel()"></button>
 <button id="duelCancelButton" class="secondary" type="button" onclick="closeModal('duelModal')"></button>
-
 <div id="duelStatus" class="status"></div>
-
 </div>
 </div>
 
@@ -585,7 +523,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 </div>
 </div>
 
-<!-- Модальное окно редактирования профиля (включая смену пароля) -->
 <div id="editModal" class="modal">
 <div class="modal-box">
 <h2 id="editProfileTitle"></h2>
@@ -600,7 +537,6 @@ nav button.add{flex:0 0 55px;width:55px;height:55px;margin-top:-28px;border-radi
 <input id="editUsername">
 <textarea id="editBio"></textarea>
 
-<!-- Блок смены пароля в профиле -->
 <div style="margin-top:12px;border-top:1px solid #dbe4f0;padding-top:12px">
 <p style="font-size:13px;color:#64748b;margin-bottom:6px">Новый пароль (оставьте пустым, если не нужно менять)</p>
 <div class="password-box" style="margin-bottom:6px">
@@ -664,6 +600,7 @@ let selectedVideoA=null;
 let selectedVideoB=null;
 let challengeCreateFile=null;
 let selectedAvatar=null;
+const activeObjectUrls=new Set();
 
 let activeChallengeDuelId = null;
 let challengeFile = null;
@@ -681,8 +618,33 @@ let isHandlingPopState=false;
 
 const $=id=>document.getElementById(id);
 
-function showToast(message, duration = 2400){
+function createSafeObjectUrl(file){
+if(!file) return "";
+const url = URL.createObjectURL(file);
+activeObjectUrls.add(url);
+return url;
+}
+
+function revokeAllObjectUrls(){
+activeObjectUrls.forEach(url => {
+try{ URL.revokeObjectURL(url); }catch(e){}
+});
+activeObjectUrls.clear();
+}
+
+function syncNativeActiveChatUser(){
+try{
+if(window.AndroidBridge && typeof window.AndroidBridge.setActiveChatUser === "function"){
+window.AndroidBridge.setActiveChatUser(activeChatUserId ? String(activeChatUserId) : "");
+}
+}catch(e){}
+}
+
+function showToast(message, duration = 2400, senderId = null){
 if(!message) return;
+if(senderId && activeChatUserId && String(senderId) === String(activeChatUserId) && $("chatBox") && !$("chatBox").classList.contains("hidden")){
+return;
+}
 const container = $("arenaToastContainer");
 if(!container) return;
 
@@ -1129,7 +1091,7 @@ return String(v??"")
 .replace(/\n/g,"\\n");
 }
 
-function resolveDisplayName(profile, userId) {
+function resolveDisplayName(profile) {
     if (!profile) return "Пользователь";
 
     const profileName =
@@ -1141,7 +1103,6 @@ function resolveDisplayName(profile, userId) {
 
     if (typeof profileName === "string" && profileName.trim() !== "") {
         const cleanName = profileName.trim();
-
         return profileName === profile.username && !cleanName.startsWith("@")
             ? `@${cleanName}`
             : cleanName;
@@ -1305,7 +1266,7 @@ ptr.style.transform = `translateY(0)`;
 });
 
 async function checkUnreadMessages(){
-if(!currentUser) return;
+if(!currentUser || !db) return;
 try{
 const r = await db.from("direct_messages")
 .select("id")
@@ -1409,11 +1370,24 @@ realtimeChannel = db.channel("arena_realtime_channel")
         }
     }
 })
+.on("postgres_changes", { event: "UPDATE", schema: "public", table: "direct_messages" }, async (payload) => {
+    const m = payload.new;
+    if(!currentUser || !m) return;
+    if(m.sender_id === currentUser.id || m.receiver_id === currentUser.id){
+        if(activeChatUserId && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
+            await loadDirectMessages();
+        }
+        await checkUnreadMessages();
+        if($("messagesScreen").classList.contains("active")){
+            await showMessagesScreen();
+        }
+    }
+})
 .subscribe();
 }
 
 function initUserPresence() {
-    if (!currentUser) return;
+    if (!currentUser || !db) return;
 
     const pingOnline = async () => {
         try {
@@ -1673,6 +1647,7 @@ $("resetPasswordSubmitBtn").disabled=false;
 }
 
 async function deleteAccount(){
+if(!currentUser) return;
 showCustomConfirm(t("deleteAccountConfirm"), async () => {
 try{
 const { error } = await db.from("profiles").delete().eq("id", currentUser.id);
@@ -1786,18 +1761,22 @@ $("loginButton").disabled=false;
 
 async function logout(){
 try{
-if(currentUser){
+if(currentUser && db){
     await db.from("profiles")
         .update({ last_seen: new Date(0).toISOString() })
         .eq("id", currentUser.id);
 }
 
+activeChatUserId = null;
+syncNativeActiveChatUser();
+revokeAllObjectUrls();
+
 if (window.AndroidBridge && typeof window.AndroidBridge.logoutOneSignal === 'function') {
     window.AndroidBridge.logoutOneSignal();
 }
-if(realtimeChannel) db.removeChannel(realtimeChannel);
+if(realtimeChannel && db) db.removeChannel(realtimeChannel);
 if(presenceInterval) clearInterval(presenceInterval);
-await db.auth.signOut();
+if(db) await db.auth.signOut();
 }catch(e){}
 
 currentUser=null;
@@ -1921,7 +1900,9 @@ function navigateBackInApp(){
         const v = videoOverlay.querySelector('video');
         if(v){
             v.pause();
-            v.src = '';
+            v.muted = true;
+            v.removeAttribute('src');
+            v.load();
         }
         videoOverlay.style.opacity = '0';
         setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
@@ -1939,6 +1920,7 @@ function navigateBackInApp(){
     if($("chatBox") && !$("chatBox").classList.contains("hidden")){
         $("chatBox").classList.add("hidden");
         activeChatUserId = null;
+        syncNativeActiveChatUser();
         editingMessageId = null;
         if($("editBanner")) $("editBanner").classList.add("hidden");
         checkUnreadMessages();
@@ -1980,8 +1962,15 @@ function navigateBackInApp(){
     return false;
 }
 
+window.handleAndroidBack = function(){
+    if(!$("app") || $("app").classList.contains("hidden")){
+        return false;
+    }
+    return navigateBackInApp();
+};
+
 async function loadProfile(){
-if(!currentUser)return null;
+if(!currentUser || !db)return null;
 
 let r=await db.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
 
@@ -1994,7 +1983,7 @@ r=await db.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
 
 currentProfile=r.data||{ id:currentUser.id, full_name:t("participant"), username:"arena" };
 
-$("profileName").innerText=resolveDisplayName(currentProfile, currentUser.id);
+$("profileName").innerText=resolveDisplayName(currentProfile);
 $("profileUsername").innerText="@"+(currentProfile.username||"arena");
 $("profileBio").innerText=currentProfile.bio||"";
 
@@ -2021,6 +2010,7 @@ e.innerHTML=url?`<img src="${esc(url)}" alt="avatar">`:"⚔️";
 }
 
 async function count(table,column,id){
+if(!db) return 0;
 const r=await db.from(table).select("*",{count:"exact",head:true}).eq(column,id);
 return r.count||0;
 }
@@ -2033,12 +2023,14 @@ $("myFollowingCount").innerText=await count("follows","follower_id",currentUser.
 }
 
 async function showProfile(){
+if(!currentUser){ showAuth(); return; }
 showScreen("profileScreen");
 await loadProfile();
 await loadMyDuels();
 }
 
 async function openFollowersModal(userId, type) {
+if(!userId || !db) return;
 const modal = $("followersModal");
 const titleEl = $("followersModalTitle");
 const contentEl = $("followersModalContent");
@@ -2065,7 +2057,7 @@ const profilesMapData = await profilesMap(ids);
 
 contentEl.innerHTML = ids.map(uid => {
 const p = profilesMapData[uid] || profilesMapData[String(uid).toLowerCase()] || {};
-const name = resolveDisplayName(p, uid);
+const name = resolveDisplayName(p);
 const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">` : `<div style="width:36px;height:36px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 const uname = p?.username ? `@${esc(p.username)}` : "";
 
@@ -2125,7 +2117,7 @@ showToast(url);
 async function openSharedDuel(){
 const params=new URLSearchParams(location.search);
 const duelId=params.get("duel");
-if(!duelId||!currentUser)return;
+if(!duelId||!currentUser||!db)return;
 
 try{
 const feed=$("duelsFeed");
@@ -2167,16 +2159,12 @@ if(!file)return;
 if(file.size>100*1024*1024){ showToast(t("maxPhoto")); event.target.value=""; return; }
 if(!file.type.startsWith("image/"))return;
 selectedAvatar=file;
-const reader=new FileReader();
-reader.onload=e=>{
-$("avatarPreviewImage").src=e.target.result;
+$("avatarPreviewImage").src=createSafeObjectUrl(file);
 $("avatarPreview").style.display="block";
-};
-reader.readAsDataURL(file);
 }
 
 async function getVote(id){
-if(!currentUser)return null;
+if(!currentUser||!db)return null;
 const r=await db.from("duel_votes").select("id,choice").eq("duel_id",String(id)).eq("user_id",currentUser.id).maybeSingle();
 if(r.error)return null;
 return r.data?.choice||null;
@@ -2215,7 +2203,7 @@ voteCounts=await getDuelVoteCounts(duel.id);
 voteCounts={a:0,b:0,total:0,pa:0,pb:0};
 }
 
-const owner=String(duel.user_id)===String(currentUser.id);
+const owner=currentUser && String(duel.user_id)===String(currentUser.id);
 const admin=(currentProfile?.is_admin===true)||(currentUser && currentUser.email?.toLowerCase() === "feederfsh@gmail.com");
 
 const id=String(duel.id);
@@ -2225,11 +2213,11 @@ const video=isVideoDuel(duel);
 
 let authorName = "";
 let authorAvatarUrl = "";
-let authorId = duel.user_id;
-if(authorId){
+const authorId = duel.user_id;
+if(authorId && db){
   try{
     const authorRes = await db.from("profiles").select("*").eq("id", authorId).maybeSingle();
-    authorName = resolveDisplayName(authorRes.data, authorId);
+    authorName = resolveDisplayName(authorRes.data);
     authorAvatarUrl = authorRes.data?.avatar_url || "";
   }catch(err){
     authorName = "Пользователь";
@@ -2364,20 +2352,17 @@ if(!file) return;
 if(file.size > 100*1024*1024){ showToast(t("maxPhoto")); event.target.value=""; return; }
 
 challengeFile = file;
-const reader = new FileReader();
-reader.onload = e => {
+const url = createSafeObjectUrl(file);
 if(file.type.startsWith("video/")){
-  $("challengePreviewVid").src = e.target.result;
+  $("challengePreviewVid").src = url;
   $("challengePreviewVid").style.display = "block";
   $("challengePreviewImg").style.display = "none";
 } else {
-  $("challengePreviewImg").src = e.target.result;
+  $("challengePreviewImg").src = url;
   $("challengePreviewImg").style.display = "block";
   $("challengePreviewVid").style.display = "none";
 }
 $("challengePreview").style.display = "block";
-};
-reader.readAsDataURL(file);
 }
 
 async function submitChallenge(){
@@ -2431,6 +2416,7 @@ is_read: false
 });
 if(error) throw error;
 
+event.target.value = "";
 await loadDirectMessages();
 }catch(e){
 showToast(e.message || t("connection"));
@@ -2479,8 +2465,8 @@ let content = esc(m.text);
 if(m.is_media || m.text?.startsWith("http")){
   if(m.text.match(/\.(mp4|webm|ogg)$/i) || m.text.includes("videos/")){
     content = `<div style="position:relative;width:200px;height:120px;background:#000;border-radius:8px;overflow:hidden;flex-shrink:0;">
-      <video src="${esc(m.text)}#t=0.001" preload="none" playsinline webkit-playsinline style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
-      <div class="video-overlay-trigger" data-video-src="${esc(m.text)}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);cursor:pointer;">
+      <video src="${esc(m.text)}#t=0.001" autoplay muted loop preload="metadata" playsinline webkit-playsinline style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+      <div class="video-overlay-trigger" data-video-src="${esc(m.text)}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);cursor:pointer;">
         <div style="width:40px;height:40px;background:rgba(0,0,0,0.6);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;">▶</div>
       </div>
     </div>`;
@@ -2492,13 +2478,15 @@ if(m.is_media || m.text?.startsWith("http")){
 const msgId = m.id;
 const isMediaFlag = m.is_media || m.text?.startsWith("http");
 const timeText = validDate ? d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
+const isReadFlag = Boolean(m.is_read);
+const ticksHtml = isMe ? `<span class="read-ticks ${isReadFlag ? 'read' : ''}">${isReadFlag ? '✓✓' : '✓'}</span>` : "";
 
 htmlParts.push(`<div style="margin-bottom:8px;text-align:${isMe?'right':'left'};position:relative;" data-msg-id="${msgId}">
 <div class="msg-bubble" data-msg-id="${msgId}" data-raw-text="${esc(m.text)}" data-isme="${isMe}" data-ismedia="${Boolean(isMediaFlag)}" style="display:inline-block;padding:8px 12px;border-radius:10px;background:${isMe?'#2563eb':'#fff'};color:${isMe?'#fff':'#172033'};border:1px solid #e2e8f0;max-width:80%;word-break:break-word;text-align:left;cursor:pointer;user-select:none;">
 ${content}
 </div>
-<div style="font-size:11px;color:#64748b;margin-top:2px;display:flex;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
-<span>${timeText}</span>
+<div style="font-size:11px;color:#64748b;margin-top:2px;display:flex;align-items:center;gap:6px;justify-content:${isMe?'flex-end':'flex-start'}">
+<span>${timeText}</span>${ticksHtml}
 </div>
 </div>`);
 }
@@ -2517,7 +2505,13 @@ container.innerHTML=`<div class="empty">Ошибка чата</div>`;
 function attachLongPressListeners(){
 document.querySelectorAll(".msg-bubble").forEach(bubble => {
   let pressTimer = null;
+  let startX = 0;
+  let startY = 0;
+
   const startPress = (e) => {
+    const pt = e.touches?.[0] || e;
+    startX = pt.clientX;
+    startY = pt.clientY;
     if(pressTimer) clearTimeout(pressTimer);
     pressTimer = setTimeout(() => {
       const msgId = bubble.dataset.msgId;
@@ -2528,6 +2522,15 @@ document.querySelectorAll(".msg-bubble").forEach(bubble => {
     }, 500);
   };
 
+  const movePress = (e) => {
+    if(!pressTimer) return;
+    const pt = e.touches?.[0] || e;
+    if(Math.abs(pt.clientX - startX) > 10 || Math.abs(pt.clientY - startY) > 10){
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+  };
+
   const cancelPress = () => {
     if(pressTimer) {
       clearTimeout(pressTimer);
@@ -2536,54 +2539,53 @@ document.querySelectorAll(".msg-bubble").forEach(bubble => {
   };
 
   bubble.onmousedown = startPress;
+  bubble.onmousemove = movePress;
   bubble.onmouseup = cancelPress;
   bubble.onmouseleave = cancelPress;
-  
+
   bubble.ontouchstart = startPress;
+  bubble.ontouchmove = movePress;
   bubble.ontouchend = cancelPress;
-  bubble.ontouchmove = cancelPress;
 });
 }
 
 function openMessageContextMenu(event, messageId, text, isMe, isMedia){
 document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
-if(event.cancelable) event.preventDefault();
 
 const bubble = event.currentTarget || document.querySelector(`[data-msg-id="${messageId}"]`);
 if(!bubble) return;
 
 const menu = document.createElement("div");
 menu.className = "msg-context-menu";
-menu.style.cssText = "position:absolute;background:#fff;border:1px solid #cbd5e1;box-shadow:0 4px 12px rgba(0,0,0,0.15);border-radius:8px;z-index:9999;display:flex;flex-direction:column;min-width:130px;overflow:hidden;";
+menu.style.cssText = "position:fixed;background:#fff;border:1px solid #cbd5e1;box-shadow:0 8px 20px rgba(0,0,0,0.18);border-radius:10px;z-index:100001;display:flex;flex-direction:column;min-width:140px;overflow:hidden;";
 
-let buttonsHtml = `<button onclick="forwardMessageFromMenu('${escJS(text)}', ${isMedia})" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#2563eb;border-bottom:1px solid #f1f5f9;">${t("forward")}</button>`;
+let buttonsHtml = `<button type="button" onclick="forwardMessageFromMenu('${escJS(text)}', ${isMedia})" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#2563eb;border-bottom:1px solid #f1f5f9;">${t("forward")}</button>`;
 
 if(isMe && !isMedia){
-  buttonsHtml += `<button onclick="startEditMessage('${messageId}', '${escJS(text)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
+  buttonsHtml += `<button type="button" onclick="startEditMessage('${messageId}', '${escJS(text)}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#172033;border-bottom:1px solid #f1f5f9;">${t("edit")}</button>`;
 }
 
 if(isMe){
-  buttonsHtml += `<button onclick="deleteDirectMessage('${messageId}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#dc2626;">${t("delete")}</button>`;
+  buttonsHtml += `<button type="button" onclick="deleteDirectMessage('${messageId}')" style="padding:10px 12px;border:0;background:0;text-align:left;font-size:14px;font-weight:bold;color:#dc2626;">${t("delete")}</button>`;
 }
 
 menu.innerHTML = buttonsHtml;
 document.body.appendChild(menu);
 
 const rect = bubble.getBoundingClientRect();
-menu.style.top = (rect.bottom + window.scrollY + 4) + "px";
-menu.style.left = Math.min(rect.left, window.innerWidth - 150) + "px";
+const topPos = Math.min(rect.bottom + 6, window.innerHeight - 130);
+menu.style.top = Math.max(12, topPos) + "px";
+menu.style.left = Math.max(12, Math.min(rect.left, window.innerWidth - 156)) + "px";
 
 const closeMenu = (e) => {
   if(!menu.contains(e.target) && !bubble.contains(e.target)){
     menu.remove();
     document.removeEventListener('click', closeMenu);
-    document.removeEventListener('touchstart', closeMenu);
   }
 };
 setTimeout(() => {
   document.addEventListener('click', closeMenu);
-  document.addEventListener('touchstart', closeMenu);
-}, 10);
+}, 30);
 }
 
 function startEditMessage(messageId, currentText){
@@ -2623,6 +2625,7 @@ if(error) throw error;
 
 $("chatBox").classList.add("hidden");
 activeChatUserId = null;
+syncNativeActiveChatUser();
 await checkUnreadMessages();
 if($("messagesScreen").classList.contains("active")){
     await showMessagesScreen();
@@ -2657,13 +2660,13 @@ return;
 const profiles = await profilesMap(userIds);
 listContainer.innerHTML = userIds.map(uid=>{
 const p = profiles[uid] || profiles[String(uid).toLowerCase()] || {};
-const name = resolveDisplayName(p, uid);
+const name = resolveDisplayName(p);
 const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 return `
 <div onclick="executeForwardToUser('${escJS(uid)}')" style="display:flex;align-items:center;gap:12px;padding:12px;background:#f8fafc;border-radius:12px;border:1px solid #dbe4f0;margin-bottom:8px;cursor:pointer">
 ${avatar}
 <div style="flex:1"><b>${esc(name)}</b></div>
-<button class="primary" style="width:auto;padding:6px 12px;font-size:14px;margin-top:0">${t("forward")}</button>
+<button type="button" class="primary" style="width:auto;padding:6px 12px;font-size:14px;margin-top:0">${t("forward")}</button>
 </div>`;
 }).join("");
 }catch(e){
@@ -2738,7 +2741,7 @@ const isAdminUser = (currentProfile?.is_admin === true) || (currentUser && curre
 
 container.innerHTML=comments.map(c=>{
 const p=profilesMapData[c.user_id] || profilesMapData[String(c.user_id).toLowerCase()] || {};
-const name = resolveDisplayName(p, c.user_id);
+const name = resolveDisplayName(p);
 const avatar=p?.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:12px">⚔️</div>`;
 const isMe = currentUser && String(c.user_id) === String(currentUser.id);
 const canManage = currentUser && (isMe || isAdminUser);
@@ -2769,7 +2772,13 @@ container.innerHTML=`<div style="font-size:14px;color:#dc2626;text-align:center"
 function attachCommentLongPressListeners(duelId){
 document.querySelectorAll(".comment-bubble").forEach(bubble => {
   let pressTimer = null;
+  let startX = 0;
+  let startY = 0;
+
   const startPress = (e) => {
+    const pt = e.touches?.[0] || e;
+    startX = pt.clientX;
+    startY = pt.clientY;
     if(pressTimer) clearTimeout(pressTimer);
     pressTimer = setTimeout(() => {
       const commentId = bubble.dataset.commentId;
@@ -2782,6 +2791,15 @@ document.querySelectorAll(".comment-bubble").forEach(bubble => {
     }, 500);
   };
 
+  const movePress = (e) => {
+    if(!pressTimer) return;
+    const pt = e.touches?.[0] || e;
+    if(Math.abs(pt.clientX - startX) > 10 || Math.abs(pt.clientY - startY) > 10){
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+  };
+
   const cancelPress = () => {
     if(pressTimer) {
       clearTimeout(pressTimer);
@@ -2790,27 +2808,26 @@ document.querySelectorAll(".comment-bubble").forEach(bubble => {
   };
 
   bubble.onmousedown = startPress;
+  bubble.onmousemove = movePress;
   bubble.onmouseup = cancelPress;
   bubble.onmouseleave = cancelPress;
-  
+
   bubble.ontouchstart = startPress;
+  bubble.ontouchmove = movePress;
   bubble.ontouchend = cancelPress;
-  bubble.ontouchmove = cancelPress;
 });
 }
 
 function openCommentContextMenu(event, commentId, text, isMe, duelId){
 document.querySelectorAll(".msg-context-menu").forEach(el => el.remove());
-if(event.cancelable) event.preventDefault();
 
 const bubble = event.currentTarget || document.querySelector(`[data-comment-id="${commentId}"]`);
 if(!bubble) return;
 
 const menu = document.createElement("div");
 menu.className = "msg-context-menu";
-menu.style.cssText = "position:absolute;background:#fff;border:1px solid #cbd5e1;box-shadow:0 4px 12px rgba(0,0,0,0.15);border-radius:8px;z-index:9999;display:flex;flex-direction:column;min-width:130px;overflow:hidden;";
+menu.style.cssText = "position:fixed;background:#fff;border:1px solid #cbd5e1;box-shadow:0 8px 20px rgba(0,0,0,0.18);border-radius:10px;z-index:100001;display:flex;flex-direction:column;min-width:135px;overflow:hidden;";
 
-let buttonsHtml = "";
 if(isMe){
   const editBtn = document.createElement("button");
   editBtn.type = "button";
@@ -2830,20 +2847,19 @@ menu.appendChild(delBtn);
 document.body.appendChild(menu);
 
 const rect = bubble.getBoundingClientRect();
-menu.style.top = (rect.bottom + window.scrollY + 4) + "px";
-menu.style.left = Math.min(rect.left, window.innerWidth - 150) + "px";
+const topPos = Math.min(rect.bottom + 6, window.innerHeight - 100);
+menu.style.top = Math.max(12, topPos) + "px";
+menu.style.left = Math.max(12, Math.min(rect.left, window.innerWidth - 150)) + "px";
 
 const closeMenu = (e) => {
   if(!menu.contains(e.target) && !bubble.contains(e.target)){
     menu.remove();
     document.removeEventListener('click', closeMenu);
-    document.removeEventListener('touchstart', closeMenu);
   }
 };
 setTimeout(() => {
   document.addEventListener('click', closeMenu);
-  document.addEventListener('touchstart', closeMenu);
-}, 10);
+}, 30);
 }
 
 function startEditComment(commentId, currentText, duelId){
@@ -2903,7 +2919,7 @@ showToast(e.message || t("connection"));
 }
 
 async function profilesMap(ids){
-    if(!ids || !ids.length) return {};
+    if(!ids || !ids.length || !db) return {};
 
     try {
         const cleanIds = [...new Set(ids.map(id => String(id).trim()))];
@@ -2933,6 +2949,7 @@ async function profilesMap(ids){
 }
 
 async function showMessagesScreen(){
+if(!currentUser || !db){ showAuth(); return; }
 showScreen("messagesScreen");
 const box=$("conversationsList");
 box.innerHTML=`<div class="status">${t("loading")}</div>`;
@@ -2960,7 +2977,7 @@ const profiles = await profilesMap(userIds);
 
 box.innerHTML = userIds.map(uid => {
 const p = profiles[uid] || profiles[String(uid).toLowerCase()] || {};
-const name = resolveDisplayName(p, uid);
+const name = resolveDisplayName(p);
 const avatar = p?.avatar_url ? `<img src="${esc(p.avatar_url)}" style="width:40px;height:40px;border-radius:50%;object-fit:cover">` : `<div style="width:40px;height:40px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center">⚔️</div>`;
 const hasUnread = unreadMap[uid] ? `<div class="chat-badge"></div>` : "";
 return `
@@ -2981,7 +2998,9 @@ await openChat(userId, userName);
 }
 
 async function openChat(userId, userName){
+if(!currentUser || !db) return;
 activeChatUserId=userId;
+syncNativeActiveChatUser();
 $("activeChatUser").innerText=userName;
 $("chatBox").classList.remove("hidden");
 pushBackStep({ chatOpen: true });
@@ -2994,15 +3013,13 @@ await checkUnreadMessages();
 await loadDirectMessages();
 }
 
-window.addEventListener('popstate', function(e) {
+window.addEventListener('popstate', function() {
     if(isHandlingPopState) return;
     isHandlingPopState = true;
     try{
         const handled = navigateBackInApp();
         if(handled){
             ensureBackAnchor();
-        } else if(window.AndroidBridge && typeof window.AndroidBridge.onBackPressedHandled === 'function'){
-            window.AndroidBridge.onBackPressedHandled(false);
         }
     } finally {
         setTimeout(() => { isHandlingPopState = false; }, 0);
@@ -3012,7 +3029,7 @@ window.addEventListener('popstate', function(e) {
 async function sendDirectMessage(){
 const input=$("directMessageInput");
 const text=input.value.trim();
-if(!text||!activeChatUserId)return;
+if(!text||!activeChatUserId||!currentUser)return;
 input.value="";
 
 try{
@@ -3032,6 +3049,7 @@ showToast(e.message||t("connection"));
 }
 
 async function openVotersModal(id){
+if(!db) return;
 const duelId=String(id);
 const content=$("votersModalContent");
 content.innerHTML=`<div class="empty">${t("loading")}</div>`;
@@ -3054,7 +3072,7 @@ const profilesMapData=await profilesMap(userIds);
 let listA=[], listB=[];
 votes.forEach(v=>{
 const p=profilesMapData[v.user_id] || profilesMapData[String(v.user_id).toLowerCase()] || {};
-const name = resolveDisplayName(p, v.user_id);
+const name = resolveDisplayName(p);
 const avatar=p?.avatar_url?`<img src="${esc(p.avatar_url)}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">`:`<div style="width:32px;height:32px;border-radius:50%;background:#dbeafe;display:flex;align-items:center;justify-content:center;font-size:14px">⚔️</div>`;
 const username=p?.username?`@${esc(p.username)}`:"";
 
@@ -3091,6 +3109,7 @@ box.innerHTML=`<div class="status">${esc(t("loading"))} ⏳</div>`;
 
 duelsLoadPromise=(async ()=>{
 try{
+if(!db) throw new Error(t("connection"));
 let q=db.from("duels").select("*").order("created_at",{ascending:false}).limit(50);
 if(currentCategory!=="all") q=q.eq("category",currentCategory);
 
@@ -3205,7 +3224,7 @@ btn.innerText=index===0?t("chooseA"):t("chooseB");
 }
 
 async function deleteDuel(id,admin=false){
-if(!currentUser)return;
+if(!currentUser||!db)return;
 showCustomConfirm(t(admin?"adminDeleteConfirm":"deleteConfirm"), async () => {
 try{
 let q=db.from("duels").delete().eq("id",String(id));
@@ -3248,31 +3267,28 @@ const file=event.target.files?.[0];
 if(!file)return;
 if(file.size>100*1024*1024){ showToast(t("maxPhoto")); event.target.value=""; return; }
 
-const reader=new FileReader();
-reader.onload=e=>{
+const url = createSafeObjectUrl(file);
 if(type==="image"){
 if(side==="A"){
 selectedImageA=file;
-$("previewAImage").src=e.target.result;
+$("previewAImage").src=url;
 $("previewA").style.display="block";
 }else{
 selectedImageB=file;
-$("previewBImage").src=e.target.result;
+$("previewBImage").src=url;
 $("previewB").style.display="block";
 }
 }else{
 if(side==="A"){
 selectedVideoA=file;
-$("previewVideoAElement").src=e.target.result;
+$("previewVideoAElement").src=url;
 $("previewVideoA").style.display="block";
 }else{
 selectedVideoB=file;
-$("previewVideoBElement").src=e.target.result;
+$("previewVideoBElement").src=url;
 $("previewVideoB").style.display="block";
 }
 }
-};
-reader.readAsDataURL(file);
 }
 
 function previewChallengeCreateMedia(event){
@@ -3280,20 +3296,17 @@ const file=event.target.files?.[0];
 if(!file)return;
 if(file.size>100*1024*1024){ showToast(t("maxPhoto")); event.target.value=""; return; }
 challengeCreateFile=file;
-const reader=new FileReader();
-reader.onload=e=>{
+const url = createSafeObjectUrl(file);
 if(file.type.startsWith("video/")){
-  $("previewChallengeVid").src=e.target.result;
+  $("previewChallengeVid").src=url;
   $("previewChallengeVid").style.display="block";
   $("previewChallengeImg").style.display="none";
 }else{
-  $("previewChallengeImg").src=e.target.result;
+  $("previewChallengeImg").src=url;
   $("previewChallengeImg").style.display="block";
   $("previewChallengeVid").style.display="none";
 }
 $("previewChallengeA").style.display="block";
-};
-reader.readAsDataURL(file);
 }
 
 async function upload(file, folder){
@@ -3391,6 +3404,7 @@ $("duelSubmitButton").disabled=false;
 }
 
 async function loadTop(category="all",button){
+if(!db) return;
 showScreen("topScreen");
 if(button){
 document.querySelectorAll(".top-tab").forEach(e=>e.classList.remove("active"));
@@ -3438,6 +3452,7 @@ return`
 }
 
 async function searchUsers(){
+if(!db) return;
 const value=$("searchInput").value.trim();
 const box=$("searchResults");
 if(!value){ box.innerHTML=`<div class="empty">${esc(t("searchStart"))}</div>`; return; }
@@ -3459,7 +3474,7 @@ box.innerHTML=uniqueUsers.length?uniqueUsers.map(p=>`
 ${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
 </div>
 <div class="search-result-main">
-<b>${esc(resolveDisplayName(p, p.id))}</b>
+<b>${esc(resolveDisplayName(p))}</b>
 <div style="font-size:12px;color:#64748b">@${esc(p.username||"arena")}</div>
 </div>
 </div>
@@ -3467,6 +3482,7 @@ ${p.avatar_url?`<img src="${esc(p.avatar_url)}" alt="avatar">`:"⚔️"}
 }
 
 async function openUserProfile(id){
+if(!currentUser || !db) return;
 if(String(id)===String(currentUser.id)){ await showProfile(); return; }
 openedOtherUserId=String(id);
 showScreen("otherProfileScreen");
@@ -3475,7 +3491,7 @@ const r=await db.from("profiles").select("*").eq("id",String(id)).maybeSingle();
 if(!r.data){ showToast("Профиль не найден."); return; }
 
 const p=r.data;
-$("otherName").innerText=resolveDisplayName(p, id);
+$("otherName").innerText=resolveDisplayName(p);
 $("otherUsername").innerText="@"+(p.username||"arena");
 $("otherBio").innerText=p.bio||"";
 setAvatar("otherAvatar",p.avatar_url);
@@ -3491,6 +3507,7 @@ await loadOtherDuels(String(id));
 }
 
 async function loadOtherDuels(id){
+if(!db) return;
 const box=$("otherDuels");
 const r=await db.from("duels").select("*").eq("user_id",String(id)).order("created_at",{ascending:false});
 box.innerHTML="";
@@ -3506,6 +3523,7 @@ try{ box.appendChild(await duelCard(duel)); }catch(e){}
 }
 
 async function updateFollowButton(id){
+if(!currentUser || !db) return;
 const button=$("otherFollowButton");
 const r=await db.from("follows").select("id").eq("follower_id",currentUser.id).eq("following_id",String(id)).maybeSingle();
 button.innerText=r.data?t("followed"):t("follow");
@@ -3513,6 +3531,7 @@ button.onclick=()=>toggleFollow(String(id));
 }
 
 async function toggleFollow(id){
+if(!currentUser || !db) return;
 const r=await db.from("follows").select("id").eq("follower_id",currentUser.id).eq("following_id",String(id)).maybeSingle();
 let op;
 if(r.data){ op=await db.from("follows").delete().eq("id",r.data.id); }
@@ -3524,6 +3543,7 @@ $("otherFollowersCount").innerText=await count("follows","following_id",String(i
 }
 
 async function saveProfile(){
+if(!currentUser || !db) return;
 const rawName=$("editName").value.trim();
 const username=$("editUsername").value.trim();
 const bio=$("editBio").value.trim();
@@ -3562,6 +3582,7 @@ status.innerText=e.message||t("connection");
 }
 
 async function loadMyDuels(){
+if(!currentUser || !db) return;
 const box=$("myDuels");
 const r=await db.from("duels").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false});
 box.innerHTML="";
@@ -3584,6 +3605,7 @@ if(!$("adminPanel").classList.contains("hidden")) await loadAdminUsers();
 }
 
 async function loadAdminUsers(){
+if(!db || !currentUser) return;
 const box=$("adminContent");
 box.innerHTML=`<div class="empty">${esc(t("loading"))}</div>`;
 
@@ -3603,7 +3625,7 @@ const statsHtml=`<div style="margin-bottom:12px;padding:12px;background:#fff;bor
 const rows=uniqueAdminUsers.map(u=>`
 <div class="admin-user-row">
 <div class="admin-user-main">
-<div class="admin-user-name">${esc(resolveDisplayName(u, u.id))}</div>
+<div class="admin-user-name">${esc(resolveDisplayName(u))}</div>
 <div style="font-size:11px;color:#64748b">@${esc(u.username||"arena")}</div>
 <div class="${u.is_blocked?"admin-blocked":"admin-active"}">${u.is_blocked?t("blocked"):t("active")}</div>
 </div>
@@ -3615,6 +3637,7 @@ box.innerHTML=statsHtml+rows;
 }
 
 async function adminBlock(id,blocked){
+if(!db) return;
 const question=blocked?(language==="ru"?"Разблокировать пользователя?":language==="ro"?"Deblochezi utilizatorul?":"Unblock user?"):(language==="ru"?"Заблокировать пользователя?":language==="ro"?"Blochezi utilizatorul?":"Block user?");
 const actionButtonText = blocked ? t("unblockAction") : t("blockAction");
 
@@ -3749,125 +3772,137 @@ try{
 </script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const overlay = document.createElement('div');
-        overlay.id = 'globalPhotoOverlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;cursor:pointer;';
-        
-        const fullImg = document.createElement('img');
-        fullImg.style.cssText = 'max-width:95%;max-height:95%;object-fit:contain;';
-        overlay.appendChild(fullImg);
-        document.body.appendChild(overlay);
+document.addEventListener("DOMContentLoaded", function() {
+    const overlay = document.createElement('div');
+    overlay.id = 'globalPhotoOverlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;cursor:pointer;';
+    
+    const fullImg = document.createElement('img');
+    fullImg.style.cssText = 'max-width:95%;max-height:95%;object-fit:contain;';
+    overlay.appendChild(fullImg);
+    document.body.appendChild(overlay);
 
-        function closePhotoViewer() {
-            overlay.style.opacity = '0';
-            setTimeout(() => { overlay.style.visibility = 'hidden'; fullImg.src = ''; }, 300);
-            document.body.style.overflow = '';
+    function closePhotoViewer() {
+        overlay.style.opacity = '0';
+        setTimeout(() => { overlay.style.visibility = 'hidden'; fullImg.src = ''; }, 300);
+        document.body.style.overflow = '';
+    }
+
+    const videoOverlay = document.createElement('div');
+    videoOverlay.id = 'globalVideoOverlay';
+    videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;overflow:hidden;';
+    
+    const fullVideo = document.createElement('video');
+    fullVideo.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000;';
+    fullVideo.playsInline = true;
+    fullVideo.webkitPlaysinline = true;
+    videoOverlay.appendChild(fullVideo);
+
+    const customControls = document.createElement('div');
+    customControls.style.cssText = 'position:absolute;bottom:45px;left:20px;right:20px;background:transparent;padding:6px 0;display:flex;align-items:center;gap:14px;z-index:100000;';
+
+    const playBtn = document.createElement('button');
+    playBtn.type = 'button';
+    playBtn.innerHTML = '❚❚';
+    playBtn.style.cssText = 'background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer;width:24px;text-align:center;display:flex;align-items:center;justify-content:center;text-shadow:0 2px 4px rgba(0,0,0,0.8);';
+    
+    const progressBar = document.createElement('input');
+    progressBar.type = 'range';
+    progressBar.min = '0'; progressBar.max = '100'; progressBar.value = '0';
+    progressBar.style.cssText = 'flex:1;accent-color:#2563eb;cursor:pointer;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.6);';
+
+    const timeDisplay = document.createElement('span');
+    timeDisplay.style.cssText = 'color:#fff;font-size:12px;font-family:Arial,sans-serif;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,0.8);';
+    timeDisplay.innerHTML = '0:00 / 0:00';
+
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return "0:00";
+        const m = Math.floor(seconds / 60);
+        const s = Math.floor(seconds % 60);
+        return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    customControls.appendChild(playBtn);
+    customControls.appendChild(progressBar);
+    customControls.appendChild(timeDisplay);
+    videoOverlay.appendChild(customControls);
+
+    playBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (fullVideo.paused) fullVideo.play().catch(()=>{}); else fullVideo.pause();
+    };
+
+    fullVideo.onplay = () => { playBtn.innerHTML = '❚❚'; };
+    fullVideo.onpause = () => { playBtn.innerHTML = '▶'; };
+    fullVideo.ontimeupdate = () => {
+        if (fullVideo.duration) {
+            const percent = (fullVideo.currentTime / fullVideo.duration) * 100;
+            progressBar.value = percent;
+            timeDisplay.innerHTML = `${formatTime(fullVideo.currentTime)} / ${formatTime(fullVideo.duration)}`;
         }
+    };
+    fullVideo.onloadedmetadata = () => { timeDisplay.innerHTML = `0:00 / ${formatTime(fullVideo.duration)}`; };
+    progressBar.oninput = (e) => {
+        e.stopPropagation();
+        if (fullVideo.duration) fullVideo.currentTime = (progressBar.value / 100) * fullVideo.duration;
+    };
+    fullVideo.onclick = (e) => {
+        e.stopPropagation();
+        if (fullVideo.paused) fullVideo.play().catch(()=>{}); else fullVideo.pause();
+    };
 
-        const videoOverlay = document.createElement('div');
-        videoOverlay.id = 'globalVideoOverlay';
-        videoOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#000;display:flex;align-items:center;justify-content:center;z-index:99999;visibility:hidden;opacity:0;transition:opacity 0.3s ease;overflow:hidden;';
-        
-        const fullVideo = document.createElement('video');
-        fullVideo.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000;';
-        fullVideo.playsInline = true;
-        fullVideo.webkitPlaysinline = true;
-        videoOverlay.appendChild(fullVideo);
+    document.body.appendChild(videoOverlay);
 
-        const customControls = document.createElement('div');
-        customControls.style.cssText = 'position:absolute;bottom:45px;left:20px;right:20px;background:transparent;padding:6px 0;display:flex;align-items:center;gap:14px;z-index:100000;';
+    function closeVideoPlayer() {
+        fullVideo.pause();
+        fullVideo.muted = true;
+        fullVideo.removeAttribute('src');
+        fullVideo.load();
+        videoOverlay.style.opacity = '0';
+        setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
+        document.body.style.overflow = '';
+    }
 
-        const playBtn = document.createElement('button');
-        playBtn.innerHTML = '❚❚';
-        playBtn.style.cssText = 'background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer;width:24px;text-align:center;display:flex;align-items:center;justify-content:center;text-shadow:0 2px 4px rgba(0,0,0,0.8);';
-        
-        const progressBar = document.createElement('input');
-        progressBar.type = 'range';
-        progressBar.min = '0'; progressBar.max = '100'; progressBar.value = '0';
-        progressBar.style.cssText = 'flex:1;accent-color:#2563eb;cursor:pointer;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,0.6);';
-
-        const timeDisplay = document.createElement('span');
-        timeDisplay.style.cssText = 'color:#fff;font-size:12px;font-family:Arial,sans-serif;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,0.8);';
-        timeDisplay.innerHTML = '0:00 / 0:00';
-
-        function formatTime(seconds) {
-            if (isNaN(seconds)) return "0:00";
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            return `${m}:${s < 10 ? '0' : ''}${s}`;
-        }
-
-        customControls.appendChild(playBtn);
-        customControls.appendChild(progressBar);
-        customControls.appendChild(timeDisplay);
-        videoOverlay.appendChild(customControls);
-
-        playBtn.onclick = (e) => {
+    document.addEventListener('click', function(e) {
+        const videoTrig = e.target.closest('.video-overlay-trigger') || (e.target.tagName === 'VIDEO' && !e.target.closest('div[style*="position:fixed"]'));
+        if (videoTrig) {
             e.stopPropagation();
-            if (fullVideo.paused) fullVideo.play(); else fullVideo.pause();
-        };
-
-        fullVideo.onplay = () => { playBtn.innerHTML = '❚❚'; };
-        fullVideo.onpause = () => { playBtn.innerHTML = '▶'; };
-        fullVideo.ontimeupdate = () => {
-            if (fullVideo.duration) {
-                const percent = (fullVideo.currentTime / fullVideo.duration) * 100;
-                progressBar.value = percent;
-                timeDisplay.innerHTML = `${formatTime(fullVideo.currentTime)} / ${formatTime(fullVideo.duration)}`;
-            }
-        };
-        fullVideo.onloadedmetadata = () => { timeDisplay.innerHTML = `0:00 / ${formatTime(fullVideo.duration)}`; };
-        progressBar.oninput = (e) => {
-            e.stopPropagation();
-            if (fullVideo.duration) fullVideo.currentTime = (progressBar.value / 100) * fullVideo.duration;
-        };
-        fullVideo.onclick = () => { if (fullVideo.paused) fullVideo.play(); else fullVideo.pause(); };
-
-        document.body.appendChild(videoOverlay);
-
-        function closeVideoPlayer() {
-            fullVideo.pause();
-            fullVideo.src = '';
-            videoOverlay.style.opacity = '0';
-            setTimeout(() => { videoOverlay.style.visibility = 'hidden'; }, 300);
-            document.body.style.overflow = '';
-        }
-
-        document.addEventListener('click', function(e) {
-            const videoTrig = e.target.closest('.video-overlay-trigger') || (e.target.tagName === 'VIDEO' && !e.target.closest('div[style*="position:fixed"]'));
-            if (videoTrig) {
-                e.stopPropagation();
-                const videoEl = videoTrig.tagName === 'VIDEO' ? videoTrig : videoTrig.previousElementSibling;
-                const videoSrc = videoTrig.dataset.videoSrc || videoEl?.src;
-                if (videoSrc) {
-                    fullVideo.src = videoSrc.replace('#t=0.001', '');
-                    fullVideo.muted = false;
-                    videoOverlay.style.visibility = 'visible';
-                    videoOverlay.style.opacity = '1';
-                    document.body.style.overflow = 'hidden';
-                    fullVideo.play().catch(err => {});
-                    pushBackStep({ videoOpen: true });
-                    return;
-                }
-            }
-            if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview, #chatMessages')) {
-                e.stopPropagation();
-                fullImg.src = e.target.src;
-                overlay.style.visibility = 'visible';
-                overlay.style.opacity = '1';
+            const videoEl = videoTrig.tagName === 'VIDEO' ? videoTrig : videoTrig.previousElementSibling;
+            const videoSrc = videoTrig.dataset.videoSrc || videoEl?.src;
+            if (videoSrc) {
+                fullVideo.src = videoSrc.replace('#t=0.001', '');
+                fullVideo.load();
+                fullVideo.muted = false;
+                fullVideo.volume = 1.0;
+                videoOverlay.style.visibility = 'visible';
+                videoOverlay.style.opacity = '1';
                 document.body.style.overflow = 'hidden';
-                pushBackStep({ photoOpen: true });
+                fullVideo.play().catch(() => {
+                    // Если автозапуск со звуком заблокирован политикой WebView, ставим на паузу и ждём нажатия playBtn
+                    fullVideo.pause();
+                    playBtn.innerHTML = '▶';
+                });
+                pushBackStep({ videoOpen: true });
+                return;
             }
-        });
-
-        overlay.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-        }, { passive: false });
-
-        overlay.addEventListener('click', function() { closePhotoViewer(); });
-        videoOverlay.addEventListener('click', function() { closeVideoPlayer(); });
+        }
+        if (e.target.tagName === 'IMG' && e.target.closest('.option-media, .profile-big-avatar, .image-preview, #chatMessages')) {
+            e.stopPropagation();
+            fullImg.src = e.target.src;
+            overlay.style.visibility = 'visible';
+            overlay.style.opacity = '1';
+            document.body.style.overflow = 'hidden';
+            pushBackStep({ photoOpen: true });
+        }
     });
+
+    overlay.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    }, { passive: false });
+
+    overlay.addEventListener('click', function() { closePhotoViewer(); });
+    videoOverlay.addEventListener('click', function() { closeVideoPlayer(); });
+});
 </script>
 
 </body>
