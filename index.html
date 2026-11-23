@@ -634,8 +634,12 @@ activeObjectUrls.clear();
 
 function syncNativeActiveChatUser(){
 try{
-if(window.AndroidBridge && typeof window.AndroidBridge.setActiveChatUser === "function"){
-window.AndroidBridge.setActiveChatUser(activeChatUserId ? String(activeChatUserId) : "");
+const isOpen = Boolean(activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden"));
+const peerId = isOpen ? String(activeChatUserId) : "";
+if(window.AndroidBridge && typeof window.AndroidBridge.setChatState === "function"){
+window.AndroidBridge.setChatState(peerId, isOpen);
+} else if(window.AndroidBridge && typeof window.AndroidBridge.setActiveChatUser === "function"){
+window.AndroidBridge.setActiveChatUser(peerId);
 }
 }catch(e){}
 }
@@ -2140,6 +2144,36 @@ card.scrollIntoView({ behavior:"smooth", block:"center" });
 }catch(e){}
 }
 
+async function openSharedDuelFromUrl(rawUrl){
+try{
+const parsed = new URL(rawUrl);
+const duelId = parsed.searchParams.get("duel");
+if(!duelId || !db) return;
+
+if($("chatBox") && !$("chatBox").classList.contains("hidden")){
+$("chatBox").classList.add("hidden");
+activeChatUserId = null;
+syncNativeActiveChatUser();
+editingMessageId = null;
+if($("editBanner")) $("editBanner").classList.add("hidden");
+checkUnreadMessages();
+}
+
+showScreen("homeScreen");
+const feed = $("duelsFeed");
+if(!feed) return;
+
+let card = feed.querySelector(`[data-duel-id="${CSS.escape(String(duelId))}"]`);
+if(!card){
+const r = await db.from("duels").select("*").eq("id", duelId).maybeSingle();
+if(r.error || !r.data) return;
+card = await duelCard(r.data);
+feed.prepend(card);
+}
+card.scrollIntoView({ behavior: "smooth", block: "center" });
+}catch(e){}
+}
+
 function openEditProfile(){
 $("editName").value=currentProfile?.full_name||"";
 $("editUsername").value=currentProfile?.username||"";
@@ -2461,12 +2495,18 @@ htmlParts.push(`
 }
 
 const isMe=m.sender_id===currentUser.id;
+const isDuelLink = typeof m.text === "string" && (m.text.includes("?duel=") || m.text.includes("&duel="));
+const isVideoUrl = typeof m.text === "string" && (m.text.match(/\.(mp4|webm|ogg)(\?.*)?$/i) || m.text.includes("/videos/"));
+const isImageUrl = typeof m.text === "string" && m.text.match(/\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i);
+
 let content = esc(m.text);
-if(m.is_media || m.text?.startsWith("http")){
-  if(m.text.match(/\.(mp4|webm|ogg)$/i) || m.text.includes("videos/")){
+if(isDuelLink){
+  content = `<a href="${esc(m.text)}" onclick="event.preventDefault(); openSharedDuelFromUrl('${escJS(m.text)}')" style="color:${isMe?'#fff':'#2563eb'};text-decoration:underline;font-weight:bold;">⚔️ ${esc(m.text)}</a>`;
+} else if(m.is_media || isVideoUrl || isImageUrl){
+  if(isVideoUrl){
     content = `<div style="position:relative;width:200px;height:120px;background:#000;border-radius:8px;overflow:hidden;flex-shrink:0;">
-      <video src="${esc(m.text)}#t=0.001" autoplay muted loop preload="metadata" playsinline webkit-playsinline style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
-      <div class="video-overlay-trigger" data-video-src="${esc(m.text)}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);cursor:pointer;">
+      <video src="${esc(m.text)}#t=0.001" preload="none" playsinline webkit-playsinline style="width:100%;height:100%;object-fit:cover;pointer-events:none;"></video>
+      <div class="video-overlay-trigger" data-video-src="${esc(m.text)}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.3);cursor:pointer;">
         <div style="width:40px;height:40px;background:rgba(0,0,0,0.6);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;">▶</div>
       </div>
     </div>`;
@@ -2476,7 +2516,7 @@ if(m.is_media || m.text?.startsWith("http")){
 }
 
 const msgId = m.id;
-const isMediaFlag = m.is_media || m.text?.startsWith("http");
+const isMediaFlag = Boolean(m.is_media || isVideoUrl || isImageUrl);
 const timeText = validDate ? d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "";
 const isReadFlag = Boolean(m.is_read);
 const ticksHtml = isMe ? `<span class="read-ticks ${isReadFlag ? 'read' : ''}">${isReadFlag ? '✓✓' : '✓'}</span>` : "";
@@ -3000,9 +3040,9 @@ await openChat(userId, userName);
 async function openChat(userId, userName){
 if(!currentUser || !db) return;
 activeChatUserId=userId;
-syncNativeActiveChatUser();
 $("activeChatUser").innerText=userName;
 $("chatBox").classList.remove("hidden");
+syncNativeActiveChatUser();
 pushBackStep({ chatOpen: true });
 
 try{
@@ -3878,7 +3918,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 videoOverlay.style.opacity = '1';
                 document.body.style.overflow = 'hidden';
                 fullVideo.play().catch(() => {
-                    // Если автозапуск со звуком заблокирован политикой WebView, ставим на паузу и ждём нажатия playBtn
                     fullVideo.pause();
                     playBtn.innerHTML = '▶';
                 });
