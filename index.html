@@ -607,6 +607,8 @@ let challengeFile = null;
 
 let openedOtherUserId=null;
 let activeChatUserId=null;
+let isLoadingDirectMessages=false;
+let pendingDirectMessagesReload=false;
 let editingMessageId = null;
 let editingCommentId = null;
 let forwardingMessageData = null;
@@ -1395,32 +1397,30 @@ realtimeChannel = db.channel("arena_realtime_channel")
 })
 .on("postgres_changes", { event: "INSERT", schema: "public", table: "direct_messages" }, async (payload) => {
     const m = payload.new;
-    if(!currentUser) return;
+    if(!currentUser || !m) return;
     
-    if(m && (m.receiver_id === currentUser.id || m.sender_id === currentUser.id)){
-        if(activeChatUserId && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
-            await loadDirectMessages();
-            if(m.receiver_id === currentUser.id){
-                await db.from("direct_messages").update({ is_read: true }).eq("id", m.id);
+    if(m.receiver_id === currentUser.id || m.sender_id === currentUser.id){
+        const isChatOpen = Boolean(activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden"));
+        if(isChatOpen && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
+            await loadDirectMessages({ markRead: false });
+            if(m.sender_id === activeChatUserId && m.receiver_id === currentUser.id && !m.is_read){
+                try{
+                    await db.from("direct_messages").update({ is_read: true }).eq("id", m.id);
+                }catch(e){}
             }
         }
         await checkUnreadMessages();
-        if($("messagesScreen").classList.contains("active")){
-            await showMessagesScreen();
-        }
     }
 })
 .on("postgres_changes", { event: "UPDATE", schema: "public", table: "direct_messages" }, async (payload) => {
     const m = payload.new;
     if(!currentUser || !m) return;
     if(m.sender_id === currentUser.id || m.receiver_id === currentUser.id){
-        if(activeChatUserId && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
-            await loadDirectMessages();
+        const isChatOpen = Boolean(activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden"));
+        if(isChatOpen && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
+            await loadDirectMessages({ markRead: false });
         }
         await checkUnreadMessages();
-        if($("messagesScreen").classList.contains("active")){
-            await showMessagesScreen();
-        }
     }
 })
 .subscribe();
@@ -2496,29 +2496,43 @@ is_read: false
 if(error) throw error;
 
 event.target.value = "";
-await loadDirectMessages();
+await loadDirectMessages({ markRead: false });
 }catch(e){
 showToast(e.message || t("connection"));
 }
 }
 
-async function loadDirectMessages(){
+async function loadDirectMessages(options = {}){
 const container=$("chatMessages");
+if(!container || !currentUser || !activeChatUserId || !db) return;
+
+if(isLoadingDirectMessages){
+    pendingDirectMessagesReload = true;
+    return;
+}
+isLoadingDirectMessages = true;
+
+const peerIdAtStart = String(activeChatUserId);
+const shouldMarkRead = options.markRead !== false;
+
 try{
+if(shouldMarkRead){
+    await db.from("direct_messages")
+        .update({ is_read: true })
+        .eq("sender_id", peerIdAtStart)
+        .eq("receiver_id", currentUser.id)
+        .eq("is_read", false);
+}
+
 const r=await db.from("direct_messages")
 .select("*")
-.or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${activeChatUserId}),and(sender_id.eq.${activeChatUserId},receiver_id.eq.${currentUser.id})`)
+.or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${peerIdAtStart}),and(sender_id.eq.${peerIdAtStart},receiver_id.eq.${currentUser.id})`)
 .order("created_at",{ascending:true});
 
 if(r.error)throw r.error;
+if(String(activeChatUserId) !== peerIdAtStart) return;
 
 const messages = r.data || [];
-for(const msg of messages){
-if(msg.receiver_id === currentUser.id && !msg.is_read){
-await db.from("direct_messages").update({ is_read: true }).eq("id", msg.id);
-}
-}
-
 const isAtBottom = container.scrollHeight - container.scrollTop <= container.clientHeight + 150;
 
 let lastDayKey = "";
@@ -2583,7 +2597,17 @@ if (isAtBottom) {
 }
 attachLongPressListeners();
 }catch(e){
-container.innerHTML=`<div class="empty">Ошибка чата</div>`;
+if(String(activeChatUserId) === peerIdAtStart){
+    container.innerHTML=`<div class="empty">Ошибка чата</div>`;
+}
+}finally{
+isLoadingDirectMessages = false;
+if(pendingDirectMessagesReload){
+    pendingDirectMessagesReload = false;
+    if(activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden")){
+        setTimeout(() => loadDirectMessages({ markRead: false }), 50);
+    }
+}
 }
 }
 
@@ -2694,7 +2718,7 @@ showCustomConfirm(t("deleteMessage"), async () => {
 try{
 const { error } = await db.from("direct_messages").delete().eq("id", messageId);
 if(error) throw error;
-await loadDirectMessages();
+await loadDirectMessages({ markRead: false });
 }catch(e){
 showToast(e.message || t("connection"));
 }
@@ -3083,19 +3107,15 @@ await openChat(userId, userName);
 }
 
 async function openChat(userId, userName){
-if(!currentUser || !db) return;
-activeChatUserId=userId;
+if(!currentUser || !db || !userId) return;
+activeChatUserId=String(userId);
 $("activeChatUser").innerText=userName;
 $("chatBox").classList.remove("hidden");
-startActiveChatHeartbeat(userId);
+startActiveChatHeartbeat(activeChatUserId);
 pushBackStep({ chatOpen: true });
 
-try{
-await db.from("direct_messages").update({ is_read: true }).eq("sender_id", userId).eq("receiver_id", currentUser.id);
+await loadDirectMessages({ markRead: true });
 await checkUnreadMessages();
-}catch(e){}
-
-await loadDirectMessages();
 }
 
 window.addEventListener('popstate', function() {
@@ -3127,7 +3147,7 @@ $("editBanner").classList.add("hidden");
 const { error } = await db.from("direct_messages").insert({ sender_id:currentUser.id, receiver_id:activeChatUserId, text, is_media:false, is_read:false });
 if(error) throw error;
 }
-await loadDirectMessages();
+await loadDirectMessages({ markRead: false });
 }catch(e){
 showToast(e.message||t("connection"));
 }
