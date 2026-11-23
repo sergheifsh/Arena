@@ -613,6 +613,7 @@ let forwardingMessageData = null;
 
 let realtimeChannel=null;
 let presenceInterval=null;
+let activeChatHeartbeat=null;
 let screenHistoryStack=["homeScreen"];
 let isHandlingPopState=false;
 
@@ -642,6 +643,39 @@ window.AndroidBridge.setChatState(peerId, isOpen);
 window.AndroidBridge.setActiveChatUser(peerId);
 }
 }catch(e){}
+}
+
+async function syncActiveChatPresence(peerId = null){
+syncNativeActiveChatUser();
+if(!currentUser || !db) return;
+
+const isChatReallyOpen = Boolean(peerId && $("chatBox") && !$("chatBox").classList.contains("hidden"));
+try{
+await db.from("profiles").update({
+active_chat_with: isChatReallyOpen ? String(peerId) : null,
+active_chat_updated_at: new Date().toISOString()
+}).eq("id", currentUser.id);
+}catch(e){}
+}
+
+function startActiveChatHeartbeat(peerId){
+stopActiveChatHeartbeat();
+syncActiveChatPresence(peerId);
+activeChatHeartbeat = setInterval(() => {
+if(activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden")){
+syncActiveChatPresence(activeChatUserId);
+} else {
+stopActiveChatHeartbeat();
+}
+}, 4000);
+}
+
+function stopActiveChatHeartbeat(){
+if(activeChatHeartbeat){
+clearInterval(activeChatHeartbeat);
+activeChatHeartbeat = null;
+}
+syncActiveChatPresence(null);
 }
 
 function showToast(message, duration = 2400, senderId = null){
@@ -1765,9 +1799,13 @@ $("loginButton").disabled=false;
 
 async function logout(){
 try{
+if(activeChatHeartbeat){
+    clearInterval(activeChatHeartbeat);
+    activeChatHeartbeat = null;
+}
 if(currentUser && db){
     await db.from("profiles")
-        .update({ last_seen: new Date(0).toISOString() })
+        .update({ last_seen: new Date(0).toISOString(), active_chat_with: null, active_chat_updated_at: new Date().toISOString() })
         .eq("id", currentUser.id);
 }
 
@@ -1924,7 +1962,7 @@ function navigateBackInApp(){
     if($("chatBox") && !$("chatBox").classList.contains("hidden")){
         $("chatBox").classList.add("hidden");
         activeChatUserId = null;
-        syncNativeActiveChatUser();
+        stopActiveChatHeartbeat();
         editingMessageId = null;
         if($("editBanner")) $("editBanner").classList.add("hidden");
         checkUnreadMessages();
@@ -2153,7 +2191,7 @@ if(!duelId || !db) return;
 if($("chatBox") && !$("chatBox").classList.contains("hidden")){
 $("chatBox").classList.add("hidden");
 activeChatUserId = null;
-syncNativeActiveChatUser();
+stopActiveChatHeartbeat();
 editingMessageId = null;
 if($("editBanner")) $("editBanner").classList.add("hidden");
 checkUnreadMessages();
@@ -2665,7 +2703,7 @@ if(error) throw error;
 
 $("chatBox").classList.add("hidden");
 activeChatUserId = null;
-syncNativeActiveChatUser();
+stopActiveChatHeartbeat();
 await checkUnreadMessages();
 if($("messagesScreen").classList.contains("active")){
     await showMessagesScreen();
@@ -3042,7 +3080,7 @@ if(!currentUser || !db) return;
 activeChatUserId=userId;
 $("activeChatUser").innerText=userName;
 $("chatBox").classList.remove("hidden");
-syncNativeActiveChatUser();
+startActiveChatHeartbeat(userId);
 pushBackStep({ chatOpen: true });
 
 try{
