@@ -637,7 +637,12 @@ activeObjectUrls.clear();
 
 function syncNativeActiveChatUser(){
 try{
-const isOpen = Boolean(activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden"));
+const isOpen = Boolean(
+  !document.hidden &&
+  activeChatUserId &&
+  $("chatBox") &&
+  !$("chatBox").classList.contains("hidden")
+);
 const peerId = isOpen ? String(activeChatUserId) : "";
 if(window.AndroidBridge && typeof window.AndroidBridge.setChatState === "function"){
 window.AndroidBridge.setChatState(peerId, isOpen);
@@ -651,7 +656,12 @@ async function syncActiveChatPresence(peerId = null){
 syncNativeActiveChatUser();
 if(!currentUser || !db) return;
 
-const isChatReallyOpen = Boolean(peerId && $("chatBox") && !$("chatBox").classList.contains("hidden"));
+const isChatReallyOpen = Boolean(
+  !document.hidden &&
+  peerId &&
+  $("chatBox") &&
+  !$("chatBox").classList.contains("hidden")
+);
 try{
 await db.from("profiles").update({
 active_chat_with: isChatReallyOpen ? String(peerId) : null,
@@ -665,11 +675,13 @@ if(activeChatHeartbeat){
 clearInterval(activeChatHeartbeat);
 activeChatHeartbeat = null;
 }
-if(!peerId) return;
+if(!peerId || document.hidden) return;
 syncActiveChatPresence(peerId);
 activeChatHeartbeat = setInterval(() => {
-if(activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden")){
+if(!document.hidden && activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden")){
 syncActiveChatPresence(activeChatUserId);
+} else {
+stopActiveChatHeartbeat();
 }
 }, 2000);
 }
@@ -681,6 +693,19 @@ activeChatHeartbeat = null;
 }
 syncActiveChatPresence(null);
 }
+
+document.addEventListener("visibilitychange", () => {
+if (document.hidden) {
+stopActiveChatHeartbeat();
+} else if (activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden")) {
+startActiveChatHeartbeat(activeChatUserId);
+loadDirectMessages({ markRead: true });
+}
+});
+
+window.addEventListener("pagehide", () => {
+stopActiveChatHeartbeat();
+});
 
 function showToast(message, duration = 2400, senderId = null){
 if(!message) return;
@@ -1400,7 +1425,12 @@ realtimeChannel = db.channel("arena_realtime_channel")
     if(!currentUser || !m) return;
     
     if(m.receiver_id === currentUser.id || m.sender_id === currentUser.id){
-        const isChatOpen = Boolean(activeChatUserId && $("chatBox") && !$("chatBox").classList.contains("hidden"));
+        const isChatOpen = Boolean(
+          !document.hidden &&
+          activeChatUserId &&
+          $("chatBox") &&
+          !$("chatBox").classList.contains("hidden")
+        );
         if(isChatOpen && (m.sender_id === activeChatUserId || m.receiver_id === activeChatUserId)){
             await loadDirectMessages({ markRead: false });
             if(m.sender_id === activeChatUserId && m.receiver_id === currentUser.id && !m.is_read){
@@ -1430,6 +1460,7 @@ function initUserPresence() {
     if (!currentUser || !db) return;
 
     const pingOnline = async () => {
+        if (document.hidden) return;
         try {
             await db.from("profiles")
                 .update({ last_seen: new Date().toISOString() })
@@ -2513,7 +2544,12 @@ if(isLoadingDirectMessages){
 isLoadingDirectMessages = true;
 
 const peerIdAtStart = String(activeChatUserId);
-const shouldMarkRead = options.markRead !== false;
+const isChatVisibleNow = Boolean(
+  !document.hidden &&
+  $("chatBox") &&
+  !$("chatBox").classList.contains("hidden")
+);
+const shouldMarkRead = options.markRead !== false && isChatVisibleNow;
 
 try{
 if(shouldMarkRead){
