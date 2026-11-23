@@ -667,7 +667,7 @@ syncActiveChatPresence(activeChatUserId);
 } else {
 stopActiveChatHeartbeat();
 }
-}, 4000);
+}, 1000);
 }
 
 function stopActiveChatHeartbeat(){
@@ -1902,6 +1902,11 @@ hideStartup();
 
 function showScreen(id, options = {}){
 if(!$(id)) return;
+if(activeChatUserId || ($("chatBox") && !$("chatBox").classList.contains("hidden"))){
+$("chatBox").classList.add("hidden");
+activeChatUserId = null;
+stopActiveChatHeartbeat();
+}
 const currentActive = document.querySelector(".screen.active")?.id || "homeScreen";
 document.querySelectorAll(".screen").forEach(e=>e.classList.remove("active"));
 $(id).classList.add("active");
